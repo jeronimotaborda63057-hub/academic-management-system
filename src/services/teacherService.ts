@@ -9,7 +9,7 @@ export class TeacherService extends BaseService<Teacher> {
 
     async getTeacherById(id: number): Promise<Teacher | null> {
         try {
-            const response = await axios.get<Teacher>(`${this.apiURL}${id}`)
+            const response = await axios.get<Teacher>(`${this.apiURL}/${id}`)
             return response.data;
         } catch (error) {
             console.error("Error al conseguir docente: " + error);

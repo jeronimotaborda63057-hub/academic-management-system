@@ -1,8 +1,8 @@
 import axios from "axios";
-import type { User } from "../models/User";
-import type { StorageProvider } from "../storage/StorageProvider";
-import { LocalStorageProvider } from "../storage/LocalStorageProvider";
-import type { LoginResponse } from "../models/Auth/loginResponse"; 
+import type { User } from "../../models/User";
+import type { StorageProvider } from "../../storage/StorageProvider";
+import { LocalStorageProvider } from "../../storage/LocalStorageProvider";
+import type { LoginResponse } from "../../models/auth/loginResponse"; 
 
 class SecurityService extends EventTarget {
     private readonly userKey: string;
