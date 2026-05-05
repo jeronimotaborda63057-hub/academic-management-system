@@ -1,5 +1,5 @@
-import { Criteria } from "./Criteria";
-import { GradeDetail } from "./GradeDetail";
+import type { Criteria } from "./Criteria";
+import type { GradeDetail } from "./GradeDetail";
 
 export interface Scale {
     criteria?: Criteria;

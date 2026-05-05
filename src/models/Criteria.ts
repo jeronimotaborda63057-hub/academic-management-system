@@ -1,5 +1,5 @@
-import { Rubric } from "./Rubric";
-import { Scale } from "./Scale";
+import type { Rubric } from "./Rubric";
+import type { Scale } from "./Scale";
 
 export interface Criteria{
     rubric?: Rubric;
