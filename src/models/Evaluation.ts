@@ -1,5 +1,5 @@
-import { Rubric } from "./Rubric";
-import { Subject } from "./Subject";
+import type { Rubric } from "./Rubric";
+import type { Subject } from "./Subject";
 
 export interface Evaluation{
     subject?: Subject;

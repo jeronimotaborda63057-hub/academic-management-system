@@ -1,5 +1,5 @@
-import { Curriculum } from "./Curriculum";
-import { Enrollment } from "./Enrollment";
+import type { Curriculum } from "./Curriculum";
+import type { Enrollment } from "./Enrollment";
 
 export interface Degree{
     name?: string;

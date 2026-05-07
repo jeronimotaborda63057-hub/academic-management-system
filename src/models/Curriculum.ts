@@ -1,5 +1,5 @@
-import { Degree } from "./Degree";
-import { Subject } from "./Subject";
+import type { Degree } from "./Degree";
+import type { Subject } from "./Subject";
 
 export interface Curriculum{
     degree?: Degree;

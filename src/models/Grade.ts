@@ -1,5 +1,5 @@
-import { Registration } from "./Registration";
-import { Rubric } from "./Rubric";
+import type{ Registration } from "./Registration";
+import type { Rubric } from "./Rubric";
 
 export interface Grade {
     rubric?: Rubric;
