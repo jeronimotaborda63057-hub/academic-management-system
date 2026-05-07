@@ -1,4 +1,4 @@
-import { StorageProvider } from "./StorageProvider";
+import type { StorageProvider } from "./StorageProvider";
 
 export class LocalStorageProvider implements StorageProvider {
     getItem(key: string): string | null {

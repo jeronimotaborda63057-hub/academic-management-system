@@ -2,11 +2,13 @@ import { useState } from 'react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { Outlet } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from '../store/store';
 const DefaultLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-    
+        <Provider store={store}>
             <div className="dark:bg-boxdark-2 dark:text-bodydark">
                 {/* <!-- ===== Page Wrapper Start ===== --> */}
                 <div className="flex h-screen overflow-hidden">
@@ -32,7 +34,7 @@ const DefaultLayout = () => {
                 </div>
                 {/* <!-- ===== Page Wrapper End ===== --> */}
             </div>
-        
+        </Provider>
     );
 };
 
