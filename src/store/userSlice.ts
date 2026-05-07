@@ -1,6 +1,6 @@
 // src/store/userSlice.ts
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { User } from "../models/";
+import type {User} from "../models/User";
 import { LocalStorageProvider } from "../storage/LocalStorageProvider";
 
 interface UserState {

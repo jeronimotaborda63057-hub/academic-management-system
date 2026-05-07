@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+import CardPrueba from '../components/CardPrueba';
 
 const Demo = lazy(() => import('../pages/Demo'));
 
@@ -8,8 +9,28 @@ const coreRoutes = [
         title: 'Demo',
         component: Demo,
     },
-        
-    { 
+    {
+        label: 'Calendar',
+        path: '/calendar',
+        component: Demo,
+    },
+    {
+        label: 'Profile',
+        path: '/profile',
+        component: Demo,
+    },
+    {
+        label: 'Tables',
+        path: '/tables',
+        component: Demo,
+    },
+    {
+        label: 'Settings',
+        path: '/settings',
+        component: CardPrueba,
+    },
+
+    /* { 
         path: "/",
         title: "Inicio", 
         // component: HomePage,
@@ -59,8 +80,8 @@ const coreRoutes = [
         path: "/configuration",
         title: "Configuración", 
         // component:
-    },
-    
+    }, */
+
 ]
 
 const routes = [...coreRoutes];
