@@ -1,4 +1,4 @@
-import axios from "axios";
+import {api} from "../interceptors/authInterceptor";
 
 export class BaseService<T> {
     protected apiURL: string;
@@ -9,7 +9,7 @@ export class BaseService<T> {
 
     async getAll(): Promise<T[]> {
         try {
-            const response = await axios.get<T[]>(this.apiURL);
+            const response = await api.get<T[]>(this.apiURL);
             return response.data;
         } catch (error) {
             console.error("Error al obtener: " + error)
@@ -19,7 +19,7 @@ export class BaseService<T> {
 
     async getById(id: number): Promise<T | null> {
         try {
-            const response = await axios.get<T>(`${this.apiURL}/${id}`);
+            const response = await api.get<T>(`${this.apiURL}/${id}`);
             return response.data;
         } catch (error) {
             console.error("Error al obtener: " + error)
@@ -29,7 +29,7 @@ export class BaseService<T> {
 
     async create(data: Omit<T, "id">): Promise<T | null> {
         try {
-            const response = await axios.post<T>(this.apiURL, data)
+            const response = await api.post<T>(this.apiURL, data)
             return response.data;
         } catch (error) {
             console.error("Error al crear: " + error);
@@ -39,7 +39,7 @@ export class BaseService<T> {
 
     async update(id: number, data: Partial<T>): Promise<T | null> {
         try {
-            const response = await axios.put<T>(`${this.apiURL}/${id}`, data);
+            const response = await api.put<T>(`${this.apiURL}/${id}`, data);
             return response.data;
         } catch (error) {
             console.error("Error al editar: " + error);
@@ -49,7 +49,7 @@ export class BaseService<T> {
 
     async delete(id: number): Promise<boolean> {
         try {
-            await axios.delete(`${this.apiURL}/${id}`);
+            await api.delete(`${this.apiURL}/${id}`);
             return true;
         } catch (error) {
             console.error("Error al eliminar: " + error);

@@ -1,10 +1,5 @@
 import { NavLink } from 'react-router-dom';
-
-export interface NavItem {
-    label: string;
-    path: string;
-    icon?: React.ReactNode;
-}
+import type { NavItem } from '../models/NavItem';
 
 interface SidebarNavGroupProps {
     title: string;
