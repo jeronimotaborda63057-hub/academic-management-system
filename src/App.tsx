@@ -6,6 +6,7 @@ import { Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/Auth/ProtectedRoute'
 import CardPrueba from './components/CardPrueba'
 import routes from './routes';
+import SignIn from './pages/Authentication/SignIn'
 
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
@@ -29,6 +30,7 @@ function App() {
         containerClassName="overflow-auto"
       />
       <Routes>
+        <Route path="/auth/signin" element={<SignIn />} />
         <Route path="/" element={<DefaultLayout />}>
           <Route index element={<CardPrueba />} />
           {routes.map((route, index) => {
