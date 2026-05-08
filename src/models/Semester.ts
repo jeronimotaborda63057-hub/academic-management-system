@@ -1,4 +1,4 @@
-import { Group } from "./Group";
+import type { Group } from "./Group";
 
 export interface Semester {
     groups?: Group[];

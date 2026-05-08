@@ -1,7 +1,7 @@
-import { Registration } from "./Registration";
-import { Semester } from "./Semester";
-import { Subject } from "./Subject";
-import { Teacher } from "./Teacher";
+import type { Registration } from "./Registration";
+import type { Semester } from "./Semester";
+import type { Subject } from "./Subject";
+import type { Teacher } from "./Teacher";
 
 export interface Group{
     semester?: Semester;

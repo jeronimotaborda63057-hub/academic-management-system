@@ -1,6 +1,6 @@
-import { Curriculum } from "./Curriculum";
-import { Evaluation } from "./Evaluation";
-import { Group } from "./Group";
+import type { Curriculum } from "./Curriculum";
+import type { Evaluation } from "./Evaluation";
+import type { Group } from "./Group";
 
 export interface Subject{
     name?: string;

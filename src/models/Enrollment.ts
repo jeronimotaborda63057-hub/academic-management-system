@@ -1,7 +1,7 @@
-import { Degree } from "./Degree";
-import { Student } from "./Student";
+import type { Career } from "./Career";
+import type { Student } from "./Student";
 
-export interface Enrollment{
+export interface Enrollment {
     student?: Student;
-    degree?: Degree;
+    career?: Career;
 }

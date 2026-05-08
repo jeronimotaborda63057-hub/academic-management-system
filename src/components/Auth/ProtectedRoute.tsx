@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { LocalStorageProvider } from "../../storage/LocalStorageProvider";
-import { Teacher } from "../../models/Teacher";
+import { type Teacher } from "../../models/Teacher";
 
 
 const storage = new LocalStorageProvider();
