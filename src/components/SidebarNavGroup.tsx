@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 export interface NavItem {
     label: string;
     path: string;
-    icon: React.ReactNode;
+    icon?: React.ReactNode;
 }
 
 interface SidebarNavGroupProps {
@@ -14,19 +14,17 @@ interface SidebarNavGroupProps {
 const SidebarNavGroup = ({ title, items }: SidebarNavGroupProps) => {
     return (
         <div className="mb-6">
-            {/* Título del grupo */}
-            <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2 uppercase tracking-wider">
+            <h3 className="mb-4 ml-4 text-xs font-semibold uppercase tracking-wider text-bodydark2">
                 {title}
             </h3>
-
-            {/* Lista de botones */}
             <ul className="flex flex-col gap-1.5">
                 {items.map((item) => (
                     <li key={item.path}>
                         <NavLink
                             to={item.path}
                             className={({ isActive }) =>
-                                `group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${isActive ? 'bg-graydark dark:bg-meta-4' : ''
+                                `group flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium duration-300 ease-in-out hover:bg-graydark text-bodydark1 ${
+                                    isActive ? 'bg-graydark' : ''
                                 }`
                             }
                         >
