@@ -1,7 +1,9 @@
 import { lazy } from 'react';
-import CardPrueba from '../components/CardPrueba';
 
 const Demo = lazy(() => import('../pages/Demo'));
+const CardPrueba = lazy(() => import("../components/CardPrueba"))
+const ListUsers = lazy(() => import('../pages/Users/List'))
+/* const Unauthorized = lazy(() => import('../pages/Authentication/Unauthorized')) */
 
 const coreRoutes = [
     {
@@ -29,6 +31,11 @@ const coreRoutes = [
         path: '/settings',
         component: CardPrueba,
     },
+    {
+        path: '/users/list',
+        title: 'Usuarios',
+        component: ListUsers  
+    }
 
     /* { 
         path: "/",

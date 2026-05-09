@@ -2,7 +2,7 @@ import axios from "axios";
 import type { User } from "../../models/User";
 import type { StorageProvider } from "../../storage/StorageProvider";
 import { LocalStorageProvider } from "../../storage/LocalStorageProvider";
-import type { LoginResponse } from "../../models/Auth/loginResponse";
+import type { LoginResponse } from "../../models/auth/loginResponse";
 
 // SRP: esta clase tiene una única responsabilidad — todo lo relacionado
 // con autenticación (login, logout, verificar sesión, leer el usuario guardado).
@@ -29,7 +29,7 @@ class SecurityService {
 
         // Leemos la URL del backend desde las variables de entorno (.env).
         // VITE_API_URL está definida en el archivo .env del proyecto.
-        this.apiURL = import.meta.env.VITE_API_URL || "";
+        this.apiURL = import.meta.env.VITE_API_URL + "/auth" || "";
     }
 
     // Hace la petición POST al backend con email y contraseña.

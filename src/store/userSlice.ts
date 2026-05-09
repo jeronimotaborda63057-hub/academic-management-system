@@ -1,6 +1,6 @@
 // src/store/userSlice.ts
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type {User} from "../models/User";
+import type { User } from "../models/User";
 import { LocalStorageProvider } from "../storage/LocalStorageProvider";
 
 interface UserState {
@@ -31,6 +31,8 @@ const userSlice = createSlice({
         clearUser: (state: UserState) => {
             state.user = null;
             storage.removeItem("user");
+            storage.removeItem("access_token")
+            storage.removeItem("token_type")
         },
     },
 });

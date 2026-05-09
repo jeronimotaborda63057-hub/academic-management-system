@@ -31,23 +31,28 @@ function App() {
       />
       <Routes>
         <Route path="/auth/signin" element={<SignIn />} />
-        <Route path="/" element={<DefaultLayout />}>
-          <Route index element={<CardPrueba />} />
-          {routes.map((route, index) => {
-            const { path, component: Component } = route;
-            return (
-              <Route
-                key={index}
-                path={path}
-                element={
-                  <Suspense fallback={<Loader />}>
-                    <Component />
-                  </Suspense>
-                }
-              />
-            );
-          })}
-        </Route>
+        //Route signup
+        
+        //ProtectedRoute es para verificar que se ingrese a la plataforma cuando esté con una sesión
+        {/* <Route element={<ProtectedRoute />}> */}
+          <Route path="/" element={<DefaultLayout />}>
+            <Route index element={<CardPrueba />} />
+            {routes.map((route, index) => {
+              const { path, component: Component } = route;
+              return (
+                <Route
+                  key={index}
+                  path={path}
+                  element={
+                    <Suspense fallback={<Loader />}>
+                      <Component />
+                    </Suspense>
+                  }
+                />
+              );
+            })}
+          </Route>
+        {/* </Route> */}
       </Routes>
     </>
   );

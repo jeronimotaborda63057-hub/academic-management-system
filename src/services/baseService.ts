@@ -4,13 +4,13 @@ export class BaseService<T> {
     protected apiURL: string;
 
     constructor(endpoint: string) {
-        this.apiURL = `${import.meta.env.BASE_URL}/${endpoint}`; 
+        this.apiURL = `${import.meta.env.VITE_API_URL}${endpoint}`; 
     }
 
     async getAll(): Promise<T[]> {
         try {
             const response = await api.get<T[]>(this.apiURL);
-            return response.data;
+            return response.data.data;
         } catch (error) {
             console.error("Error al obtener: " + error)
             return []
