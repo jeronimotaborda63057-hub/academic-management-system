@@ -1,27 +1,25 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { LocalStorageProvider } from "../../storage/LocalStorageProvider";
-import { type Teacher } from "../../models/Teacher";
+import { securityService } from "../../services/auth/securityService";
 
-
-const storage = new LocalStorageProvider();
-
-// Función para verificar si el usuario está autenticado
-const isAuthenticated = () => {
-    const teacher = storage.getItem("teacher") || null;
-
-    if (!teacher) return false;
-
-    try {
-        const parsedTeacher : Teacher= JSON.parse(teacher);
-        return !!parsedTeacher; // puedes validar más campos aquí si quieres
-    } catch (error) {
-        return false;
-    }
-};
-
-// Componente de Ruta Protegida
+// Este componente actúa como un "guardia de seguridad" para las rutas privadas.
+// Se coloca en App.tsx envolviendo las rutas que requieren sesión iniciada.
+//
+// Cómo funciona:
+//   - Si el usuario ESTÁ autenticado → renderiza <Outlet />, que es la página que pidió.
+//   - Si NO está autenticado → lo redirige al login automáticamente.
+//
+// <Outlet /> es un concepto de React Router: es el "hueco" donde se dibuja
+// la página hija de la ruta. Si esta ruta es "/" y adentro hay "/students",
+// el Outlet muestra el contenido de "/students".
+//
+// SRP: este componente solo decide si dejar pasar o redirigir.
+// No sabe cómo verificar la sesión — eso lo delega a securityService.
 const ProtectedRoute = () => {
-    return isAuthenticated() ? <Outlet /> : <Navigate to="/auth/signin" replace />;
+    return securityService.isAuthenticated()
+        ? <Outlet />
+        : <Navigate to="/auth/signin" replace />;
+    // `replace` evita que el login quede en el historial del navegador,
+    // así el usuario no puede volver atrás con el botón "atrás" al logout.
 };
 
 export default ProtectedRoute;
