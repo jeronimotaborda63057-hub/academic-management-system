@@ -1,5 +1,14 @@
-import type { Group } from "./Group";
-
+// models/Semester.ts
 export interface Semester {
-    groups?: Group[];
+    id: string;
+    name: string;
+    code: string;
+    start_date: string;
+    end_date: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
 }
+
+// ✅ Sin duplicar campos — reutiliza Semester quitando los que maneja la API
+export type SemesterForm = Omit<Semester, "id" | "created_at" | "updated_at">;

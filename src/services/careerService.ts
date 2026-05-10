@@ -1,9 +1,13 @@
-import type { Career } from "../models/Career";
 import { BaseService } from "./baseService";
+import type { Career } from "../models/Career";
 
-class CareerService extends BaseService<Career> {
+export class CareerService extends BaseService<Career> {
     constructor() {
-        super("/api/academic/careers")
+        super("/academic/careers");
+    }
+
+    async archive(id: number): Promise<Career | null> {
+        return this.update(id, { is_active: false });
     }
 }
 

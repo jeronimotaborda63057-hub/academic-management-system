@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { securityService } from "../services/auth/securityService";
-import { setUser } from "../store/userSlice";
+import { securityService } from "../../services/auth/securityService";
+import { setUser } from "../../store/userSlice";
 
 // Tipo que describe el estado interno del hook:
 // si está cargando y si hay un mensaje de error.

@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import Header from '../components/Header';
-import Sidebar from '../components/Sidebar/Sidebar';
+import Sidebar from '../components/sidebar/Sidebar';
 import { Outlet } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from '../store/store';
-import useColorMode from '../hooks/useColorMode';
+import useColorMode from '../components/hooks/useColorMode';
 
 const DefaultLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);

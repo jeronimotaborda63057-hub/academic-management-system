@@ -1,15 +1,5 @@
 import React from "react";
-
-export interface FilterOption {
-    label: string;
-    value: string;
-}
-
-export interface FilterConfig {
-    key: string;
-    label: string;
-    options: FilterOption[];
-}
+import type { FilterConfig } from "../models/FilterConfig";
 
 interface TableToolbarProps {
     searchPlaceholder?: string;

@@ -1,14 +1,11 @@
-import type { Curriculum } from "./Curriculum";
-import type { Enrollment } from "./Enrollment";
-
-export interface Career{
-    code: string; 
-    created_at?: string;
-    description?: string;
-    id: string;       
-    is_active: boolean;    
+export interface Career {
+    id: string;
     name: string;
-    updated_at?: string;     
-    enrollments?: Enrollment[];
-    curriculums?: Curriculum[];
+    code: string;
+    description?: string; // ✅ el backend lo retorna
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
 }
+
+export type CareerForm = Omit<Career, "id" | "created_at" | "updated_at">;

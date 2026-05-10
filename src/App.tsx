@@ -3,10 +3,10 @@ import './App.css'
 import { Loader } from 'lucide-react'
 import { Toaster } from 'react-hot-toast'
 import { Route, Routes } from 'react-router-dom'
-import ProtectedRoute from './components/Auth/ProtectedRoute'
+import ProtectedRoute from './components/auth/ProtectedRoute'
 import CardPrueba from './components/CardPrueba'
 import routes from './routes';
-import SignIn from './pages/Authentication/SignIn'
+import SignIn from './pages/authentication/SignIn'
 
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
@@ -32,7 +32,7 @@ function App() {
       <Routes>
         <Route path="/auth/signin" element={<SignIn />} />
         //Route signup
-        
+
         //ProtectedRoute es para verificar que se ingrese a la plataforma cuando esté con una sesión
         {/* <Route element={<ProtectedRoute />}> */}
           <Route path="/" element={<DefaultLayout />}>

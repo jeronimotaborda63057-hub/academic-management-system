@@ -2,7 +2,8 @@ import { lazy } from 'react';
 
 const Demo = lazy(() => import('../pages/Demo'));
 const CardPrueba = lazy(() => import("../components/CardPrueba"))
-const ListUsers = lazy(() => import('../pages/Users/List'))
+const UsersList = lazy(() => import('../pages/users/List'));
+const UsersForm = lazy(() => import('../pages/users/Form'));
 /* const Unauthorized = lazy(() => import('../pages/Authentication/Unauthorized')) */
 
 const coreRoutes = [
@@ -34,9 +35,18 @@ const coreRoutes = [
     {
         path: '/users/list',
         title: 'Usuarios',
-        component: ListUsers  
-    }
-
+        component: UsersList,
+    },
+    { 
+        path: '/users/create', 
+        title: 'Crear usuario', 
+        component: UsersForm 
+    },
+    { 
+        path: '/users/update/:id', 
+        title: 'Editar usuario', 
+        component: UsersForm 
+    },
     /* { 
         path: "/",
         title: "Inicio", 

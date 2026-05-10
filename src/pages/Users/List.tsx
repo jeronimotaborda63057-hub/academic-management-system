@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useCallback } from "react";
-import type { User, UserFilters } from "../../models/User";
 import type { Career } from "../../models/Career";
 import GenericTable from "../../components/GenericTable";
 import TableToolbar from "../../components/TableToolBar";
 import PageHeader from "../../components/PageHeader";
-import type { FilterConfig } from "../../components/TableToolBar";
 import { userService } from "../../services/userService";
 import { careerService } from "../../services/careerService";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import type { FilterConfig } from "../../models/FilterConfig";
+import type { UserFilters } from "../../models/UserFilters";
+import type { User } from "../../models/User";
 
 const List: React.FC = () => {
     const navigate = useNavigate();
@@ -51,6 +52,7 @@ const List: React.FC = () => {
         const loadCareers = async () => {
             try {
                 const careersData = await careerService.getAll();
+                console.log(careersData);
                 setCareers(careersData);
 
             } catch (error) {
@@ -126,7 +128,7 @@ const List: React.FC = () => {
             cancelButtonText: "Cancelar",
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const deactivated = await userService.deactivate(id);
+                const deactivated = await userService.desactivate(id);
                 if (deactivated) {
                     Swal.fire("Desactivado", "El usuario ha sido desactivado.", "success");
                     fetchData();

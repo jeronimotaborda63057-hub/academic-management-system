@@ -1,48 +1,53 @@
-import {api} from "../interceptors/authInterceptor";
+import axios from 'axios';
+import type { ApiResponse } from '../models/Services/ApiResponse';
 
+const api = axios.create({
+    baseURL: '/api',
+});
+// 🔥 PRINCIPIO SOLID: reutilizable
 export class BaseService<T> {
     protected apiURL: string;
 
-    constructor(endpoint: string) {
-        this.apiURL = `${import.meta.env.VITE_API_URL}${endpoint}`; 
+    constructor(apiURL: string) {
+        this.apiURL = apiURL;
     }
 
     async getAll(): Promise<T[]> {
         try {
-            const response = await api.get<T[]>(this.apiURL);
+            const response = await api.get<ApiResponse<T[]>>(this.apiURL);
             return response.data.data;
         } catch (error) {
-            console.error("Error al obtener: " + error)
-            return []
+            console.error("Error al obtener:", error);
+            return [];
         }
     }
 
     async getById(id: number): Promise<T | null> {
         try {
-            const response = await api.get<T>(`${this.apiURL}/${id}`);
-            return response.data;
+            const response = await api.get<ApiResponse<T>>(`${this.apiURL}/${id}`);
+            return response.data.data;
         } catch (error) {
-            console.error("Error al obtener: " + error)
-            return null
+            console.error("Error al obtener por id:", error);
+            return null;
         }
     }
 
-    async create(data: Omit<T, "id">): Promise<T | null> {
+    async create(data: Partial<T>): Promise<T | null> {
         try {
-            const response = await api.post<T>(this.apiURL, data)
-            return response.data;
+            const response = await api.post<ApiResponse<T>>(this.apiURL, data);
+            return response.data.data;
         } catch (error) {
-            console.error("Error al crear: " + error);
+            console.error("Error al crear:", error);
             return null;
         }
     }
 
     async update(id: number, data: Partial<T>): Promise<T | null> {
         try {
-            const response = await api.put<T>(`${this.apiURL}/${id}`, data);
-            return response.data;
+            const response = await api.put<ApiResponse<T>>(`${this.apiURL}/${id}`, data);
+            return response.data.data;
         } catch (error) {
-            console.error("Error al editar: " + error);
+            console.error("Error al actualizar:", error);
             return null;
         }
     }
@@ -52,8 +57,8 @@ export class BaseService<T> {
             await api.delete(`${this.apiURL}/${id}`);
             return true;
         } catch (error) {
-            console.error("Error al eliminar: " + error);
+            console.error("Error al eliminar:", error);
             return false;
         }
     }
-}   
+}
