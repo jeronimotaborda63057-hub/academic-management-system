@@ -2,11 +2,13 @@ import type { Curriculum } from "./Curriculum";
 import type { Enrollment } from "./Enrollment";
 
 export interface Career{
-    id: string;        
+    code: string; 
+    created_at?: string;
+    description?: string;
+    id: string;       
+    is_active: boolean;    
     name: string;
-    code: string;      
-    description?: string; 
-    is_active: boolean;   
+    updated_at?: string;     
     enrollments?: Enrollment[];
     curriculums?: Curriculum[];
 }

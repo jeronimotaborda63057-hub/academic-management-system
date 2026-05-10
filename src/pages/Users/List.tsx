@@ -1,56 +1,84 @@
 import React, { useEffect, useState, useCallback } from "react";
 import type { User, UserFilters } from "../../models/User";
+import type { Career } from "../../models/Career";
 import GenericTable from "../../components/GenericTable";
 import TableToolbar from "../../components/TableToolBar";
 import PageHeader from "../../components/PageHeader";
 import type { FilterConfig } from "../../components/TableToolBar";
 import { userService } from "../../services/userService";
+import { careerService } from "../../services/careerService";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
-const USER_FILTERS: FilterConfig[] = [
-    {
-        key: "role",
-        label: "Rol",
-        options: [
-            { label: "Docente", value: "TEACHER" },
-            { label: "Estudiante", value: "STUDENT" },
-            { label: "Admin", value: "ADMIN" },
-        ],
-    },
-    {
-        key: "is_active",
-        label: "Estado",
-        options: [
-            { label: "Activo", value: "true" },
-            { label: "Inactivo", value: "false" },
-        ],
-    },
-    /* 
-    {
-        key: "careers",
-        label: "Carrera (por matricula)",
-        options: [
-            { label: "a", value: ""},
-            {}
-        ]
-    },
- */
-];
-
-const ListUsers: React.FC = () => {
+const List: React.FC = () => {
     const navigate = useNavigate();
     const [data, setData] = useState<User[]>([]);
+    const [careers, setCareers] = useState<Career[]>([])
     const [search, setSearch] = useState("");
     const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
+    const FILTERS: FilterConfig[] = [
+        {
+            key: "role",
+            label: "Rol",
+            options: [
+                { label: "Docente", value: "TEACHER" },
+                { label: "Estudiante", value: "STUDENT" },
+                { label: "Admin", value: "ADMIN" },
+            ],
+        },
+        {
+            key: "career_id",
+            label: "Carrera (vía matrícula)",
+            options: [
+                ...careers.map((career) => ({
+                    label: career.name,
+                    value: career.id,
+                })),
+            ],
+        },
+        {
+            key: "is_active",
+            label: "Estado",
+            options: [
+                { label: "Activo", value: "true" },
+                { label: "Inactivo", value: "false" },
+            ],
+        },
+    ];
+
+    useEffect(() => {
+        const loadCareers = async () => {
+            try {
+                const careersData = await careerService.getAll();
+                setCareers(careersData);
+
+            } catch (error) {
+                console.error("Error loading careers", error);
+            }
+        };
+
+        loadCareers();
+    }, []);
+
     const fetchData = useCallback(async () => {
         const filters: UserFilters = {
-            ...(filterValues.role ? { role: filterValues.role as any } : {}),
-            ...(filterValues.is_active !== undefined && filterValues.is_active !== ""
+            ...(filterValues.role
+                ? { role: filterValues.role as any }
+                : {}),
+
+            ...(filterValues.is_active !== undefined &&
+                filterValues.is_active !== ""
                 ? { is_active: filterValues.is_active === "true" }
                 : {}),
-            ...(search ? { first_name: search } : {}),
+
+            ...(filterValues.careers
+                ? { career_id: filterValues.careers }
+                : {}),
+
+            ...(search
+                ? { first_name: search }
+                : {}),
         };
 
         const hasFilters = Object.keys(filters).length > 0;
@@ -67,7 +95,10 @@ const ListUsers: React.FC = () => {
     }, [fetchData]);
 
     const handleFilterChange = (key: string, value: string) => {
-        setFilterValues((prev) => ({ ...prev, [key]: value }));
+        setFilterValues((prev) => ({
+            ...prev,
+            [key]: value,
+        }));
     };
 
     const handleClear = () => {
@@ -75,7 +106,10 @@ const ListUsers: React.FC = () => {
         setFilterValues({});
     };
 
-    const handleAction = (action: string, item: Record<string, any>) => {
+    const handleAction = (
+        action: string,
+        item: Record<string, any>
+    ) => {
         if (action === "edit") navigate(`/users/update/${item.id}`);
         else if (action === "deactivate") deactivateUser(item.id);
     };
@@ -103,13 +137,23 @@ const ListUsers: React.FC = () => {
         });
     };
 
-    const tableData = data.map((user) => ({
-        ...user,
-        nombre: user.profile
-            ? `${user.profile.first_name} ${user.profile.last_name}`
-            : "—",
-        estado: user.is_active ? "Activo" : "Inactivo",
-    }));
+    const tableData = data
+        .filter(
+            (user) =>
+                user.role === "TEACHER" ||
+                user.role === "STUDENT"
+        )
+        .map((user) => ({
+            ...user,
+
+            nombre: user.profile
+                ? `${user.profile.first_name} ${user.profile.last_name}`
+                : "Sin información",
+
+            estado: user.is_active
+                ? "Activo"
+                : "Inactivo",
+        }));
 
     return (
         <div>
@@ -120,7 +164,7 @@ const ListUsers: React.FC = () => {
             />
             <TableToolbar
                 searchPlaceholder="Buscar por nombre, email o código..."
-                filters={USER_FILTERS}
+                filters={FILTERS}
                 filterValues={filterValues}
                 onSearchChange={setSearch}
                 onFilterChange={handleFilterChange}
@@ -130,7 +174,92 @@ const ListUsers: React.FC = () => {
             />
             <GenericTable
                 data={tableData}
-                columns={["code", "nombre", "email", "role", "careers", "estado", "created_at"]}
+                columns={[
+                    {
+                        key: "code",
+                        label: "Código",
+                    },
+
+                    {
+                        key: "nombre",
+                        label: "Nombre",
+                    },
+
+                    {
+                        key: "email",
+                        label: "Correo",
+                    },
+
+                    {
+                        key: "role",
+                        label: "Rol",
+
+                        render: (value) => (
+                            <span className={`rounded-full px-3 py-1 text-xs font-medium 
+                                ${value === "TEACHER"
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-blue-100 text-blue-700"
+                                    }
+                                `}
+                            >
+                                {value === "TEACHER"
+                                    ? "Docente"
+                                    : value === "STUDENT"
+                                        ? "Estudiante"
+                                        : value}
+                            </span>
+                        ),
+                    },
+
+                    {
+                        key: "careers",
+                        label: "Carrera",
+
+                        render: (value) => (
+                            <span>
+                                {Array.isArray(value)
+                                    ? value.map((c: any) => c.name).join(", ")
+                                    : "-"}
+                            </span>
+                        ),
+                    },
+
+                    {
+                        key: "estado",
+                        label: "Estado",
+
+                        render: (value) => (
+                            <span
+                                className={`
+                rounded-full
+                px-3
+                py-1
+                text-xs
+                font-medium
+
+                ${value === "Activo"
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-red-100 text-red-700"
+                                    }
+            `}
+                            >
+                                {value}
+                            </span>
+                        ),
+                    },
+
+                    {
+                        key: "created_at",
+                        label: "Fecha creación",
+
+                        render: (value) => (
+                            <span>
+                                {new Date(value)
+                                    .toLocaleDateString("es-CO")}
+                            </span>
+                        ),
+                    },
+                ]}
                 actions={[
                     { name: "edit", label: "Editar" },
                     { name: "deactivate", label: "Desactivar" },
@@ -141,4 +270,4 @@ const ListUsers: React.FC = () => {
     );
 };
 
-export default ListUsers;
+export default List;

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import type { NavItem } from '../models/NavItem';
+import type { NavItem } from '../../models/NavItem';
 
 interface SidebarNavGroupProps {
     title: string;
