@@ -34,7 +34,7 @@ function App() {
         //Route signup
         
         //ProtectedRoute es para verificar que se ingrese a la plataforma cuando esté con una sesión
-        {/* <Route element={<ProtectedRoute />}> */}
+        {<Route element={<ProtectedRoute />}>
           <Route path="/" element={<DefaultLayout />}>
             <Route index element={<CardPrueba />} />
             {routes.map((route, index) => {
@@ -52,7 +52,7 @@ function App() {
               );
             })}
           </Route>
-        {/* </Route> */}
+        </Route>}
       </Routes>
     </>
   );
