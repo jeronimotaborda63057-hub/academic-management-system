@@ -18,9 +18,9 @@ export class UserService extends BaseService<User> {
         }
     }
 
-    async desactivate(id: string): Promise<User | null> {
+    async deactivate(id: string): Promise<User | null> {
         try {
-            const response = await api.patch<{ data: User }>(`${this.apiURL}${id}/desactivate/`);
+            const response = await api.patch<{ data: User }>(`${this.apiURL}/${id}/deactivate`);
             return response.data.data;
         } catch (error) {
             console.error("Error al desactivar usuario:", error);
@@ -30,7 +30,7 @@ export class UserService extends BaseService<User> {
 
     async search(filters: UserFilters): Promise<User[]> {
         try {
-            const response = await api.get<{ data: User[] }>(`${this.apiURL}search/`, {
+            const response = await api.get<{ data: User[] }>(`${this.apiURL}/search`, {
                 params: filters
             });
             return response.data.data ?? [];

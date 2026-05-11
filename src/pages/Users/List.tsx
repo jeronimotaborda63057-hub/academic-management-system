@@ -112,7 +112,7 @@ const List: React.FC = () => {
         action: string,
         item: Record<string, any>
     ) => {
-        if (action === "edit") navigate(`/users/update/${item.id}`);
+        if (action === "edit") navigate(`/users/edit/${item.id}`);
         else if (action === "deactivate") deactivateUser(item.id);
     };
 
@@ -128,7 +128,7 @@ const List: React.FC = () => {
             cancelButtonText: "Cancelar",
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const deactivated = await userService.desactivate(id);
+                const deactivated = await userService.deactivate(id);
                 if (deactivated) {
                     Swal.fire("Desactivado", "El usuario ha sido desactivado.", "success");
                     fetchData();

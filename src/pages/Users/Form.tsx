@@ -78,35 +78,35 @@ const Form: React.FC = () => {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        // HU-01 criterio 2: validar email antes de enviar
-        if (!validateEmail(form.email)) {
-            Swal.fire("Error", "El correo institucional no es válido.", "error");
-            return;
+    if (!validateEmail(form.email)) {
+        Swal.fire("Error", "El correo institucional no es válido.", "error");
+        return;
+    }
+
+    setLoading(true);
+    try {
+        if (isEdit && id) {
+            const result = await userService.update(id, { email: form.email, code: form.code });
+            if (!result) throw new Error();
+        } else {
+            const result = await userService.createUser(buildPayload());
+            if (!result) throw new Error();
         }
-
-        setLoading(true);
-        try {
-            if (isEdit && id) {
-                const result = await userService.update(id, {
-                    email: form.email,
-                    code: form.code,
-                });
-                if (!result) throw new Error();
-            } else {
-                const result = await userService.createUser(buildPayload());
-                if (!result) throw new Error();
-            }
-
-            Swal.fire("Éxito", `Usuario ${isEdit ? "actualizado" : "creado"} correctamente.`, "success");
-            navigate("/users/list");
-        } catch {
-            Swal.fire("Error", "El correo institucional ya está registrado o hubo un error.", "error");
-        } finally {
-            setLoading(false);
+        Swal.fire("Éxito", `Usuario ${isEdit ? "actualizado" : "creado"} correctamente.`, "success");
+        navigate("/users/list");
+    } catch (error: any) {
+        // ✅ HU-01 criterio 2: mensaje específico para email duplicado
+        if (error.message === "EMAIL_DUPLICADO") {
+            Swal.fire("Error", "El correo institucional ya está registrado.", "error");
+        } else {
+            Swal.fire("Error", "Ocurrió un error al guardar el usuario.", "error");
         }
-    };
+    } finally {
+        setLoading(false);
+    }
+};
 
     const showProfileFields = role === "TEACHER" || role === "STUDENT";
 

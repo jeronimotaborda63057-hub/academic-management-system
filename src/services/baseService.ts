@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ApiResponse } from '../models/Services/ApiResponse';
+import type { ApiResponse } from '../models/services/ApiResponse';
 
 const api = axios.create({
     baseURL: '/api',
@@ -22,7 +22,7 @@ export class BaseService<T> {
         }
     }
 
-    async getById(id: number): Promise<T | null> {
+    async getById(id: string): Promise<T | null> {
         try {
             const response = await api.get<ApiResponse<T>>(`${this.apiURL}/${id}`);
             return response.data.data;
@@ -42,7 +42,7 @@ export class BaseService<T> {
         }
     }
 
-    async update(id: number, data: Partial<T>): Promise<T | null> {
+    async update(id: string, data: Partial<T>): Promise<T | null> {
         try {
             const response = await api.put<ApiResponse<T>>(`${this.apiURL}/${id}`, data);
             return response.data.data;

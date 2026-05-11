@@ -2,7 +2,7 @@ import axios from "axios";
 import type { User } from "../../models/User";
 import type { StorageProvider } from "../../storage/StorageProvider";
 import { LocalStorageProvider } from "../../storage/LocalStorageProvider";
-import type { LoginResponse } from "../../models/Auth/loginResponse";
+import type { LoginResponse } from "../../models/auth/loginResponse";
 
 // SRP: esta clase tiene una única responsabilidad — todo lo relacionado
 // con autenticación (login, logout, verificar sesión, leer el usuario guardado).

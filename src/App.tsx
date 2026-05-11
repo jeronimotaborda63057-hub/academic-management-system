@@ -31,9 +31,6 @@ function App() {
       />
       <Routes>
         <Route path="/auth/signin" element={<SignIn />} />
-        //Route signup
-
-        //ProtectedRoute es para verificar que se ingrese a la plataforma cuando esté con una sesión
         {/* <Route element={<ProtectedRoute />}> */}
           <Route path="/" element={<DefaultLayout />}>
             <Route index element={<CardPrueba />} />

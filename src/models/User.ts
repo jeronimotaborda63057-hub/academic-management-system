@@ -1,5 +1,5 @@
-import type { CreateAdminPayload } from "./CreateAdminPayload";
-import type { CreateStudentPayload } from "./CreateStudentPayload";
+import type { CreateAdminPayload } from "./create/CreateAdminPayload";
+import type { CreateStudentPayload } from "./create/CreateStudentPayload";
 import type { CreateTeacherPayload } from "./CreateTeacherPayload";
 import type { StudentProfile } from "./StudentProfile";
 import type { TeacherProfile } from "./TeacherProfile";
