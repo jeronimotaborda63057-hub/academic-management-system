@@ -1,89 +1,65 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageHeader from "../../components/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
+import GenericTable from "../../components/GenericTable";
 import { careerService } from "../../services/careerService";
+import { semesterService } from "../../services/semesterService";
 import type { Career } from "../../models/Career";
+import type { Semester } from "../../models/Semester";
+import type { Action } from "../../models/Action";
 import { Pencil, Archive, Eye } from "lucide-react";
 import Swal from "sweetalert2";
-import CareerFormModal from "../../components/CareerFormModal";
-import type { Action } from "../../models/Action";
-import GenericTable from "../../components/GenericTable";
+import ArchiveCareerModal from "../../components/ArchiveCareerModal";
 
 const List: React.FC = () => {
-    const [data, setData] = useState<Career[]>([]);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [selected, setSelected] = useState<Career | null>(null);
-    const [search, setSearch] = useState("");
+    const navigate = useNavigate();
+    const [data, setData]               = useState<Career[]>([]);
+    const [search, setSearch]           = useState("");
+    const [archiveOpen, setArchiveOpen] = useState(false);
+    const [selected, setSelected]       = useState<Career | null>(null);
+    const [activeSemesters, setActiveSemesters] = useState<Semester[]>([]);
 
     const fetchData = async () => {
         const careers = await careerService.getAll();
         setData(careers ?? []);
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    useEffect(() => { fetchData(); }, []);
 
-    const handleAction = (action: string, item: Career) => {
+    const handleAction = async (action: string, item: Career) => {
         switch (action) {
             case "edit":
-                setSelected(item);
-                setModalOpen(true);
+                navigate(`/careers/edit/${item.id}`); // ✅ navega a página
                 break;
-
             case "archive":
-                archiveCareer(item.id);
+                const semesters = await semesterService.getByCareer(item.id);
+                const active = semesters.filter((s) => s.is_active);
+                setActiveSemesters(active);
+                setSelected(item);
+                setArchiveOpen(true);
                 break;
-
             case "view":
-                console.log(item);
+                navigate(`/careers/detail/${item.id}`);
                 break;
         }
     };
 
-    const archiveCareer = async (id: string) => {
-        const result = await Swal.fire({
-            title: "¿Archivar carrera?",
-            text: "La carrera dejará de estar disponible",
-            icon: "warning",
-            showCancelButton: true,
-        });
-
-        if (result.isConfirmed) {
-            const res = await careerService.archive(id);
-
-            if (res) {
-                Swal.fire(
-                    "Archivada",
-                    "Carrera archivada correctamente",
-                    "success"
-                );
-
-                fetchData();
-            }
+    const handleConfirmArchive = async () => {
+        if (!selected || activeSemesters.length > 0) return;
+        const res = await careerService.archive(selected.id);
+        if (res) {
+            Swal.fire("Archivada", "Carrera archivada correctamente.", "success");
+            fetchData();
         }
-    };
-
-    const handleSubmit = async (form: any) => {
-        if (selected) {
-            await careerService.update(selected.id, form);
-        } else {
-            await careerService.create(form);
-        }
-
-        setModalOpen(false);
+        setArchiveOpen(false);
         setSelected(null);
-        fetchData();
     };
 
-    const filteredData = (data ?? []).filter(
+    const filteredData = data.filter(
         (c) =>
-            c.name
-                .toLowerCase()
-                .includes(search.toLowerCase()) ||
-            c.code
-                .toLowerCase()
-                .includes(search.toLowerCase())
+            c.name.toLowerCase().includes(search.toLowerCase()) ||
+            c.code.toLowerCase().includes(search.toLowerCase())
     );
 
     const columns = [
@@ -94,13 +70,9 @@ const List: React.FC = () => {
             key: "is_active",
             label: "Estado",
             render: (value: boolean) => (
-                <span
-                    className={`px-3 py-1 rounded-full text-xs ${
-                        value
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-200 text-gray-600"
-                    }`}
-                >
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    value ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
+                }`}>
                     {value ? "Activa" : "Archivada"}
                 </span>
             ),
@@ -108,61 +80,41 @@ const List: React.FC = () => {
     ];
 
     const actions: Action[] = [
-        {
-            name: "edit",
-            label: "Editar carrera",
-            icon: <Pencil size={16} />,
-            primary: true,
-            variant: "default",
-        },
-        {
-            name: "view",
-            label: "Ver detalle",
-            icon: <Eye size={16} />,
-            variant: "default",
-        },
-        {
-            name: "archive",
-            label: "Archivar carrera",
-            icon: <Archive size={16} />,
-            variant: "danger",
-        },
+        { name: "edit",    label: "Editar carrera",  icon: <Pencil size={16} />,  primary: true, variant: "default" },
+        { name: "view",    label: "Ver detalle",      icon: <Eye size={16} />,     variant: "default" },
+        { name: "archive", label: "Archivar carrera", icon: <Archive size={16} />, variant: "danger" },
     ];
 
     return (
         <div>
             <PageHeader
                 title="Carreras"
-                subtitle="Gestiona las carreras del sistema"
+                subtitle="Gestiona las carreras del sistema."
                 breadcrumb={["Inicio", "Carreras"]}
             />
-
             <TableToolbar
-                searchPlaceholder="Buscar carrera..."
+                searchPlaceholder="Buscar carrera por nombre o código..."
                 onSearchChange={setSearch}
                 onClear={() => setSearch("")}
                 actionLabel="Nueva carrera"
-                onAction={() => {
-                    setSelected(null);
-                    setModalOpen(true);
-                }}
+                onAction={() => navigate("/careers/create")} // ✅ navega a página
                 filters={[]}
                 filterValues={{}}
                 onFilterChange={() => {}}
             />
-
             <GenericTable
                 data={filteredData}
                 columns={columns}
                 actions={actions}
                 onAction={handleAction}
             />
-
-            <CareerFormModal
-                isOpen={modalOpen}
-                onClose={() => setModalOpen(false)}
-                onSubmit={handleSubmit}
-                initialData={selected}
+            <ArchiveCareerModal
+                isOpen={archiveOpen}
+                onClose={() => { setArchiveOpen(false); setSelected(null); }}
+                onConfirm={handleConfirmArchive}
+                careerName={selected?.name ?? ""}
+                careerCode={selected?.code ?? ""}
+                activeSemesters={activeSemesters}
             />
         </div>
     );
