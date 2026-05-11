@@ -122,6 +122,7 @@ const List: React.FC = () => {
             name: "edit",
             label: "Editar usuario",
             icon: <Pencil size={16} className="text-gray-700" />,
+            primary: true
         },
         {
             name: "deactivate",
