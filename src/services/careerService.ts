@@ -7,7 +7,7 @@ export class CareerService extends BaseService<Career> {
     }
 
     async archive(id: string): Promise<Career | null> {
-        return this.update(id, { is_active: false });
+        return await this.update(id, { is_active: false });
     }
 }
 
