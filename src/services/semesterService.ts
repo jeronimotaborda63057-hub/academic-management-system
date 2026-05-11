@@ -2,7 +2,7 @@ import { BaseService } from "./baseService";
 import type { Semester } from "../models/Semester";
 
 export class SemesterService extends BaseService<Semester> {
-    constructor() { super("/semesters") }
+    constructor() { super("/academic/semesters") }
 
     // HU-02 criterio 4: activar un semestre y desactiva los demás
     async setActive(id: string): Promise<Semester | null> {

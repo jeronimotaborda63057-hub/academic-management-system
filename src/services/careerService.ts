@@ -6,8 +6,9 @@ export class CareerService extends BaseService<Career> {
         super("/academic/careers");
     }
 
-    async archive(id: number): Promise<Career | null> {
-        return this.update(id, { is_active: false });
+    // ✔️ Soft delete (HU-02)
+    async archive(id: string): Promise<Career | null> {
+        return await this.update(id, { is_active: false });
     }
 }
 

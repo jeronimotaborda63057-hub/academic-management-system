@@ -5,7 +5,8 @@ import type { Career } from "../../models/Career";
 import type { FilterConfig } from "../../models/FilterConfig";
 import type { UserFilters } from "../../models/UserFilters";
 import GenericTable from "../../components/GenericTable";
-import type { Column, Action } from "../../components/GenericTable";
+import type { Column} from "../../models/Column";
+import type { Action} from "../../models/Action";
 import TableToolbar from "../../components/TableToolBar";
 import PageHeader from "../../components/PageHeader";
 import { userService } from "../../services/userService";
@@ -48,7 +49,7 @@ const List: React.FC = () => {
         },
     ];
 
-    const COLUMNS: Column[] = [
+    const COLUMNS: Column<User>[] = [
         {
             key: "code",
             label: "Código",
@@ -64,7 +65,7 @@ const List: React.FC = () => {
         {
             key: "role",
             label: "Rol",
-            render: (value) => (
+            render: (value: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined) => (
                 <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${
                         value === "TEACHER"
@@ -83,7 +84,7 @@ const List: React.FC = () => {
         {
             key: "careers",
             label: "Carrera",
-            render: (value) => (
+            render: (value: any[]) => (
                 <span>
                     {Array.isArray(value)
                         ? value.map((c: any) => c.name).join(", ")
@@ -94,7 +95,7 @@ const List: React.FC = () => {
         {
             key: "estado",
             label: "Estado",
-            render: (value) => (
+            render: (value: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined) => (
                 <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${
                         value === "Activo"
@@ -109,7 +110,7 @@ const List: React.FC = () => {
         {
             key: "created_at",
             label: "Fecha creación",
-            render: (value) => (
+            render: (value: string | number | Date) => (
                 <span>
                     {new Date(value).toLocaleDateString("es-CO")}
                 </span>
