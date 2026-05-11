@@ -112,8 +112,12 @@ const List: React.FC = () => {
         action: string,
         item: Record<string, any>
     ) => {
-        if (action === "edit") navigate(`/users/edit/${item.id}`);
-        else if (action === "deactivate") deactivateUser(item.id);
+        if (action === "edit") { 
+            navigate(`/users/edit/${item.id}`); 
+        }
+        else if (action === "deactivate") {
+            deactivateUser(item.id);
+        }
     };
 
     const deactivateUser = async (id: string) => {
@@ -124,7 +128,7 @@ const List: React.FC = () => {
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Sí, desactivar",
+            confirmButtonText: "Desactivar",
             cancelButtonText: "Cancelar",
         }).then(async (result) => {
             if (result.isConfirmed) {
@@ -199,9 +203,9 @@ const List: React.FC = () => {
                         render: (value) => (
                             <span className={`rounded-full px-3 py-1 text-xs font-medium 
                                 ${value === "TEACHER"
-                                        ? "bg-green-100 text-green-700"
-                                        : "bg-blue-100 text-blue-700"
-                                    }
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-blue-100 text-blue-700"
+                                }
                                 `}
                             >
                                 {value === "TEACHER"

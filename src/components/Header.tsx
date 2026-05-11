@@ -41,7 +41,7 @@ const Header = (props: {
                 <div className="hidden sm:flex sm:items-center">
                     <PageHeader
                         title={props.title ?? 'Dashboard'}
-                        description={props.description ?? 'Bienvenido al sistema de gestión académica'}
+                        subtitle={props.description ?? 'Bienvenido al sistema de gestión académica'}
                     />
                 </div>
 

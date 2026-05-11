@@ -3,7 +3,7 @@ import React from "react";
 interface PageHeaderProps {
     title: string;
     subtitle: string;
-    breadcrumb: string[];
+    breadcrumb?: string[];
     action?: React.ReactNode;
 }
 

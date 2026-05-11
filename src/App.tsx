@@ -11,7 +11,6 @@ import SignIn from './pages/authentication/SignIn'
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
-
 function App() {
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -31,7 +30,7 @@ function App() {
       />
       <Routes>
         <Route path="/auth/signin" element={<SignIn />} />
-        {/* <Route element={<ProtectedRoute />}> */}
+        {<Route element={<ProtectedRoute />}>
           <Route path="/" element={<DefaultLayout />}>
             <Route index element={<CardPrueba />} />
             {routes.map((route, index) => {
@@ -49,7 +48,7 @@ function App() {
               );
             })}
           </Route>
-        {/* </Route> */}
+        </Route>}
       </Routes>
     </>
   );

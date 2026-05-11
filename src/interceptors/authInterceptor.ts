@@ -25,14 +25,13 @@ export class AuthInterceptor {
     }
 
     private handleRequest(config: InternalAxiosRequestConfig) {
-        const token = this.storage.getItem("token");
+        // Corregido: era "token", pero securityService guarda con "access_token"
+        const token = this.storage.getItem("access_token");
 
-        // 🚫 rutas excluidas (login/register)
         if (this.EXCLUDED_ROUTES.some((route) => config.url?.includes(route))) {
             return config;
         }
 
-        // 🔐 agregar token si existe
         if (token) {
             config.headers = config.headers || {};
             config.headers.Authorization = `Bearer ${token}`;
@@ -67,5 +66,4 @@ export class AuthInterceptor {
     }
 }
 
-// 🔥 export final
 export const api = new AuthInterceptor().instance;
