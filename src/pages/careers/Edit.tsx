@@ -116,7 +116,7 @@ const Edit: React.FC = () => {
                 <div className="flex justify-end gap-3 pt-2">
                     <button
                         type="button"
-                        onClick={() => navigate("/careers")}
+                        onClick={() => navigate("/careers/list")}
                         className="h-11 px-6 rounded-xl border border-stroke dark:border-strokedark text-sm text-black dark:text-white hover:bg-gray-50 dark:hover:bg-meta-4 transition"
                     >
                         Cancelar
