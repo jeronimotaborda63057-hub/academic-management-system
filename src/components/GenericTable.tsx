@@ -36,9 +36,6 @@ const GenericTable: React.FC<GenericTableProps> = ({
   const primary = actions.find((a) => a.primary);
   const dropdownActions = actions.filter((a) => !a.primary);
 
-  console.log(actions);
-  console.log(primaryAction);
-
   return (
     <div className="rounded-2xl border border-stroke bg-white shadow-sm overflow-visible dark:border-strokedark dark:bg-boxdark">
       <div className="max-w-full overflow-x-auto">

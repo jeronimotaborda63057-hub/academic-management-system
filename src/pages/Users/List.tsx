@@ -66,17 +66,16 @@ const List: React.FC = () => {
             label: "Rol",
             render: (value) => (
                 <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${
-                        value === "TEACHER"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-blue-100 text-blue-700"
-                    }`}
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${value === "TEACHER"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-blue-100 text-blue-700"
+                        }`}
                 >
                     {value === "TEACHER"
                         ? "Docente"
                         : value === "STUDENT"
-                        ? "Estudiante"
-                        : value}
+                            ? "Estudiante"
+                            : value}
                 </span>
             ),
         },
@@ -96,11 +95,10 @@ const List: React.FC = () => {
             label: "Estado",
             render: (value) => (
                 <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${
-                        value === "Activo"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                    }`}
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${value === "Activo"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                        }`}
                 >
                     {value}
                 </span>
@@ -156,7 +154,7 @@ const List: React.FC = () => {
                 ? { role: filterValues.role as any }
                 : {}),
             ...(filterValues.is_active !== undefined &&
-            filterValues.is_active !== ""
+                filterValues.is_active !== ""
                 ? { is_active: filterValues.is_active === "true" }
                 : {}),
             ...(filterValues.career_id
@@ -206,29 +204,42 @@ const List: React.FC = () => {
             text: "El usuario perderá acceso al sistema.",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
             confirmButtonText: "Desactivar",
             cancelButtonText: "Cancelar",
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: "swal-confirm-btn",
+                cancelButton: "swal-cancel-btn",
+            },
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const deactivated =
                     await userService.deactivate(id);
 
                 if (deactivated) {
-                    Swal.fire(
-                        "Desactivado",
-                        "El usuario ha sido desactivado.",
-                        "success"
-                    );
+                    Swal.fire({
+                        title: "Desactivado",
+                        text: "El usuario ha sido desactivado.",
+                        icon: "success",
+                        confirmButtonText: "Aceptar",
+                        buttonsStyling: false,
+                        customClass: {
+                            confirmButton: "swal-confirm-btn",
+                        },
+                    });
 
                     fetchData();
                 } else {
-                    Swal.fire(
-                        "Error",
-                        "No se pudo desactivar el usuario.",
-                        "error"
-                    );
+                    Swal.fire({
+                        title: "Error",
+                        text: "No se pudo desactivar el usuario.",
+                        icon: "error",
+                        confirmButtonText: "Aceptar",
+                        buttonsStyling: false,
+                        customClass: {
+                            confirmButton: "swal-error-btn",
+                        },
+                    });
                 }
             }
         });

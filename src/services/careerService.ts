@@ -6,7 +6,7 @@ export class CareerService extends BaseService<Career> {
         super("/academic/careers");
     }
 
-    async archive(id: number): Promise<Career | null> {
+    async archive(id: string): Promise<Career | null> {
         return this.update(id, { is_active: false });
     }
 }
