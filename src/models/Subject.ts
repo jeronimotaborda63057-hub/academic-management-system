@@ -1,6 +1,7 @@
 import type { Curriculum } from "./Curriculum";
 import type { Evaluation } from "./Evaluation";
 import type { Group } from "./Group";
+import type { SubjectCurriculum } from "./SubjectCurriculum";
 
 export interface Subject{
     code?: string;
@@ -11,6 +12,7 @@ export interface Subject{
     id?: string;
     name?: string;
     groups?: Group[];
-    evaluation?: Evaluation;
+    subject_curriculums?: SubjectCurriculum[];
+    evaluation?: Evaluation[];
     curriculums?: Curriculum[];
 }
