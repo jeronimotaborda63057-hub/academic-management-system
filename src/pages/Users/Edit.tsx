@@ -25,8 +25,8 @@ const STEP1_FIELDS_EDIT = [
         required: true,
         options: [
             { label: "Estudiante", value: "STUDENT" },
-            { label: "Docente",    value: "TEACHER" },
-            { label: "Admin",      value: "ADMIN"   },
+            { label: "Docente", value: "TEACHER" },
+            { label: "Admin", value: "ADMIN" },
         ],
     },
 ];
@@ -43,14 +43,14 @@ const Edit: React.FC = () => {
         userService.getById(id).then((user) => {
             if (!user) return;
             setInitialValues({
-                email:          user.email,
-                code:           user.code,
-                role:           user.role,
-                first_name:     user.profile?.first_name     ?? "",
-                last_name:      user.profile?.last_name      ?? "",
+                email: user.email,
+                code: user.code,
+                role: user.role,
+                first_name: user.profile?.first_name ?? "",
+                last_name: user.profile?.last_name ?? "",
                 identification: user.profile?.identification ?? "",
-                phone:          (user.profile as any)?.phone      ?? "",
-                specialty:      (user.profile as any)?.specialty   ?? "",
+                phone: (user.profile as any)?.phone ?? "",
+                specialty: (user.profile as any)?.specialty ?? "",
             });
         });
     }, [id]);
@@ -61,16 +61,43 @@ const Edit: React.FC = () => {
         try {
             const result = await userService.update(id, {
                 email: values.email,
-                code:  values.code,
+                code: values.code,
             });
             if (!result) throw new Error();
-            Swal.fire("Éxito", "Usuario actualizado correctamente.", "success");
+            Swal.fire({
+                title: "Éxito",
+                text: "Usuario actualizado correctamente.",
+                icon: "success",
+                confirmButtonText: "Aceptar",
+                buttonsStyling: false,
+                customClass: {
+                    confirmButton: "swal-confirm-btn",
+                },
+            });
             navigate("/users/list");
         } catch (error: any) {
             if (error.message === "EMAIL_DUPLICADO") {
-                Swal.fire("Error", "El correo institucional ya está registrado.", "error");
+                Swal.fire({
+                    title: "Error",
+                    text: "El correo institucional ya está registrado.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: "swal-error-btn",
+                    },
+                });
             } else {
-                Swal.fire("Error", "Ocurrió un error al actualizar el usuario.", "error");
+                Swal.fire({
+                    title: "Error",
+                    text: "Ocurrió un error al actualizar el usuario.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: "swal-error-btn",
+                    },
+                });
             }
         } finally {
             setIsLoading(false);

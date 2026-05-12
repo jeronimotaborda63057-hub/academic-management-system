@@ -1,7 +1,7 @@
 import { BaseService } from "./baseService";
 import type { Career } from "../models/Career";
 
-export class CareerService extends BaseService<Career> {
+class CareerService extends BaseService<Career> {
     constructor() {
         super("/academic/careers");
     }

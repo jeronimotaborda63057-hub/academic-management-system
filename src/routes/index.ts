@@ -3,48 +3,37 @@
  *
  * Registro central de rutas lazy-loaded.
  *
- * Patrón de extensión (OCP):
+
+* Patrón de extensión (OCP):
  * Para agregar un módulo nuevo solo se agregan entradas al array coreRoutes.
  * No se modifica App.tsx ni ningún otro archivo.
  */
 import { lazy } from 'react';
 
-// ── Demo ──────────────────────────────────────────────────────────────────────
-const Demo = lazy(() => import('../pages/Demo'));
-
-// ── Usuarios (HU-01 — completo) ───────────────────────────────────────────────
-const UsersList   = lazy(() => import('../pages/Users/List'));
-const UsersCreate = lazy(() => import('../pages/Users/Create'));
-const UsersEdit   = lazy(() => import('../pages/Users/Edit'));
-
-// ── Carreras (HU-02 — nuevo) ──────────────────────────────────────────────────
-const CareersList   = lazy(() => import('../pages/Careers/List'));
-const CareersCreate = lazy(() => import('../pages/Careers/Form'));
-const CareersEdit   = lazy(() => import('../pages/Careers/Form'));
-
-// ── Semestres (HU-02 — nuevo) ─────────────────────────────────────────────────
-const SemestersList   = lazy(() => import('../pages/Semesters/List'));
-const SemestersCreate = lazy(() => import('../pages/Semesters/Form'));
-const SemestersEdit   = lazy(() => import('../pages/Semesters/Form'));
+const Demo             = lazy(() => import('../pages/Demo'));
+const UsersList        = lazy(() => import('../pages/users/List'));
+const UsersCreate      = lazy(() => import('../pages/users/Create'));
+const UsersEdit        = lazy(() => import('../pages/users/Edit'));
+const CareersList      = lazy(() => import('../pages/careers/List'));
+const CareersCreate    = lazy(() => import('../pages/careers/Create'));
+const CareersEdit      = lazy(() => import('../pages/careers/Edit'));
+const SemestersList    = lazy(() => import('../pages/semesters/List'));
+const SemestersCreate  = lazy(() => import('../pages/semesters/Create'));
+const SemestersEdit    = lazy(() => import('../pages/semesters/Edit'));
 
 const coreRoutes = [
-    { path: '/demo',               title: 'Demo',             component: Demo            },
-
-    // Usuarios
-    { path: '/users/list',         title: 'Usuarios',         component: UsersList       },
-    { path: '/users/create',       title: 'Crear usuario',    component: UsersCreate     },
-    { path: '/users/edit/:id',     title: 'Editar usuario',   component: UsersEdit       },
-
-    // Carreras
-    { path: '/careers/list',       title: 'Carreras',         component: CareersList     },
-    { path: '/careers/create',     title: 'Nueva carrera',    component: CareersCreate   },
-    { path: '/careers/edit/:id',   title: 'Editar carrera',   component: CareersEdit     },
-
-    // Semestres
-    { path: '/semesters/list',     title: 'Semestres',        component: SemestersList   },
-    { path: '/semesters/create',   title: 'Nuevo semestre',   component: SemestersCreate },
-    { path: '/semesters/edit/:id', title: 'Editar semestre',  component: SemestersEdit   },
+    { path: '/demo',                 title: 'Demo',               component: Demo            },
+    { path: '/users/list',           title: 'Usuarios',           component: UsersList       },
+    { path: '/users/create',         title: 'Crear usuario',      component: UsersCreate     },
+    { path: '/users/edit/:id',       title: 'Editar usuario',     component: UsersEdit       },
+    { path: '/careers/list',              title: 'Carreras',           component: CareersList     },
+    { path: '/careers/create',       title: 'Crear carrera',      component: CareersCreate   },
+    { path: '/careers/edit/:id',     title: 'Editar carrera',     component: CareersEdit     },
+    { path: '/semesters/list',            title: 'Semestres',          component: SemestersList   },
+    { path: '/semesters/create',     title: 'Crear semestre',     component: SemestersCreate },
+    { path: '/semesters/edit/:id',   title: 'Editar semestre',    component: SemestersEdit   },
 ];
+
 
 const routes = [...coreRoutes];
 export default routes;
