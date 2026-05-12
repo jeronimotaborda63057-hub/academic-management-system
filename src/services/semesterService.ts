@@ -13,3 +13,5 @@ export class SemesterService extends BaseService<Semester> {
         return this.update(id, { is_active: false });
     }
 }
+
+export const semesterService = new SemesterService();
