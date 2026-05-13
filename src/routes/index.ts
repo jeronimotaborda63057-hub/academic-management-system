@@ -11,6 +11,7 @@ const SemestersList = lazy(() => import('../pages/Semesters/List'));
 const SemestersCreate = lazy(() => import('../pages/Semesters/Create'));
 const SemestersEdit = lazy(() => import('../pages/Semesters/Edit'));
 const CurriculumList = lazy(() => import('../pages/Study-Plan/List'))
+const AssignTeacherPage = lazy(() => import('../pages/Groups/AssignTeacherPage'))
 
 const coreRoutes = [
     {
@@ -67,6 +68,11 @@ const coreRoutes = [
         path: '/study-plans/list',
         title: 'Lista plan de estudios',
         component: CurriculumList
+    },
+    {
+        path: '/groups/assign-teacher',
+        title: 'Asignar docente a grupo',
+        component: AssignTeacherPage
     }
 ];
 

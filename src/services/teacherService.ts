@@ -7,3 +7,5 @@ export class TeacherService extends BaseService<Teacher> {
     }
 
 }
+
+export const teacherService = new TeacherService();

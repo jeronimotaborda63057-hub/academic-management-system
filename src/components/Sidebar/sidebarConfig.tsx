@@ -28,7 +28,7 @@ export const adminMenu: NavGroup[] = [
             { label: "Carreras", path: "/careers/list", icon: icons.career },
             { label: "Asignaturas", path: "/subjects/list", icon: icons.subject },
             { label: "Plan de estudios", path: "/study-plans/list", icon: icons.plan },
-            { label: "Grupos", path: "/groups/list", icon: icons.group },
+            { label: "Grupos", path: "/groups/assign-teacher", icon: icons.group },
             { label: "Semestres", path: "/semesters/list", icon: icons.semester },
         ],
     },
