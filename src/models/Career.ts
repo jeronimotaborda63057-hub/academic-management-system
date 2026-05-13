@@ -12,5 +12,3 @@ export interface Career {
     enrollments?: Enrollment[];
     curriculums?: Curriculum[]
 }
-
-export type CareerForm = Omit<Career, "id" | "created_at" | "updated_at">;

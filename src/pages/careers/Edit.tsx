@@ -1,41 +1,41 @@
+import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import CareerForm from "../../components/forms/CareerForm";
 import { careerService } from "../../services/careerService";
-import type { Career } from "../../models/Career";
-import type { CareerForm as CareerFormType } from "../../models/CareerForm";
+import CareerForm from "../../components/forms/CareerForm";
 
 export default function EditCareer() {
+
     const { id } = useParams();
-    const [career, setCareer] = useState<Career | null>(null);
+    const navigate = useNavigate();
+    const [career, setCareer] = useState<any>(null);
 
     useEffect(() => {
-        const fetchCareer = async () => {
-            if (!id) return;
-            const data = await careerService.getById(id);
+        const fetch = async () => {
+            const data = await careerService.getById(id!);
             setCareer(data);
         };
-
-        fetchCareer();
+        fetch();
     }, [id]);
+
+    const handleSubmit = async (data: any) => {
+        try {
+            await careerService.update(id!, data);
+
+            await Swal.fire("Actualizado", "Correctamente", "success");
+
+            navigate("/careers/list");
+
+        } catch {
+            Swal.fire("Error", "No se pudo actualizar", "error");
+        }
+    };
 
     if (!career) return <p>Cargando...</p>;
 
-    const initialValues: CareerFormType = {
-        code: career.code,
-        name: career.name,
-        is_active: career.is_active,
-    };
-
-    const handleSubmit = async (data: CareerFormType) => {
-        if (!id) return;
-        await careerService.update(id, data);
-        console.log("Carrera actualizada");
-    };
-
     return (
         <CareerForm
-            initialValues={initialValues}
+            initialValues={career}
             onSubmit={handleSubmit}
             isEdit
         />

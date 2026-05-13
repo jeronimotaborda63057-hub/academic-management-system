@@ -1,127 +1,106 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
-export interface SemesterFormData {
-    start_date: string;
-    end_date: string;
-    is_active: boolean;
-}
+import type { FormikProps } from "formik";
+import type { SemesterForm as SemesterType} from "../../models/SemesterForm";
 
 interface Props {
-    initialValues: SemesterFormData;
-    onSubmit: (data: SemesterFormData) => Promise<void>;
-    isEdit?: boolean;
+    formik: FormikProps<SemesterType>;
 }
 
-export default function SemesterForm({
-    initialValues,
-    onSubmit,
-    isEdit = false,
-}: Props) {
-    const [formData, setFormData] =
-        useState<SemesterFormData>(initialValues);
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-
-    const handleChange = (
-        name: keyof SemesterFormData,
-        value: string | boolean
-    ) => {
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Validación básica
-        if (formData.start_date > formData.end_date) {
-            alert("La fecha de inicio no puede ser mayor a la de fin");
-            return;
-        }
-
-        setLoading(true);
-        await onSubmit(formData);
-        setLoading(false);
-    };
+const SemesterFormComponent = ({ formik }: Props) => {
+    const {
+        values,
+        handleChange,
+        handleSubmit,
+        errors,
+        touched,
+        isSubmitting,
+    } = formik;
 
     return (
-        <div className="bg-white shadow-md rounded-2xl p-6 max-w-2xl mx-auto">
-            <h2 className="text-xl font-semibold mb-4">
-                {isEdit ? "Editar Semestre" : "Crear Semestre"}
+        <form
+            onSubmit={handleSubmit}
+            className="bg-white p-8 rounded-2xl shadow-lg max-w-xl mx-auto space-y-6"
+        >
+            <h2 className="text-2xl font-bold text-center">
+                Semestre
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Nombre */}
+            <div>
+                <label className="label">Nombre</label>
+                <input
+                    name="name"
+                    value={values.name}
+                    onChange={handleChange}
+                    className="input"
+                />
+                {touched.name && errors.name && (
+                    <p className="error">{errors.name}</p>
+                )}
+            </div>
 
-                {/* Fecha inicio */}
+            {/* Código */}
+            <div>
+                <label className="label">Código</label>
+                <input
+                    name="code"
+                    value={values.code}
+                    onChange={handleChange}
+                    className="input"
+                />
+                {touched.code && errors.code && (
+                    <p className="error">{errors.code}</p>
+                )}
+            </div>
+
+            {/* Fechas */}
+            <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-sm font-medium mb-1">
-                        Fecha de inicio
-                    </label>
+                    <label className="label">Inicio</label>
                     <input
                         type="date"
-                        value={formData.start_date}
-                        onChange={(e) =>
-                            handleChange("start_date", e.target.value)
-                        }
-                        className="w-full border rounded-lg px-3 py-2"
-                        required
+                        name="start_date"
+                        value={values.start_date}
+                        onChange={handleChange}
+                        className="input"
                     />
                 </div>
 
-                {/* Fecha fin */}
                 <div>
-                    <label className="block text-sm font-medium mb-1">
-                        Fecha de fin
-                    </label>
+                    <label className="label">Fin</label>
                     <input
                         type="date"
-                        value={formData.end_date}
-                        onChange={(e) =>
-                            handleChange("end_date", e.target.value)
-                        }
-                        className="w-full border rounded-lg px-3 py-2"
-                        required
+                        name="end_date"
+                        value={values.end_date}
+                        onChange={handleChange}
+                        className="input"
                     />
                 </div>
+            </div>
 
-                {/* Estado */}
-                <div className="flex items-center gap-2">
-                    <input
-                        type="checkbox"
-                        checked={formData.is_active}
-                        onChange={(e) =>
-                            handleChange("is_active", e.target.checked)
-                        }
-                    />
-                    <label>Activo</label>
-                </div>
+            {/* Activo */}
+            <div className="flex items-center gap-2">
+                <input
+                    type="checkbox"
+                    name="is_active"
+                    checked={values.is_active}
+                    onChange={handleChange}
+                />
+                <span>Activo</span>
+            </div>
 
-                {/* Botones */}
-                <div className="flex justify-end gap-3 pt-4">
-                    <button
-                        type="button"
-                        onClick={() => navigate("/semesters")}
-                        className="px-4 py-2 rounded-lg border hover:bg-gray-100"
-                    >
-                        Cancelar
-                    </button>
+            {errors.is_active && (
+                <p className="error">{errors.is_active}</p>
+            )}
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
-                    >
-                        {loading
-                            ? "Guardando..."
-                            : isEdit
-                                ? "Actualizar"
-                                : "Crear"}
-                    </button>
-                </div>
-            </form>
-        </div>
+            <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+            >
+                Guardar
+            </button>
+        </form>
     );
-}
+};
+
+export default SemesterFormComponent;

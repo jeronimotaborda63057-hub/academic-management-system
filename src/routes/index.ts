@@ -9,23 +9,64 @@ const CareersEdit = lazy(() => import('../pages/careers/Edit'));
 const SemestersList = lazy(() => import('../pages/semesters/List'));
 const SemestersCreate = lazy(() => import('../pages/semesters/Create'));
 const SemestersEdit = lazy(() => import('../pages/semesters/Edit'));
+const CurriculumList = lazy(() => import('../pages/study-plan/List'))
 const SubjectsList = lazy(() => import('../pages/subjects/List'));
 const SubjectsCreate = lazy(() => import('../pages/subjects/Create'));
 const SubjectsEdit = lazy(() => import('../pages/subjects/Edit'));
 
 const coreRoutes = [
-    { path: '/users/list', title: 'Usuarios', component: UsersList },
-    { path: '/users/create', title: 'Crear usuario', component: UsersCreate },
-    { path: '/users/edit/:id', title: 'Editar usuario', component: UsersEdit },
-    { path: '/careers/list', title: 'Carreras', component: CareersList },
-    { path: '/careers/create', title: 'Crear carrera', component: CareersCreate },
-    { path: '/careers/edit/:id', title: 'Editar carrera', component: CareersEdit },
-    { path: '/semesters/list', title: 'Semestres', component: SemestersList },
-    { path: '/semesters/create', title: 'Crear semestre', component: SemestersCreate },
-    { path: '/semesters/edit/:id', title: 'Editar semestre', component: SemestersEdit },
-    { path: '/subjects/list', title: 'Asignaturas', component: SubjectsList },
-    { path: '/subjects/create',     title: 'Crear asignatura', component: SubjectsCreate },
-    { path: '/subjects/edit/:id',   title: 'Editar asignatura',component: SubjectsEdit   },
+    {
+        path: '/users/list',
+        title: 'Usuarios',
+        component: UsersList
+    },
+    {
+        path: '/users/create',
+        title: 'Crear usuario',
+        component: UsersCreate
+    },
+    {
+        path: '/users/edit/:id',
+        title: 'Editar usuario',
+        component: UsersEdit
+    },
+    {
+        path: '/careers/list',
+        title: 'Carreras',
+        component: CareersList
+    },
+    {
+        path: '/careers/create',
+        title: 'Crear carrera',
+        component: CareersCreate
+    },
+    {
+        path: '/careers/edit/:id',
+        title: 'Editar carrera',
+        component: CareersEdit
+    },
+    {
+        path: '/semesters/list',
+        title: 'Semestres',
+        component: SemestersList
+    },
+    {
+        path: '/semesters/create',
+        title: 'Crear semestre',
+        component: SemestersCreate
+    },
+    {
+        path: '/semesters/edit/:id',
+        title: 'Editar semestre',
+        component: SemestersEdit
+    },
+    {
+        path: '/study-plans/list',
+        title: 'Lista plan de estudios',
+        component: CurriculumList
+    }, { path: '/subjects/list', title: 'Asignaturas', component: SubjectsList },
+    { path: '/subjects/create', title: 'Crear asignatura', component: SubjectsCreate },
+    { path: '/subjects/edit/:id', title: 'Editar asignatura', component: SubjectsEdit },
 ];
 
 
