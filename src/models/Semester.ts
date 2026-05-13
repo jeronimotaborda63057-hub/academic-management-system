@@ -9,7 +9,7 @@ export interface Semester {
     is_active: boolean;
     created_at: string;
     updated_at: string;
-    carrers: Career[];
+    carrers?: Career[];
 }
 
 export type SemesterForm = Omit<Semester, "id" | "created_at" | "updated_at">;

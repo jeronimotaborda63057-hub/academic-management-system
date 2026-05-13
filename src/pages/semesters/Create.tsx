@@ -13,8 +13,12 @@ const Create: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [careers, setCareers] = useState<Career[]>([]);
     const [values, setValues] = useState<SemesterForm>({
-        career_id: "", code: "", name: "",
-        start_date: "", end_date: "", is_active: false,
+        career_id: "", 
+        code: "", 
+        name: "",
+        start_date: ""
+        , end_date: "", 
+        is_active: false,
     });
 
     useEffect(() => {
