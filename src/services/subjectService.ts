@@ -6,3 +6,5 @@ export class SubjectService extends BaseService<Subject>{
         super("academic/subjects");
     }
 }
+
+export const subjectService = new SubjectService();

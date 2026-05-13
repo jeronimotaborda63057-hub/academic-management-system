@@ -1,13 +1,3 @@
-/**
- * routes/index.ts
- *
- * Registro central de rutas lazy-loaded.
- *
-
-* Patrón de extensión (OCP):
- * Para agregar un módulo nuevo solo se agregan entradas al array coreRoutes.
- * No se modifica App.tsx ni ningún otro archivo.
- */
 import { lazy } from 'react';
 
 const Demo             = lazy(() => import('../pages/Demo'));
@@ -21,19 +11,28 @@ const SemestersList    = lazy(() => import('../pages/semesters/List'));
 const SemestersCreate  = lazy(() => import('../pages/semesters/Create'));
 const SemestersEdit    = lazy(() => import('../pages/semesters/Edit'));
 
+// ── HU-08: Rúbricas ───────────────────────────────────────────────────────────
+const RubricsList   = lazy(() => import('../pages/rubrics/List'));
+const RubricsCreate = lazy(() => import('../pages/rubrics/Create'));
+const RubricsEdit   = lazy(() => import('../pages/rubrics/Edit'));
+
 const coreRoutes = [
     { path: '/demo',                 title: 'Demo',               component: Demo            },
     { path: '/users/list',           title: 'Usuarios',           component: UsersList       },
     { path: '/users/create',         title: 'Crear usuario',      component: UsersCreate     },
     { path: '/users/edit/:id',       title: 'Editar usuario',     component: UsersEdit       },
-    { path: '/careers/list',              title: 'Carreras',           component: CareersList     },
+    { path: '/careers/list',         title: 'Carreras',           component: CareersList     },
     { path: '/careers/create',       title: 'Crear carrera',      component: CareersCreate   },
     { path: '/careers/edit/:id',     title: 'Editar carrera',     component: CareersEdit     },
-    { path: '/semesters/list',            title: 'Semestres',          component: SemestersList   },
+    { path: '/semesters/list',       title: 'Semestres',          component: SemestersList   },
     { path: '/semesters/create',     title: 'Crear semestre',     component: SemestersCreate },
     { path: '/semesters/edit/:id',   title: 'Editar semestre',    component: SemestersEdit   },
-];
 
+    // ── Rúbricas (HU-08) ──────────────────────────────────────────────────────
+    { path: '/rubrics/list',         title: 'Rúbricas',           component: RubricsList     },
+    { path: '/rubrics/create',       title: 'Crear rúbrica',      component: RubricsCreate   },
+    { path: '/rubrics/edit/:id',     title: 'Editar rúbrica',     component: RubricsEdit     },
+];
 
 const routes = [...coreRoutes];
 export default routes;

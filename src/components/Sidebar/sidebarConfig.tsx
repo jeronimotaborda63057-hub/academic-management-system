@@ -1,4 +1,4 @@
-import type { NavGroup } from "../../models/NavGroup";
+import type { NavGroup } from "../../models/nav/NavGroup";
 
 // Iconos reutilizables
 const icons = {
@@ -30,6 +30,7 @@ export const adminMenu: NavGroup[] = [
             { label: "Plan de estudios", path: "/study-plans/list", icon: icons.plan },
             { label: "Grupos", path: "/groups/list", icon: icons.group },
             { label: "Semestres", path: "/semesters/list", icon: icons.semester },
+            { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
         ],
     },
     {
@@ -60,6 +61,7 @@ export const teacherMenu: NavGroup[] = [
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
             { label: "Evaluaciones", path: "/evaluations/list", icon: icons.evaluation },
             { label: "Calificaciones", path: "/grades/list", icon: icons.grade },
+            { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
         ],
     },
     {

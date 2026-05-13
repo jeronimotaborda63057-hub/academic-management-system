@@ -6,3 +6,5 @@ export class StudentService extends BaseService<Student>{
         super("academic/students/search?identification=1001001");
     }
 }
+
+export const studentService = new StudentService();
