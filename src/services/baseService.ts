@@ -35,7 +35,7 @@ export class BaseService<T> {
     async create(data: Omit<T, "id" | "created_at" | "updated_at">): Promise<T | null> {
         try {
             const response = await api.post<{ data: T }>(this.apiURL, data);
-            return response.data.data; // ← era response.data, faltaba el .data
+            return response.data.data;
         } catch (error) {
             console.error("Error al crear: " + error);
             return null;
