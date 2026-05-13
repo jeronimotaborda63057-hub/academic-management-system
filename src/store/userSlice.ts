@@ -1,4 +1,3 @@
-// src/store/userSlice.ts
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { User } from "../models/User";
 import { LocalStorageProvider } from "../storage/LocalStorageProvider";
@@ -8,7 +7,6 @@ interface UserState {
 }
 
 const storage = new LocalStorageProvider();
-
 const storedUser = storage.getItem("user");
 
 const initialState: UserState = {
@@ -19,20 +17,19 @@ const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        setUser: (state: UserState, action: PayloadAction<User | null>) => {
+        setUser: (state, action: PayloadAction<User | null>) => {
             state.user = action.payload;
-
             if (action.payload) {
                 storage.setItem("user", JSON.stringify(action.payload));
             } else {
                 storage.removeItem("user");
             }
         },
-        clearUser: (state: UserState) => {
+        clearUser: (state) => {
             state.user = null;
             storage.removeItem("user");
-            storage.removeItem("access_token")
-            storage.removeItem("token_type")
+            storage.removeItem("access_token");
+            storage.removeItem("token_type");
         },
     },
 });

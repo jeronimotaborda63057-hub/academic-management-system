@@ -5,7 +5,8 @@ import type { Career } from "../../models/Career";
 import type { FilterConfig } from "../../models/FilterConfig";
 import type { UserFilters } from "../../models/UserFilters";
 import GenericTable from "../../components/GenericTable";
-import type { Column, Action } from "../../components/GenericTable";
+import type { Column } from "../../models/Column";
+import type { Action } from "../../models/Action";
 import TableToolbar from "../../components/TableToolBar";
 import PageHeader from "../../components/PageHeader";
 import { userService } from "../../services/userService";
@@ -48,7 +49,7 @@ const List: React.FC = () => {
         },
     ];
 
-    const COLUMNS: Column[] = [
+    const COLUMNS: Column<User>[] = [
         {
             key: "code",
             label: "Código",
@@ -64,26 +65,25 @@ const List: React.FC = () => {
         {
             key: "role",
             label: "Rol",
-            render: (value) => (
+            render: (value: any) => (
                 <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${
-                        value === "TEACHER"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-blue-100 text-blue-700"
-                    }`}
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${value === "TEACHER"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-blue-100 text-blue-700"
+                        }`}
                 >
                     {value === "TEACHER"
                         ? "Docente"
                         : value === "STUDENT"
-                        ? "Estudiante"
-                        : value}
+                            ? "Estudiante"
+                            : value}
                 </span>
             ),
         },
         {
             key: "careers",
             label: "Carrera",
-            render: (value) => (
+            render: (value: any[]) => (
                 <span>
                     {Array.isArray(value)
                         ? value.map((c: any) => c.name).join(", ")
@@ -94,13 +94,12 @@ const List: React.FC = () => {
         {
             key: "estado",
             label: "Estado",
-            render: (value) => (
+            render: (value: any) => (
                 <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${
-                        value === "Activo"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                    }`}
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${value === "Activo"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                        }`}
                 >
                     {value}
                 </span>
@@ -109,7 +108,7 @@ const List: React.FC = () => {
         {
             key: "created_at",
             label: "Fecha creación",
-            render: (value) => (
+            render: (value: string | number | Date) => (
                 <span>
                     {new Date(value).toLocaleDateString("es-CO")}
                 </span>
@@ -118,24 +117,41 @@ const List: React.FC = () => {
     ];
 
     const ACTIONS: Action[] = [
-        {
-            name: "edit",
-            label: "Editar usuario",
-            icon: <Pencil size={16} className="text-gray-700" />,
-            primary: true
-        },
-        {
-            name: "deactivate",
-            label: "Desactivar usuario",
-            icon: <UserX size={16} className="text-red-600" />,
-            variant: "danger",
-        },
-        {
-            name: "view",
-            label: "Ver detalle",
-            icon: <Eye size={16} className="text-blue-600" />,
-        },
-    ];
+    {
+        name: "edit",
+        label: "Editar usuario",
+        icon: (
+            <Pencil
+                size={16}
+                className="text-gray-700"
+            />
+        ),
+        primary: true,
+        variant: "default",
+    },
+    {
+        name: "deactivate",
+        label: "Desactivar usuario",
+        icon: (
+            <UserX
+                size={16}
+                className="text-red-600"
+            />
+        ),
+        variant: "danger",
+    },
+    {
+        name: "view",
+        label: "Ver detalle",
+        icon: (
+            <Eye
+                size={16}
+                className="text-blue-600"
+            />
+        ),
+        variant: "default",
+    },
+];
 
     useEffect(() => {
         const loadCareers = async () => {
@@ -156,7 +172,7 @@ const List: React.FC = () => {
                 ? { role: filterValues.role as any }
                 : {}),
             ...(filterValues.is_active !== undefined &&
-            filterValues.is_active !== ""
+                filterValues.is_active !== ""
                 ? { is_active: filterValues.is_active === "true" }
                 : {}),
             ...(filterValues.career_id
@@ -206,29 +222,42 @@ const List: React.FC = () => {
             text: "El usuario perderá acceso al sistema.",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
             confirmButtonText: "Desactivar",
             cancelButtonText: "Cancelar",
+            buttonsStyling: false,
+            customClass: {
+                confirmButton: "swal-confirm-btn",
+                cancelButton: "swal-cancel-btn",
+            },
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const deactivated =
                     await userService.deactivate(id);
 
                 if (deactivated) {
-                    Swal.fire(
-                        "Desactivado",
-                        "El usuario ha sido desactivado.",
-                        "success"
-                    );
+                    Swal.fire({
+                        title: "Desactivado",
+                        text: "El usuario ha sido desactivado.",
+                        icon: "success",
+                        confirmButtonText: "Aceptar",
+                        buttonsStyling: false,
+                        customClass: {
+                            confirmButton: "swal-confirm-btn",
+                        },
+                    });
 
                     fetchData();
                 } else {
-                    Swal.fire(
-                        "Error",
-                        "No se pudo desactivar el usuario.",
-                        "error"
-                    );
+                    Swal.fire({
+                        title: "Error",
+                        text: "No se pudo desactivar el usuario.",
+                        icon: "error",
+                        confirmButtonText: "Aceptar",
+                        buttonsStyling: false,
+                        customClass: {
+                            confirmButton: "swal-error-btn",
+                        },
+                    });
                 }
             }
         });

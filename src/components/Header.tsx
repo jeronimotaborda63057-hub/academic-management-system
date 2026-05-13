@@ -5,7 +5,7 @@ import PageHeader from './PageHeader';
 const Header = (props: {
     sidebarOpen: string | boolean | undefined;
     setSidebarOpen: (arg0: boolean) => void;
-    title?: string;        // ✅ opcional para pasar desde cada página
+    title?: string;        
     description?: string;
 }) => {
     return (
@@ -40,7 +40,7 @@ const Header = (props: {
                 {/* Título y descripción */}
                 <div className="hidden sm:flex sm:items-center">
                     <PageHeader
-                        title={props.title ?? 'Dashboard'}
+                        title={props.title ?? ''}
                         subtitle={props.description ?? 'Bienvenido al sistema de gestión académica'}
                     />
                 </div>

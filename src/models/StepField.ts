@@ -6,4 +6,4 @@ export interface StepField {
     options?: { label: string; value: string }[];
 }
 
-export type FieldType = "text" | "email" | "password" | "select" | "date" | "number";
+export type FieldType = "text" | "email" | "password" | "select" | "date" | "number" | "textarea";
