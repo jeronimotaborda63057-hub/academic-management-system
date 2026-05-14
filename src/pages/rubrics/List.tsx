@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Archive, Eye, Trash2 } from "lucide-react";
+import { Pencil, Archive, Eye, Trash2, ArchiveRestore } from "lucide-react";
 import Swal from "sweetalert2";
 import PageHeader from "../../components/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
 import GenericTable from "../../components/GenericTable";
 import RubricStatusBadge from "../../components/rubrics/RubricStatusBadge";
 import { rubricService } from "../../services/rubricService";
+import { criteriaService } from "../../services/criteriaService";
 import type { Rubric } from "../../models/Rubric";
 import type { Action } from "../../models/Action";
 import type { Column } from "../../models/Column";
@@ -18,8 +19,23 @@ const List: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState("");
 
     const fetchData = async () => {
-        const rubrics = await rubricService.getAll();
-        setData(rubrics ?? []);
+        const [rubrics, allCriteria] = await Promise.all([
+            rubricService.getAll(),
+            criteriaService.getAll(),
+        ]);
+
+        if (!rubrics?.length) { setData([]); return; }
+
+        // Agrupar conteo de criterios por rubric_id
+        const countByRubric = allCriteria.reduce<Record<string, number>>((acc, c) => {
+            if (c.rubric_id) acc[c.rubric_id] = (acc[c.rubric_id] ?? 0) + 1;
+            return acc;
+        }, {});
+
+        setData(rubrics.map((r) => ({
+            ...r,
+            criteria: Array(countByRubric[r.id!] ?? 0).fill(null),
+        })));
     };
 
     useEffect(() => { fetchData(); }, []);
@@ -35,7 +51,7 @@ const List: React.FC = () => {
                 break;
 
             case "archive": {
-                const confirm = await Swal.fire({
+                const { isConfirmed } = await Swal.fire({
                     title: "¿Archivar rúbrica?",
                     text: `"${item.title}" quedará archivada y no podrá usarse en nuevas evaluaciones.`,
                     icon: "warning",
@@ -44,18 +60,43 @@ const List: React.FC = () => {
                     cancelButtonText: "Cancelar",
                     confirmButtonColor: "#d33",
                 });
-                if (confirm.isConfirmed) {
-                    const res = await rubricService.archive(item.id!);
-                    if (res) {
+                if (isConfirmed) {
+                    try {
+                        await rubricService.archive(item.id!);
                         Swal.fire("Archivada", "La rúbrica fue archivada.", "success");
                         fetchData();
+                    } catch {
+                        Swal.fire("Error", "No se pudo archivar la rúbrica.", "error");
                     }
                 }
                 break;
             }
 
+            // FIX: acción para desarchivar
+            case "unarchive": {
+                const { isConfirmed } = await Swal.fire({
+                    title: "¿Desarchivar rúbrica?",
+                    text: `"${item.title}" volverá a estar disponible como borrador.`,
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Desarchivar",
+                    cancelButtonText: "Cancelar",
+                });
+                if (isConfirmed) {
+                    try {
+                        await rubricService.unarchive(item.id!);
+                        Swal.fire("Desarchivada", "La rúbrica está disponible nuevamente.", "success");
+                        fetchData();
+                    } catch {
+                        Swal.fire("Error", "No se pudo desarchivar la rúbrica.", "error");
+                    }
+                }
+                break;
+            }
+
+            // FIX: delete usa deleteById (string/UUID) en vez de Number()
             case "delete": {
-                const confirmDel = await Swal.fire({
+                const { isConfirmed } = await Swal.fire({
                     title: "¿Eliminar borrador?",
                     text: `"${item.title}" se eliminará permanentemente.`,
                     icon: "warning",
@@ -64,11 +105,13 @@ const List: React.FC = () => {
                     cancelButtonText: "Cancelar",
                     confirmButtonColor: "#d33",
                 });
-                if (confirmDel.isConfirmed) {
-                    const res = await rubricService.delete(Number(item.id));
-                    if (res) {
+                if (isConfirmed) {
+                    const ok = await rubricService.deleteById(item.id!);
+                    if (ok) {
                         Swal.fire("Eliminada", "Borrador eliminado.", "success");
                         fetchData();
+                    } else {
+                        Swal.fire("Error", "No se pudo eliminar el borrador.", "error");
                     }
                 }
                 break;
@@ -80,8 +123,8 @@ const List: React.FC = () => {
         const matchSearch = r.title?.toLowerCase().includes(search.toLowerCase()) ?? true;
         const matchStatus =
             statusFilter === "" ||
-            (statusFilter === "archived"  && r.is_archived) ||
-            (statusFilter === "published" && r.is_public && !r.is_archived) ||
+            (statusFilter === "archived"  &&  r.is_archived) ||
+            (statusFilter === "published" &&  r.is_public && !r.is_archived) ||
             (statusFilter === "draft"     && !r.is_public && !r.is_archived);
         return matchSearch && matchStatus;
     });
@@ -106,10 +149,11 @@ const List: React.FC = () => {
     ];
 
     const actions: Action[] = [
-        { name: "edit",    label: "Editar",           icon: <Pencil size={16} />,  primary: true, variant: "default" },
-        { name: "view",    label: "Ver detalle",       icon: <Eye size={16} />,     variant: "default" },
-        { name: "archive", label: "Archivar",          icon: <Archive size={16} />, variant: "danger" },
-        { name: "delete",  label: "Eliminar borrador", icon: <Trash2 size={16} />,  variant: "danger" },
+        { name: "edit",      label: "Editar",           icon: <Pencil size={16} />,        primary: true, variant: "default" },
+        { name: "view",      label: "Ver detalle",       icon: <Eye size={16} />,           variant: "default" },
+        { name: "archive",   label: "Archivar",          icon: <Archive size={16} />,       variant: "danger" },
+        { name: "unarchive", label: "Desarchivar",       icon: <ArchiveRestore size={16} />, variant: "default" },
+        { name: "delete",    label: "Eliminar borrador", icon: <Trash2 size={16} />,        variant: "danger" },
     ];
 
     return (

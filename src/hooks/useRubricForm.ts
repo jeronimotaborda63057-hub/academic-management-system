@@ -1,13 +1,5 @@
 import { useState } from "react";
 
-/**
- * useRubricForm — hook que encapsula TODA la lógica del formulario de rúbrica.
- *
- * Principio SOLID aplicado:
- *  - SRP: este hook solo sabe de estado del formulario, no de API ni de UI.
- *  - Los componentes de vista solo consumen este hook; no tienen lógica propia.
- */
-
 export interface CriteriaRow {
     id: string;
     name: string;
@@ -18,19 +10,25 @@ export interface CriteriaRow {
 export interface RubricFormState {
     title: string;
     description: string;
-    subject_id: string;
 }
 
+/**
+ * useRubricForm — estado compartido para crear y editar rúbricas.
+ *
+ * FIX CU-08:
+ *  - Se expone `setForm` para inicializar desde datos del servidor en Edit.tsx.
+ *  - Se añade `resetCriteria` para cargar criterios asincrónicamente sin
+ *    race condition (borradores cargaban vacíos porque el hook se montaba
+ *    antes de que llegaran los datos de la API).
+ */
 export function useRubricForm(initial?: {
     title?: string;
     description?: string;
-    subject_id?: string;
     criteria?: CriteriaRow[];
 }) {
     const [form, setForm] = useState<RubricFormState>({
         title: initial?.title ?? "",
         description: initial?.description ?? "",
-        subject_id: initial?.subject_id ?? "",
     });
 
     const [criteriaRows, setCriteriaRows] = useState<CriteriaRow[]>(
@@ -61,24 +59,30 @@ export function useRubricForm(initial?: {
         setCriteriaRows((prev) => prev.filter((row) => row.id !== id));
     };
 
-    // Suma de pesos
-    const totalWeight = criteriaRows.reduce((sum, c) => sum + Number(c.weight), 0);
+    /**
+     * FIX sincronización: reemplaza los criterios locales con los del servidor.
+     * Llamar desde useEffect en Edit después de cargar la rúbrica.
+     */
+    const resetCriteria = (rows: CriteriaRow[]) => {
+        setCriteriaRows(rows);
+    };
 
-    // Pesos válidos: si hay criterios, deben sumar 100
+    const totalWeight = criteriaRows.reduce((sum, c) => sum + Number(c.weight), 0);
     const weightsValid = criteriaRows.length === 0 || totalWeight === 100;
 
-    // Publicar: título + al menos 1 criterio con nombre + pesos al 100%
+    // Para publicar: título + al menos 1 criterio + todos con nombre + pesos = 100%
     const formValid =
         form.title.trim() !== "" &&
         criteriaRows.length > 0 &&
         criteriaRows.every((c) => c.name.trim() !== "") &&
         weightsValid;
 
-    // Borrador: solo requiere título
+    // Para borrador: solo título obligatorio
     const draftValid = form.title.trim() !== "";
 
     return {
         form,
+        setForm,
         criteriaRows,
         totalWeight,
         weightsValid,
@@ -88,5 +92,6 @@ export function useRubricForm(initial?: {
         addCriteria,
         updateCriteria,
         removeCriteria,
+        resetCriteria,
     };
 }

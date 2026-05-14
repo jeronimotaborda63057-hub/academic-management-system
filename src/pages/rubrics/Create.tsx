@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import PageHeader from "../../components/PageHeader";
@@ -7,17 +7,10 @@ import CriteriaEditor from "../../components/rubrics/CriteriaEditor";
 import { useRubricForm } from "../../hooks/useRubricForm";
 import { rubricService } from "../../services/rubricService";
 import { criteriaService } from "../../services/criteriaService";
-import { subjectService } from "../../services/subjectService";
-import type { Subject } from "../../models/Subject";
 
 const Create: React.FC = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
-    const [subjects, setSubjects] = useState<Subject[]>([]);
-
-    useEffect(() => {
-        subjectService.getAll().then((data) => setSubjects(data ?? []));
-    }, []);
 
     const {
         form,
@@ -38,8 +31,6 @@ const Create: React.FC = () => {
 
         setIsLoading(true);
         try {
-            // DIAGNÓSTICO: enviamos solo los campos mínimos para aislar cuál causa el 500
-            // Si esto funciona, hay que ir agregando campos de a uno para encontrar el culpable
             const rubric = await rubricService.create({
                 title: form.title,
                 description: form.description,
@@ -118,23 +109,6 @@ const Create: React.FC = () => {
                             className="px-4 py-3 rounded-xl border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-sm text-black dark:text-white outline-none focus:border-primary transition-colors resize-none"
                         />
                         <p className="text-xs text-right text-gray-400">{form.description.length}/300</p>
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-500 dark:text-bodydark2 uppercase tracking-wider">
-                            Asignatura <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            name="subject_id"
-                            value={form.subject_id}
-                            onChange={handleFormChange}
-                            className="h-11 px-4 rounded-xl border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-sm text-black dark:text-white outline-none focus:border-primary transition-colors"
-                        >
-                            <option value="">Selecciona una asignatura</option>
-                            {subjects.map((s) => (
-                                <option key={s.id} value={s.id}>{s.name}</option>
-                            ))}
-                        </select>
                     </div>
                 </section>
 
