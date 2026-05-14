@@ -4,9 +4,8 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import Logo from '../../assets/logo.png';
 import { adminMenu, studentMenu, teacherMenu} from "./sidebarConfig";
-
-import type { NavGroup } from "../../models/nav/NavGroup";
 import SidebarNavGroup from "./SidebarNavGroup";
+import type { NavGroup } from "../../models/nav/NavGroup";
 
 interface SidebarProps {
     sidebarOpen: boolean;

@@ -15,6 +15,10 @@ const SubjectsList = lazy(() => import('../pages/subjects/List'));
 const SubjectsCreate = lazy(() => import('../pages/subjects/Create'));
 const SubjectsEdit = lazy(() => import('../pages/subjects/Edit'));
 const ScaleDefinitionPage = lazy(() => import('../pages/rubrics/RubricScaleDefinitionPage'));
+const StudentsList = lazy(() => import('../pages/students/List'));
+const EnrollmentList = lazy(() => import('../pages/enrollments/List'));
+const EnrollmentCreate = lazy(()=> import('../pages/enrollments/Create'));
+const EnrollmentEdit = lazy(() => import('../pages/enrollments/Edit'));
 
 const coreRoutes = [
     {
@@ -66,6 +70,44 @@ const coreRoutes = [
         path: '/study-plans/list',
         title: 'Lista plan de estudios',
         component: CurriculumList
+    },
+    {
+
+        path: '/subjects/list',
+        title: 'Asignaturas',
+        component: SubjectsList
+    },
+    {
+
+        path: '/subjects/create',
+        title: 'Crear asignatura',
+        component: SubjectsCreate
+    },
+    {
+
+        path: '/subjects/edit/:id',
+        title: 'Editar asignatura',
+        component: SubjectsEdit
+    },
+    {
+        path: '/students/list',
+        title: 'Estudiantes',
+        component : StudentsList
+    },
+    {
+        path: 'enrollments/list',
+        title: 'Asignar matrícula',
+        component: EnrollmentList
+    },
+    {
+        path: '/enrollments/create',
+        title: 'Crear matrícula',
+        component: EnrollmentCreate
+    },
+    {
+        path: '/enrollments/edit/:id',
+        title: 'Editar matrícula',
+        component: EnrollmentEdit
     },
     {
         path: '/groups/assign-teacher',
