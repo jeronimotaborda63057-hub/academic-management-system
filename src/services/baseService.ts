@@ -32,7 +32,7 @@ export class BaseService<T> {
         }
     }
 
-    async create(data: Omit<T, "id" |"created_at" | "updated_at">): Promise<T | null> {
+    async create(data: Omit<T, "id" | "created_at" | "updated_at">): Promise<T | null> {
         try {
             const response = await api.post<{ data: T }>(this.apiURL, data);
             return response.data.data;

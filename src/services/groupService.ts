@@ -19,6 +19,19 @@ export class GroupService extends BaseService<Group> {
             return [];
         }
     }
+
+    async assignTeacherToGroup(groupId: string, teacherId: string): Promise<any> {
+        try {
+            const response = await api.patch(
+                `${this.apiURL}/${groupId}/assign-teacher/${teacherId}`
+            );
+            return response.data.data
+            
+        } catch (error) {
+            console.error("Error al asignar docente a grupo: ", error)
+            return null
+        }
+    }
 }
 
 export const groupService = new GroupService();

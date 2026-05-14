@@ -47,7 +47,7 @@ const Edit: React.FC = () => {
             });
             if (!result) throw new Error();
             Swal.fire("Éxito", "Asignatura actualizada correctamente.", "success");
-            navigate("/subjects");
+            navigate("/subjects/list");
         } catch {
             Swal.fire("Error", "Ocurrió un error al actualizar la asignatura.", "error");
         } finally {

@@ -9,12 +9,15 @@ const CareersEdit = lazy(() => import('../pages/careers/Edit'));
 const SemestersList = lazy(() => import('../pages/semesters/List'));
 const SemestersCreate = lazy(() => import('../pages/semesters/Create'));
 const SemestersEdit = lazy(() => import('../pages/semesters/Edit'));
-const CurriculumList = lazy(() => import('../pages/study-plan/List'))
+const CurriculumList = lazy(() => import('../pages/study-plan/List'));
+const AssignTeacherPage = lazy(() => import('../pages/groups/AssignTeacherPage') )
 const SubjectsList = lazy(() => import('../pages/subjects/List'));
 const SubjectsCreate = lazy(() => import('../pages/subjects/Create'));
 const SubjectsEdit = lazy(() => import('../pages/subjects/Edit'));
 const StudentsList = lazy(() => import('../pages/students/List'));
-const EnrollmentPage = lazy(() => import('../pages/enrollments/Page'));
+const EnrollmentList = lazy(() => import('../pages/enrollments/List'));
+const EnrollmentCreate = lazy(()=> import('../pages/enrollments/Create'));
+const EnrollmentEdit = lazy(() => import('../pages/enrollments/Edit'));
 
 const coreRoutes = [
     {
@@ -91,10 +94,25 @@ const coreRoutes = [
         component : StudentsList
     },
     {
-        path: 'enrollments/page',
+        path: 'enrollments/list',
         title: 'Asignar matrícula',
-        component: EnrollmentPage
-    }
+        component: EnrollmentList
+    },
+    {
+        path: '/enrollments/create',
+        title: 'Crear matrícula',
+        component: EnrollmentCreate
+    },
+    {
+        path: '/enrollments/edit/:id',
+        title: 'Editar matrícula',
+        component: EnrollmentEdit
+    },
+    {
+        path: '/groups/assign-teacher',
+        title: 'Asignar docente a grupo',
+        component: AssignTeacherPage
+    }, 
 ];
 
 
