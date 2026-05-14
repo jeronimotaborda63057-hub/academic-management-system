@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MultiStepForm from "../../components/multiStepForm/MultiStepForm";
+import MultiStepForm from "../../components/multi-step-form/MultiStepForm";
 import { userService } from "../../services/userService";
 import type { CreateUserPayload } from "../../models/User";
 import Swal from "sweetalert2";
@@ -31,8 +31,8 @@ const STEP1_FIELDS_CREATE = [
         required: true,
         options: [
             { label: "Estudiante", value: "STUDENT" },
-            { label: "Docente",    value: "TEACHER" },
-            { label: "Admin",      value: "ADMIN"   },
+            { label: "Docente", value: "TEACHER" },
+            { label: "Admin", value: "ADMIN" },
         ],
     },
 ];

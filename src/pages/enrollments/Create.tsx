@@ -1,61 +1,108 @@
-// src/pages/enrollments/Create.tsx
+import React, {
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
 
-import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import type { Student }    from "../../models/Student";
-import type { Group }      from "../../models/Group";
+import * as Yup from "yup";
+
+import type { Student } from "../../models/Student";
+import type { Group } from "../../models/Group";
 import type { Enrollment } from "../../models/Enrollment";
 
-import { enrollmentService } from "../../services/enrollmentService";
-import { studentService }    from "../../services/studentService";
-import { groupService }      from "../../services/groupService";
+import {
+    enrollmentService,
+} from "../../services/enrollmentService";
 
-import type { EnrollmentFormData } from "../../components/forms/EnrollmentForm";
-import EnrollmentForm              from "../../components/forms/EnrollmentForm";
+import {
+    studentService,
+} from "../../services/studentService";
 
-// Importación corregida: ruta canónica del proyecto
+import {
+    groupService,
+} from "../../services/groupService";
+
 import PageHeader from "../../components/ui/PageHeader";
 
-// ─────────────────────────────────────────────────────────────
-//  Helper — convierte "YYYY-S1" / "YYYY-S2" a ISO date
-// ─────────────────────────────────────────────────────────────
+import EnrollmentForm, {
+    type EnrollmentFormValues,
+} from "../../components/forms/EnrollmentForm";
 
-function buildEnrollmentDate(periodo: string): string {
+const PERIOD_REGEX = /^\d{4}-(S1|S2)$/;
+
+const schema = Yup.object({
+    student_id: Yup.string()
+        .required("Selecciona un estudiante."),
+
+    group_id: Yup.string()
+        .required("Selecciona un grupo."),
+
+    periodo_ingreso: Yup.string()
+        .matches(
+            PERIOD_REGEX,
+            "Formato inválido. Usa YYYY-S1 o YYYY-S2."
+        )
+        .required("Ingresa el periodo."),
+
+    status: Yup.string()
+        .required(),
+});
+
+function buildEnrollmentDate(
+    periodo: string
+): string {
     const [year, sem] = periodo.split("-");
-    const month = sem === "S1" ? "01" : "07";
+
+    const month =
+        sem === "S1"
+            ? "01"
+            : "07";
+
     return `${year}-${month}-01T00:00:00.000Z`;
 }
-
-// ─────────────────────────────────────────────────────────────
-//  EnrollmentCreatePage
-//
-//  SRP  → carga datos y coordina submit.
-//          Lógica de campos delegada a EnrollmentForm
-//          (tiene búsqueda, dropdowns y validaciones propias
-//          que no caben en FormField genérico sin romper SRP).
-//  OCP  → EnrollmentForm no se modifica; la página lo compone.
-//  DIP  → depende de servicios (abstracciones), no de axios.
-// ─────────────────────────────────────────────────────────────
 
 const EnrollmentCreatePage: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const [students,     setStudents]     = useState<Student[]>([]);
-    const [groups,       setGroups]       = useState<Group[]>([]);
-    const [enrollments,  setEnrollments]  = useState<Enrollment[]>([]);
-    const [loading,      setLoading]      = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [apiError,     setApiError]     = useState<string | null>(null);
+    const [students, setStudents] =
+        useState<Student[]>([]);
 
-    // ── Carga inicial ──────────────────────────────────────
+    const [groups, setGroups] =
+        useState<Group[]>([]);
+
+    const [enrollments, setEnrollments] =
+        useState<Enrollment[]>([]);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [isSubmitting, setIsSubmitting] =
+        useState(false);
+
+    const [apiError, setApiError] =
+        useState<string | null>(null);
+
+    const [errors, setErrors] =
+        useState<Record<string, string>>({});
+
+    const [form, setForm] =
+        useState<EnrollmentFormValues>({
+            student_id: "",
+            group_id: "",
+            periodo_ingreso: "",
+            status: "ACTIVE",
+        });
 
     const fetchData = useCallback(async () => {
 
-        setLoading(true);
-
-        const [studentData, groupData, enrollData] = await Promise.all([
+        const [
+            studentData,
+            groupData,
+            enrollmentData,
+        ] = await Promise.all([
             studentService.getAll(),
             groupService.getAll(),
             enrollmentService.getAll(),
@@ -63,36 +110,101 @@ const EnrollmentCreatePage: React.FC = () => {
 
         setStudents(studentData);
         setGroups(groupData);
-        setEnrollments(enrollData);
+        setEnrollments(enrollmentData);
+
         setLoading(false);
 
     }, []);
 
-    useEffect(() => { fetchData(); }, [fetchData]);
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
-    // ── Submit ─────────────────────────────────────────────
+    const handleChange = (
+        field: keyof EnrollmentFormValues,
+        value: string
+    ) => {
 
-    const handleSubmit = async (data: EnrollmentFormData) => {
+        setForm((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
 
-        setIsSubmitting(true);
-        setApiError(null);
+        setErrors((prev) => ({
+            ...prev,
+            [field]: "",
+        }));
+    };
+
+    const validateDuplicate = () => {
+
+        const exists = enrollments.find(
+            (enrollment) =>
+                enrollment.student_id === form.student_id &&
+                enrollment.group_id === form.group_id &&
+                enrollment.status === "ACTIVE"
+        );
+
+        if (!exists) return true;
+
+        setErrors((prev) => ({
+            ...prev,
+            group_id:
+                "El estudiante ya tiene una matrícula activa en este grupo.",
+        }));
+
+        return false;
+    };
+
+    const handleSubmit = async () => {
 
         try {
 
-            const created = await enrollmentService.create({
-                student_id:      data.student_id,
-                group_id:        data.group_id,
-                status:          data.status,
-                enrollment_date: buildEnrollmentDate(data.periodo_ingreso),
-            } as any);
+            await schema.validate(form, {
+                abortEarly: false,
+            });
 
-            if (!created) throw new Error("No se pudo crear la matrícula.");
+            setErrors({});
+
+        } catch (err: any) {
+
+            const nextErrors: Record<string, string> = {};
+
+            err.inner.forEach((e: any) => {
+                nextErrors[e.path] = e.message;
+            });
+
+            setErrors(nextErrors);
+
+            return;
+        }
+
+        if (!validateDuplicate()) {
+            return;
+        }
+
+        try {
+
+            setIsSubmitting(true);
+
+            await enrollmentService.create({
+                student_id: form.student_id,
+                group_id: form.group_id,
+                status: form.status,
+                enrollment_date:
+                    buildEnrollmentDate(
+                        form.periodo_ingreso
+                    ),
+            } as any);
 
             navigate("/enrollments/list");
 
         } catch (err: any) {
 
-            setApiError(err?.message ?? "Ocurrió un error inesperado.");
+            setApiError(
+                err?.message ??
+                "Ocurrió un error inesperado."
+            );
 
         } finally {
 
@@ -100,17 +212,13 @@ const EnrollmentCreatePage: React.FC = () => {
         }
     };
 
-    // ── Loading inicial ────────────────────────────────────
-
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
-                Cargando datos…
+                Cargando datos...
             </div>
         );
     }
-
-    // ── Render ─────────────────────────────────────────────
 
     return (
         <div>
@@ -118,7 +226,11 @@ const EnrollmentCreatePage: React.FC = () => {
             <PageHeader
                 title="Nueva matrícula"
                 subtitle="Vincula un estudiante a un grupo."
-                breadcrumb={["Académico", "Matrículas", "Nueva"]}
+                breadcrumb={[
+                    "Académico",
+                    "Matrículas",
+                    "Nueva",
+                ]}
             />
 
             <div
@@ -127,43 +239,26 @@ const EnrollmentCreatePage: React.FC = () => {
                     rounded-2xl
                     border border-stroke dark:border-strokedark
                     p-6
-                    flex flex-col
-                    gap-4
                 "
             >
 
-                {/* Error de API */}
                 {apiError && (
-                    <div
-                        className="
-                            flex items-center gap-2
-                            rounded-xl
-                            bg-red-50 border border-red-200
-                            px-4 py-3
-                            text-sm text-red-600
-                        "
-                    >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M12 8v4m0 4h.01" />
-                        </svg>
+                    <div className="mb-5 text-sm text-red-500">
                         {apiError}
                     </div>
                 )}
 
-                {/*
-                 * EnrollmentForm conserva sus propios botones y
-                 * lógica interna (dropdowns con búsqueda, validación
-                 * de duplicados, derivar periodo desde fecha).
-                 * Reemplazarlo por FormField violaría SRP.
-                 */}
                 <EnrollmentForm
+                    values={form}
                     students={students}
                     groups={groups}
-                    existingEnrollments={enrollments}
+                    errors={errors}
                     isSubmitting={isSubmitting}
+                    onChange={handleChange}
                     onSubmit={handleSubmit}
-                    onCancel={() => navigate("/enrollments/list")}
+                    onCancel={() =>
+                        navigate("/enrollments/list")
+                    }
                 />
 
             </div>
