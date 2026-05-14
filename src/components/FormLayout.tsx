@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import PageHeader from "./PageHeader";
+import PageHeader from "./common/PageHeader";
 
 interface FormLayoutProps {
     title: string;

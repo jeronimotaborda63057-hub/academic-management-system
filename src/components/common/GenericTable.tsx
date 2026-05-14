@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MoreVertical } from "lucide-react";
-import type { Action } from "../models/Action";
-import type { Column } from "../models/Column";
+import type { Action } from "../../models/Action";
+import type { Column } from "../../models/Column";
 
 export type ActionVariant = "default" | "danger";
 

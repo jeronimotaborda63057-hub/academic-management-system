@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import FormField from "./FormField";
 import ProfileStep from "./ProfileStep";
 import StepIndicator from "./StepIndicator";
-import PageHeader from "../PageHeader";
+import PageHeader from "../common/PageHeader";
 import type { StepField } from "../../models/StepField";
 
 const STEPS = ["Datos de usuario", "Datos de perfil"];

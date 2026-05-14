@@ -8,7 +8,7 @@ import GenericTable from "../../components/GenericTable";
 import type { Column } from "../../models/Column";
 import type { Action } from "../../models/Action";
 import TableToolbar from "../../components/TableToolBar";
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/common/PageHeader";
 import { userService } from "../../services/userService";
 import { careerService } from "../../services/careerService";
 import Swal from "sweetalert2";

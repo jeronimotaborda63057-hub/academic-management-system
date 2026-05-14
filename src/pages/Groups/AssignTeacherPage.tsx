@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
-import PageHeader from "../../components/PageHeader";
-import Breadcrumb from "../../components/Breadcrumb";
+import PageHeader from "../../components/common/PageHeader";
+import Breadcrumb from "../../components/common/Breadcrumb";
 
 import { groupService } from "../../services/groupService";
 import { teacherService } from "../../services/teacherService";

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Archive } from "lucide-react";
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/common/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
-import GenericTable from "../../components/GenericTable";
+import GenericTable from "../../components/common/GenericTable";
 import ArchiveSubjectModal from "../../components/ArchiveSubjectModal";
 import { subjectService } from "../../services/subjectService";
 import type { Subject } from "../../models/Subject";

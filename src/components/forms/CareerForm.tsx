@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import PageHeader from "../PageHeader";
+import PageHeader from "../common/PageHeader";
 import type { CareerForm as CareerFormType } from "../../models/CareerForm";
 import { useCareerForm } from "../../hooks/useCareerForm";
 

@@ -14,6 +14,7 @@ const AssignTeacherPage = lazy(() => import('../pages/groups/AssignTeacherPage')
 const SubjectsList = lazy(() => import('../pages/subjects/List'));
 const SubjectsCreate = lazy(() => import('../pages/subjects/Create'));
 const SubjectsEdit = lazy(() => import('../pages/subjects/Edit'));
+const ScaleDefinitionPage = lazy(() => import('../pages/rubrics/RubricScaleDefinitionPage'));
 
 const coreRoutes = [
     {
@@ -85,9 +86,13 @@ const coreRoutes = [
         path: '/subjects/edit/:id', 
         title: 'Editar asignatura', 
         component: SubjectsEdit 
-    } 
+    },
+    {
+        path: '/rubrics/scales',
+        title: 'Definir criterios y escalas',
+        component: ScaleDefinitionPage
+    }
 ];
-
 
 const routes = [...coreRoutes];
 export default routes;

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import DarkModeSwitcher from './DarkModeSwitcher';
-import PageHeader from './PageHeader';
+import DarkModeSwitcher from '../DarkModeSwitcher';
+import PageHeader from '../common/PageHeader';
 
 const Header = (props: {
     sidebarOpen: string | boolean | undefined;

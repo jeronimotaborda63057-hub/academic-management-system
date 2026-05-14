@@ -6,3 +6,5 @@ export class RubricService extends BaseService<Rubric>{
         super("evaluation/rubrics");
     }
 }
+
+export const rubricService = new RubricService();

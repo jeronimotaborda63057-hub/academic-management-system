@@ -6,3 +6,5 @@ export class CriteriaService extends BaseService<Criteria> {
         super("evaluation/criteria");
     }
 }
+
+export const criteriaService = new CriteriaService();
