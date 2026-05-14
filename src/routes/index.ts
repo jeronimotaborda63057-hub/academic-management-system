@@ -13,6 +13,7 @@ const CurriculumList = lazy(() => import('../pages/study-plan/List'))
 const SubjectsList = lazy(() => import('../pages/subjects/List'));
 const SubjectsCreate = lazy(() => import('../pages/subjects/Create'));
 const SubjectsEdit = lazy(() => import('../pages/subjects/Edit'));
+const StudentsList = lazy(() => import('../pages/students/List'));
 
 const coreRoutes = [
     {
@@ -64,9 +65,30 @@ const coreRoutes = [
         path: '/study-plans/list',
         title: 'Lista plan de estudios',
         component: CurriculumList
-    }, { path: '/subjects/list', title: 'Asignaturas', component: SubjectsList },
-    { path: '/subjects/create', title: 'Crear asignatura', component: SubjectsCreate },
-    { path: '/subjects/edit/:id', title: 'Editar asignatura', component: SubjectsEdit },
+    },
+    {
+
+        path: '/subjects/list',
+        title: 'Asignaturas',
+        component: SubjectsList
+    },
+    {
+
+        path: '/subjects/create',
+        title: 'Crear asignatura',
+        component: SubjectsCreate
+    },
+    {
+
+        path: '/subjects/edit/:id',
+        title: 'Editar asignatura',
+        component: SubjectsEdit
+    },
+    {
+        path: '/students/list',
+        title: 'Estudiantes',
+        component : StudentsList
+    }
 ];
 
 

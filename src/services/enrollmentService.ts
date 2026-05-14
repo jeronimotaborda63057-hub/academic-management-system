@@ -19,6 +19,8 @@ export class EnrollmentService extends BaseService<Enrollment> {
             return [];
         }
     }
+
+    
 }
 
 export const enrollmentService = new EnrollmentService();

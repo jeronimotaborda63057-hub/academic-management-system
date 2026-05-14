@@ -1,4 +1,4 @@
-import type { NavGroup } from "../../models/NavGroup";
+import type { NavGroup } from "../../models/nav/NavGroup";
 
 // Iconos reutilizables
 const icons = {
@@ -38,7 +38,7 @@ export const adminMenu: NavGroup[] = [
             { label: "Usuarios", path: "/users/list", icon: icons.users },
             { label: "Docentes", path: "/teachers/list", icon: icons.profile },
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
-            { label: "Matrículas", path: "/enrollments/list", icon: icons.enrollment },
+            { label: "Matrículas", path: "/enrollments/page", icon: icons.enrollment },
             { label: "Reportes", path: "/reports", icon: icons.report },
         ],
     },

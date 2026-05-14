@@ -97,7 +97,7 @@ const List: React.FC = () => {
                 onSearchChange={setSearch}
                 onClear={() => setSearch("")}
                 actionLabel="Nueva carrera"
-                onAction={() => navigate("/careers/create")} // ✅ navega a página
+                onAction={() => navigate("/careers/create")}
                 filters={[]}
                 filterValues={{}}
                 onFilterChange={() => {}}

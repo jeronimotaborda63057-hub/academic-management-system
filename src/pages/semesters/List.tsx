@@ -4,8 +4,9 @@ import TableToolbar from "../../components/TableToolBar";
 import GenericTable from "../../components/GenericTable";
 import { semesterService } from "../../services/semesterService";
 import type { Semester } from "../../models/Semester";
-import { Pencil } from "lucide-react";
+import { Pencil, ToggleLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const List: React.FC = () => {
     const [data, setData] = useState<Semester[]>([]);
@@ -41,11 +42,56 @@ const List: React.FC = () => {
         },
     ];
 
+    const actions = [
+        {
+            name: "edit",
+            label: "Editar",
+            icon: <Pencil size={18} />,
+            primary: true, // 🔥 ESTE ES EL BOTÓN DEL LÁPIZ
+        },
+        {
+            name: "toggle",
+            label: "Activar/Desactivar",
+            icon: <ToggleLeft size={18} />, // ⚠️ se cambia dinámicamente
+            primary: false,
+        },
+    ];
+
+    const handleAction = async (action: string, semester: any) => {
+        try {
+            if (action === "edit") {
+                navigate(`/semesters/edit/${semester.id}`);
+            }
+
+            if (action === "toggle") {
+                const newStatus = !semester.is_active;
+
+                await semesterService.update(semester.id, {
+                    ...semester,
+                    is_active: newStatus,
+                });
+
+                await Swal.fire({
+                    icon: "success",
+                    title: "Actualizado",
+                    text: `Semestre ${newStatus ? "activado" : "desactivado"}`,
+                });
+
+            }
+        } catch (error: any) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo realizar la acción",
+            });
+        }
+    };
+
     return (
         <div>
-            <PageHeader 
-            title="Semestres"
-            subtitle="Gestiona los semestres" />
+            <PageHeader
+                title="Semestres"
+                subtitle="Gestiona los semestres" />
 
 
             <TableToolbar
@@ -56,22 +102,14 @@ const List: React.FC = () => {
                 onAction={() => navigate("/semesters/create")}
                 filters={[]}
                 filterValues={{}}
-                onFilterChange={() => {}}
+                onFilterChange={() => { }}
             />
 
             <GenericTable
                 data={filteredData}
                 columns={columns}
-                actions={[
-                    {
-                        name: "edit",
-                        label: "Editar",
-                        icon: <Pencil size={16} />,
-                    },
-                ]}
-                onAction={(a, item) =>
-                    navigate(`/semesters/edit/${item.id}`)
-                }
+                actions={actions}
+                onAction={handleAction}
             />
         </div>
     );
