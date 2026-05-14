@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import routes from './routes';
+import { UserSwitcher } from './components/UserSwitcher';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 const SignIn = lazy(() => import('./pages/authentication/SignIn'));
@@ -38,6 +39,7 @@ function App() {
                     <Route path="/" element={
                         <Suspense fallback={<Loader />}>
                             <DefaultLayout />
+                            <UserSwitcher></UserSwitcher>
                         </Suspense>
                     }>
                         {routes.map((route, index) => {
