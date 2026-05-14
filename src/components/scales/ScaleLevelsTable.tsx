@@ -15,6 +15,9 @@ import type {
     UpdateScaleDTO
 } from "../../models/Scale";
 
+/**
+ * Props componente
+ */
 interface ScaleLevelsTableProps {
 
     /**
@@ -33,14 +36,14 @@ interface ScaleLevelsTableProps {
     saving?: boolean;
 
     /**
-     * Callback crear
+     * Crear nivel
      */
     onCreate: (
         data: CreateScaleDTO
     ) => Promise<Scale | null>;
 
     /**
-     * Callback actualizar
+     * Actualizar nivel
      */
     onUpdate: (
         id: string,
@@ -48,7 +51,7 @@ interface ScaleLevelsTableProps {
     ) => Promise<Scale | null>;
 
     /**
-     * Callback eliminar
+     * Eliminar nivel
      */
     onDelete: (
         id: string
@@ -56,30 +59,28 @@ interface ScaleLevelsTableProps {
 }
 
 /**
- * Tabla de definición de niveles.
+ * Tabla definición escalas.
  *
- * IMPORTANTE:
- * Esta versión reutiliza GenericTable
- * para mantener consistencia visual
- * en TODO el proyecto.
- *
- * Esto respeta:
- * - DRY
- * - Open/Closed
- * - reutilización arquitectónica
- *
- * Responsabilidad:
- * - Configurar columnas
- * - Configurar acciones
- * - Transformar eventos
+ * Responsabilidades:
+ * - renderizar niveles
+ * - emitir eventos
+ * - configurar GenericTable
  *
  * NO:
- * - renderiza tablas manualmente
- * - consume APIs
- * - maneja persistencia
+ * - lógica negocio
+ * - confirmaciones
+ * - side effects
+ * - persistencia
+ *
+ * Respeta:
+ * - SRP
+ * - Open/Closed
+ * - DRY
+ * - DIP
  */
 export const ScaleLevelsTable = ({
     scales,
+
     loading = false,
     saving = false,
 
@@ -104,7 +105,7 @@ export const ScaleLevelsTable = ({
     };
 
     /**
-     * Manejar acciones tabla
+     * Acciones tabla
      */
     const handleTableAction = async (
         action: string,
@@ -119,7 +120,19 @@ export const ScaleLevelsTable = ({
         }
 
         /**
-         * Eliminar nivel
+         * Editar
+         *
+         * La edición ya es inline.
+         */
+        if (action === "edit") {
+            return;
+        }
+
+        /**
+         * Eliminar
+         *
+         * La confirmación se maneja
+         * desde la página contenedora.
          */
         if (action === "delete") {
 
@@ -128,17 +141,17 @@ export const ScaleLevelsTable = ({
     };
 
     /**
-     * Columnas reutilizando GenericTable
+     * Columnas tabla
      */
     const columns: Column<Scale>[] = [
 
         /**
-         * Columna nivel
+         * Lista niveles
          */
         {
             key: "name",
 
-            label: "Nivel",
+            label: "Lista de niveles",
 
             render: (_, scale) => (
 
@@ -148,9 +161,6 @@ export const ScaleLevelsTable = ({
                     disabled={saving}
                     onBlur={(event) => {
 
-                        /**
-                         * Validación defensiva
-                         */
                         if (!scale.id) {
                             return;
                         }
@@ -174,7 +184,7 @@ export const ScaleLevelsTable = ({
         },
 
         /**
-         * Columna descripción
+         * Descripción
          */
         {
             key: "description",
@@ -189,9 +199,6 @@ export const ScaleLevelsTable = ({
                     disabled={saving}
                     onBlur={(event) => {
 
-                        /**
-                         * Validación defensiva
-                         */
                         if (!scale.id) {
                             return;
                         }
@@ -217,7 +224,7 @@ export const ScaleLevelsTable = ({
         },
 
         /**
-         * Columna valor
+         * Valor
          */
         {
             key: "value",
@@ -232,9 +239,6 @@ export const ScaleLevelsTable = ({
                     disabled={saving}
                     onBlur={(event) => {
 
-                        /**
-                         * Validación defensiva
-                         */
                         if (!scale.id) {
                             return;
                         }
@@ -261,16 +265,17 @@ export const ScaleLevelsTable = ({
     ];
 
     /**
-     * Acciones reutilizando GenericTable
+     * Acciones tabla
      */
     const actions: Action[] = [
 
         /**
-         * Acción principal
+         * Editar
          */
         {
             name: "edit",
             label: "Editar",
+
             primary: true,
 
             icon: (
@@ -282,17 +287,17 @@ export const ScaleLevelsTable = ({
         },
 
         /**
-         * Acción eliminar
+         * Eliminar
          */
         {
             name: "delete",
             label: "Eliminar",
-
+            primary: true,
             variant: "danger",
 
             icon: (
                 <Trash2
-                    size={16}
+                    size={18}
                     className="text-red-600"
                 />
             )
@@ -341,7 +346,7 @@ export const ScaleLevelsTable = ({
 
                 </div>
 
-                {/* Botón crear */}
+                {/* Crear nivel */}
                 <button
                     onClick={handleAddLevel}
                     disabled={saving}
@@ -364,7 +369,7 @@ export const ScaleLevelsTable = ({
 
             </div>
 
-            {/* ================= EMPTY STATE ================= */}
+            {/* ================= EMPTY ================= */}
 
             {
                 !loading &&
@@ -417,6 +422,7 @@ export const ScaleLevelsTable = ({
                         data={scales}
                         columns={columns}
                         actions={actions}
+                        hideMenuButton
                         onAction={handleTableAction}
                     />
                 )

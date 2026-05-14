@@ -4,7 +4,7 @@ import type { User } from "../../models/User";
 import type { Career } from "../../models/Career";
 import type { FilterConfig } from "../../models/FilterConfig";
 import type { UserFilters } from "../../models/UserFilters";
-import GenericTable from "../../components/GenericTable";
+import GenericTable from "../../components/common/GenericTable";
 import type { Column } from "../../models/Column";
 import type { Action } from "../../models/Action";
 import TableToolbar from "../../components/TableToolBar";

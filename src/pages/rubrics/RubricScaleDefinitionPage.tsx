@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import Swal from "sweetalert2";
+
 import type { Criteria } from "../../models/Criteria";
 import type { Rubric } from "../../models/Rubric";
 
@@ -20,15 +22,14 @@ import { ScaleSummaryCard } from "../../components/scales/ScaleSummaryCard";
  * Página principal CU-09.
  *
  * Responsabilidades:
- * - Coordinar estado general
- * - Consumir hooks
- * - Consumir servicios
- * - Orquestar componentes
+ * - coordinar flujo
+ * - consumir hooks
+ * - manejar side effects
+ * - coordinar componentes
  *
  * NO:
- * - contiene lógica de negocio compleja
- * - contiene persistencia directa
- * - contiene renderizados gigantes
+ * - renderizar tablas complejas
+ * - lógica UI reutilizable
  *
  * Respeta:
  * - SRP
@@ -44,13 +45,13 @@ const RubricScaleDefinitionPage = () => {
         useState<Rubric | null>(null);
 
     /**
-     * Lista de criterios
+     * Lista criterios
      */
     const [criteria, setCriteria] =
         useState<Criteria[]>([]);
 
     /**
-     * Estado loading general
+     * Loading general
      */
     const [loadingRubric, setLoadingRubric] =
         useState(false);
@@ -83,11 +84,12 @@ const RubricScaleDefinitionPage = () => {
     });
 
     /**
-     * Obtener rúbrica
+     * Obtener datos iniciales
      */
     const loadRubric = async () => {
 
         try {
+
             setLoadingRubric(true);
             setError(null);
 
@@ -106,21 +108,14 @@ const RubricScaleDefinitionPage = () => {
             setRubric(rubricResponse);
 
             /**
-             * Obtener TODOS los criterios
-             *
-             * IMPORTANTE:
-             * El backend actual NO incluye
-             * relaciones automáticamente.
-             *
-             * Por eso se consume
-             * criteriaService.getAll()
+             * Obtener criterios
              */
             const criteriaResponse =
                 await criteriaService.getAll();
 
             /**
-             * Filtrar criterios asociados
-             * a la rúbrica actual
+             * Filtrar criterios
+             * asociados a la rúbrica
              */
             const rubricCriteria =
                 criteriaResponse.filter(
@@ -131,8 +126,7 @@ const RubricScaleDefinitionPage = () => {
             setCriteria(rubricCriteria);
 
             /**
-             * Seleccionar primer criterio
-             * automáticamente
+             * Seleccionar primero
              */
             if (rubricCriteria.length > 0) {
 
@@ -151,6 +145,48 @@ const RubricScaleDefinitionPage = () => {
 
             setLoadingRubric(false);
         }
+    };
+
+    /**
+     * Eliminar nivel
+     *
+     * La página coordina:
+     * - confirmaciones
+     * - side effects
+     * - UX
+     *
+     * La tabla NO debe hacerlo.
+     */
+    const handleDeleteScale = async (
+        id: string
+    ) => {
+
+        const result =
+            await Swal.fire({
+                title: "¿Eliminar nivel?",
+                text: "Esta acción no se puede deshacer.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Eliminar",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#dc2626",
+            });
+
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        await deleteScale(id);
+
+        await Swal.fire({
+            title: "Nivel eliminado",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false,
+            customClass: {
+                confirmButton: "swal-confirm-btn"
+            }
+        });
     };
 
     /**
@@ -238,7 +274,12 @@ const RubricScaleDefinitionPage = () => {
 
                         onCreate={createScale}
                         onUpdate={updateScale}
-                        onDelete={deleteScale}
+
+                        /**
+                         * La página maneja
+                         * confirmaciones.
+                         */
+                        onDelete={handleDeleteScale}
                     />
 
                 </div>
