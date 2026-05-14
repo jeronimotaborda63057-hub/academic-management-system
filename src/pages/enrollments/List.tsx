@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, Pencil } from "lucide-react";
 
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
-import GenericTable from "../../components/GenericTable";
+import GenericTable from "../../components/ui/GenericTable";
 
 import type { Enrollment } from "../../models/Enrollment";
 import type { Student } from "../../models/Student";

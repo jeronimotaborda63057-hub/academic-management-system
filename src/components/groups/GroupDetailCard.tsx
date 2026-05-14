@@ -5,7 +5,7 @@ import type { Semester } from "../../models/Semester";
 import type { Teacher } from "../../models/Teacher";
 import type { Subject } from "../../models/Subject";
 
-import SummaryCard from "../common/SummaryCard";
+import SummaryCard from "../ui/SummaryCard";
 
 interface GroupDetailsCardProps {
     group: Group | null;

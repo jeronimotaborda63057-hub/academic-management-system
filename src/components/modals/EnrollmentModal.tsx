@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import type { Student } from "../models/Student";
-import type { Career } from "../models/Career";
-import type { Enrollment } from "../models/Enrollment";
+import type { Student } from "../../models/Student";
+import type { Career } from "../../models/Career";
+import type { Enrollment } from "../../models/Enrollment";
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 

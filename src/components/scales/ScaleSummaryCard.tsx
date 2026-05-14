@@ -3,7 +3,7 @@
 import type { Criteria } from "../../models/Criteria";
 import type { Scale } from "../../models/Scale";
 
-import SummaryCard from "../common/SummaryCard";
+import SummaryCard from "../ui/SummaryCard";
 
 interface ScaleSummaryCardProps {
 

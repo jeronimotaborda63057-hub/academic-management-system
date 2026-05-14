@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
-import GenericTable from "../../components/GenericTable";
+import GenericTable from "../../components/ui/GenericTable";
 
 import { studentService } from "../../services/studentService";
 

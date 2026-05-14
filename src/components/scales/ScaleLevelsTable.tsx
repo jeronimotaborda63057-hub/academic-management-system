@@ -4,7 +4,7 @@ import {
     Trash2
 } from "lucide-react";
 
-import GenericTable from "../common/GenericTable";
+import GenericTable from "../ui/GenericTable";
 
 import type { Action } from "../../models/Action";
 import type { Column } from "../../models/Column";

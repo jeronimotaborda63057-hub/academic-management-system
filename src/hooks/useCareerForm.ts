@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import type { CareerForm } from "../models/Career";
+import type { CareerForm } from "../models/CareerForm";
 
 interface UseCareerFormProps {
     initialValues: CareerForm;

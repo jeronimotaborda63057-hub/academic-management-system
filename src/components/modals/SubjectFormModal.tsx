@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import type { Subject, SubjectForm } from "../models/Subject";
+import type { Subject, SubjectForm } from "../../models/Subject";
 
 interface SubjectFormModalProps {
     isOpen: boolean;

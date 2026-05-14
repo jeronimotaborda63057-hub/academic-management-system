@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import PageHeader from "../../components/common/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
-import GenericTable from "../../components/common/GenericTable";
+import GenericTable from "../../components/ui/GenericTable";
 import { semesterService } from "../../services/semesterService";
 import type { Semester } from "../../models/Semester";
 import { Pencil, ToggleLeft } from "lucide-react";

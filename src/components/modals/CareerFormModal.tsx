@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import type { Career, CareerForm } from "../models/Career";
-import type { StepField } from "../models/StepField";
+import type { Career } from "../../models/Career";
+import type { CareerForm } from "../../models/CareerForm";
+import type { StepField } from "../../models/StepField";
 interface CareerFormModalProps {
     isOpen: boolean;
     onClose: () => void;

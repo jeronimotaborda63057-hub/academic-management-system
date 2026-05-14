@@ -8,7 +8,7 @@ import { careerService } from "../../services/careerService";
 import { subjectService } from "../../services/subjectService";
 import { curriculumService } from "../../services/curriculumService";
 import { groupService } from "../../services/groupService";
-import PageHeader from "../../components/common/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 import SubjectCatalog from "../../components/studyPlans/SubjectCatalog";
 import type { CatalogItem } from "../../components/studyPlans/SubjectCatalog";
 import PlanPanel from "../../components/studyPlans/PlanPanel";
