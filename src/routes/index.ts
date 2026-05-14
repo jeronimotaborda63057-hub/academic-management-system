@@ -14,6 +14,7 @@ const SubjectsList = lazy(() => import('../pages/subjects/List'));
 const SubjectsCreate = lazy(() => import('../pages/subjects/Create'));
 const SubjectsEdit = lazy(() => import('../pages/subjects/Edit'));
 const StudentsList = lazy(() => import('../pages/students/List'));
+const EnrollmentPage = lazy(() => import('../pages/enrollments/Page'));
 
 const coreRoutes = [
     {
@@ -88,6 +89,11 @@ const coreRoutes = [
         path: '/students/list',
         title: 'Estudiantes',
         component : StudentsList
+    },
+    {
+        path: 'enrollments/page',
+        title: 'Asignar matrícula',
+        component: EnrollmentPage
     }
 ];
 
