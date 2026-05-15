@@ -1,12 +1,10 @@
 import type { Criteria } from "../../models/Criteria";
-import type { Enrollment } from "../../models/Enrollment";
 import type { Scale } from "../../models/Scale";
+import type { GradeDraft, GradingStudent } from "../../models/GradingStudent";
 import {
     getStudentDisplayName,
     getStudentIdentification,
 } from "../../hooks/evaluationDisplay";
-
-export type GradeDraft = Record<string, { scaleId: string; comment: string }>;
 
 interface RubricGradeTableProps {
     criteria: Criteria[];
@@ -16,7 +14,7 @@ interface RubricGradeTableProps {
     saving: boolean;
     scales: Scale[];
     scalesByCriterion: Record<string, Scale[]>;
-    selectedEnrollment?: Enrollment;
+    selectedStudent?: GradingStudent;
     selectedEnrollmentId: string;
     onScaleChange: (criterionId: string, scaleId: string) => void;
     onCommentChange: (criterionId: string, comment: string) => void;
@@ -32,7 +30,7 @@ export const RubricGradeTable = ({
     saving,
     scales,
     scalesByCriterion,
-    selectedEnrollment,
+    selectedStudent,
     selectedEnrollmentId,
     onScaleChange,
     onCommentChange,
@@ -43,10 +41,10 @@ export const RubricGradeTable = ({
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 p-5">
             <div>
                 <h2 className="text-lg font-semibold text-gray-900">
-                    {getStudentDisplayName(selectedEnrollment)}
+                    {getStudentDisplayName(selectedStudent)}
                 </h2>
                 <p className="text-sm text-gray-500">
-                    Identificacion: {getStudentIdentification(selectedEnrollment)}
+                    Identificacion: {getStudentIdentification(selectedStudent)}
                 </p>
             </div>
             <div className="text-right">

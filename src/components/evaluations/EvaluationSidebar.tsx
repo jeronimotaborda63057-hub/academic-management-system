@@ -1,6 +1,6 @@
-import type { Enrollment } from "../../models/Enrollment";
 import type { Evaluation } from "../../models/Evaluation";
 import type { Grade } from "../../models/Grade";
+import type { GradingStudent } from "../../models/GradingStudent";
 import {
     getGradeScore,
     getStudentIdentification,
@@ -9,24 +9,24 @@ import {
 
 interface EvaluationSidebarProps {
     evaluations: Evaluation[];
-    enrollments: Enrollment[];
+    students: GradingStudent[];
     selectedEvaluationId: string;
     selectedEnrollmentId: string;
     rubricTitle: string;
     existingGrade?: Grade;
-    selectedEnrollment?: Enrollment;
+    selectedStudent?: GradingStudent;
     onEvaluationChange: (id: string) => void;
     onEnrollmentChange: (id: string) => void;
 }
 
 export const EvaluationSidebar = ({
     evaluations,
-    enrollments,
+    students,
     selectedEvaluationId,
     selectedEnrollmentId,
     rubricTitle,
     existingGrade,
-    selectedEnrollment,
+    selectedStudent,
     onEvaluationChange,
     onEnrollmentChange,
 }: EvaluationSidebarProps) => (
@@ -59,9 +59,9 @@ export const EvaluationSidebar = ({
                 className="mt-2 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-primary"
             >
                 <option value="">Selecciona un estudiante</option>
-                {enrollments.map((enrollment) => (
-                    <option key={enrollment.id} value={enrollment.id}>
-                        {getStudentOptionLabel(enrollment)}
+                {students.map((student) => (
+                    <option key={student.enrollmentId} value={student.enrollmentId}>
+                        {getStudentOptionLabel(student)}
                     </option>
                 ))}
             </select>
@@ -70,7 +70,7 @@ export const EvaluationSidebar = ({
         <div className="rounded-xl bg-gray-50 p-4">
             <p className="text-xs uppercase text-gray-400">Identificacion</p>
             <p className="mt-1 text-sm font-semibold text-gray-900">
-                {getStudentIdentification(selectedEnrollment)}
+                {getStudentIdentification(selectedStudent)}
             </p>
         </div>
 

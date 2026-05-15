@@ -20,6 +20,11 @@ export class GroupService extends BaseService<Group> {
         }
     }
 
+    async getAllWithAuth(): Promise<Group[]> {
+        const response = await api.get<{ data: Group[] }>(this.apiURL);
+        return response.data.data ?? [];
+    }
+
     async assignTeacherToGroup(groupId: string, teacherId: string): Promise<any> {
         try {
             const response = await api.patch(

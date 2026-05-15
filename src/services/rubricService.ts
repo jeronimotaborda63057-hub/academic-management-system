@@ -11,6 +11,11 @@ export class RubricService extends BaseService<Rubric>{
         const response = await api.get<{ data: Rubric }>(`${this.apiURL}/${id}`);
         return response.data.data ?? null;
     }
+
+    async getAllWithAuth(): Promise<Rubric[]> {
+        const response = await api.get<{ data: Rubric[] }>(this.apiURL);
+        return response.data.data ?? [];
+    }
 }
 
 export const rubricService = new RubricService();

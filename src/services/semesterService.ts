@@ -1,5 +1,6 @@
 import { BaseService } from "./baseService";
 import type { Semester } from "../models/Semester";
+import { api } from "../interceptors/authInterceptor";
 
 class SemesterService extends BaseService<Semester> {
     constructor() {
@@ -17,6 +18,11 @@ class SemesterService extends BaseService<Semester> {
 
     async close(id: string): Promise<Semester | null> {
         return this.update(id, { is_active: false });
+    }
+
+    async getAllWithAuth(): Promise<Semester[]> {
+        const response = await api.get<{ data: Semester[] }>(this.apiURL);
+        return response.data.data ?? [];
     }
 }
 

@@ -18,6 +18,12 @@ export interface SaveRubricGradePayload {
     details: GradeDetailPayload[];
 }
 
+export interface FinalizeGradePayload {
+    is_locked: boolean;
+    observations?: string;
+    status?: "DRAFT" | "SUBMITTED";
+}
+
 export class GradeService extends BaseService<Grade> {
     constructor() {
         super("evaluation/grades");
@@ -43,6 +49,11 @@ export class GradeService extends BaseService<Grade> {
 
     async updateRubricGrade(id: string, payload: SaveRubricGradePayload): Promise<Grade | null> {
         const response = await api.put<{ data: Grade }>(`${this.apiURL}/${id}`, payload);
+        return response.data.data ?? null;
+    }
+
+    async finalizeGrade(id: string, payload: FinalizeGradePayload): Promise<Grade | null> {
+        const response = await api.patch<{ data: Grade }>(`${this.apiURL}/${id}`, payload);
         return response.data.data ?? null;
     }
 }

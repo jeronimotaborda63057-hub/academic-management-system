@@ -20,6 +20,7 @@ const EnrollmentList = lazy(() => import('../pages/enrollments/List'));
 const EnrollmentCreate = lazy(()=> import('../pages/enrollments/Create'));
 const EnrollmentEdit = lazy(() => import('../pages/enrollments/Edit'));
 const EvaluationsList = lazy(() => import('../pages/evaluations/List'));
+const GradesList = lazy(() => import('../pages/grades/List'));
 
 const coreRoutes = [
     {
@@ -144,6 +145,11 @@ const coreRoutes = [
         path: '/evaluations/list',
         title: 'Evaluaciones',
         component: EvaluationsList
+    },
+    {
+        path: '/grades/list',
+        title: 'Notas finales',
+        component: GradesList
     },
 ];
 
