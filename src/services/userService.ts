@@ -1,4 +1,4 @@
-import { api } from "../interceptors/authInterceptor";
+import { api } from "./baseService";
 import type { CreateUserPayload, User } from "../models/User";
 import type { UserFilters } from "../models/UserFilters";
 import { BaseService } from "./baseService";
@@ -10,6 +10,7 @@ export class UserService extends BaseService<User> {
 
     async createUser(payload: CreateUserPayload): Promise<User | null> {
         try {
+            console.log(api.defaults.baseURL);
             const response = await api.post<{ data: User }>(this.apiURL, payload);
             return response.data.data;
         } catch (error) {

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { ApiResponse } from '../models/services/ApiResponse';
 
-const api = axios.create({
+export const api = axios.create({
     baseURL: '/api',
 });
 // 🔥 PRINCIPIO SOLID: reutilizable

@@ -1,4 +1,4 @@
-import { api } from "../interceptors/authInterceptor";
+import { api } from "./baseService";
 import type { Curriculum } from "../models/Curriculum";
 import type { Subject } from "../models/Subject";
 import { BaseService } from "./baseService";
