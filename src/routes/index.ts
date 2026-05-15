@@ -27,6 +27,7 @@ const RubricsEdit   = lazy(() => import('../pages/rubrics/Edit'));
 
 // ── CU-12: Registrar nota final ───────────────────────────────────────────────
 const RegisterFinalGradePage = lazy(() => import('../pages/grades/RegisterFinalGradePage'));
+const TeacherGroupsPage = lazy(() => import('../pages/groups/TeacherGroupsPage'));
 
 const coreRoutes = [
     // ── Rúbricas (HU-08) ──────────────────────────────────────────────────────
@@ -130,6 +131,12 @@ const coreRoutes = [
         path: '/grades/register/:groupId',
         title: 'Registrar nota final',
         component: RegisterFinalGradePage
+    },
+    // ── Lista de grupos del docente (entrada al CU-12) ────────────────────────
+    {
+        path: '/groups/list',
+        title: 'Mis grupos',
+        component: TeacherGroupsPage
     },
 ];
 

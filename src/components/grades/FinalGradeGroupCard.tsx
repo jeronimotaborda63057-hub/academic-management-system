@@ -10,7 +10,7 @@ interface FinalGradeGroupCardProps {
     totalWeight: number;
 }
 
-// Tarjeta con información del grupo (parte superior del formulario, como en el mockup)
+// Tarjeta con información del grupo (parte superior del formulario CU-12)
 const FinalGradeGroupCard: React.FC<FinalGradeGroupCardProps> = ({
     group,
     totalStudents,
@@ -60,7 +60,6 @@ const FinalGradeGroupCard: React.FC<FinalGradeGroupCardProps> = ({
                     <span className="font-medium text-black dark:text-white mr-2">
                         {group.semester?.name ?? '—'}
                     </span>
-                    {/* Badge de semestre activo */}
                     {group.semester && (
                         <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-success/10 text-success">
                             Activo
