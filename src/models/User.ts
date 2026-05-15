@@ -6,9 +6,6 @@ import type { TeacherProfile } from "./TeacherProfile";
 
 export type UserRole = "ADMIN" | "TEACHER" | "STUDENT";
 
-
-// --- USUARIO (lo que devuelve el backend) ---
-
 export interface User {
     id: string;
     email: string;

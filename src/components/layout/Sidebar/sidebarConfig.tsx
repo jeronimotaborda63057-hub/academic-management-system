@@ -58,14 +58,14 @@ export const teacherMenu: NavGroup[] = [
         items: [
             { label: "Grupos", path: "/groups/list", icon: icons.group },
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
-            { label: "Evaluaciones", path: "/evaluations/list", icon: icons.evaluation },
+            { label: "Evaluaciones", path: "/evaluations", icon: icons.evaluation },
             { label: "Calificaciones", path: "/grades/list", icon: icons.grade },
         ],
     },
     {
         title: "RÚBRICAS",
         items: [
-            { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
+            { label: "Rúbricas", path: "/rubrics/scales", icon: icons.rubric },
             { label: "Mis rúbricas", path: "/rubrics/mine", icon: icons.rubric },
         ],
     },

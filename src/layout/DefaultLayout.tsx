@@ -4,11 +4,9 @@ import Sidebar from '../components/layout/sidebar/Sidebar';
 import { Outlet } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from '../store/store';
-import useColorMode from '../components/hooks/useColorMode';
 
 const DefaultLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    useColorMode(); // ✅ activa el dark mode en el <body> desde el layout
 
     return (
         <Provider store={store}>

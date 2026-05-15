@@ -19,6 +19,7 @@ const StudentsList = lazy(() => import('../pages/students/List'));
 const EnrollmentList = lazy(() => import('../pages/enrollments/List'));
 const EnrollmentCreate = lazy(()=> import('../pages/enrollments/Create'));
 const EnrollmentEdit = lazy(() => import('../pages/enrollments/Edit'));
+const EvaluationsList = lazy(() => import('../pages/evaluations/List'));
 
 const coreRoutes = [
     {
@@ -133,7 +134,17 @@ const coreRoutes = [
         path: '/rubrics/scales',
         title: 'Definir criterios y escalas',
         component: ScaleDefinitionPage
-    }
+    },
+    {
+        path: '/evaluations',
+        title: 'Evaluaciones',
+        component: EvaluationsList
+    },
+    {
+        path: '/evaluations/list',
+        title: 'Evaluaciones',
+        component: EvaluationsList
+    },
 ];
 
 const routes = [...coreRoutes];
