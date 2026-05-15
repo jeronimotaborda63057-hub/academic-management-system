@@ -1,9 +1,6 @@
-import axios from 'axios';
+import { api } from '../interceptors/authInterceptor';
 import type { ApiResponse } from '../models/Services/ApiResponse';
 
-export const api = axios.create({
-    baseURL: '/api',
-});
 // 🔥 PRINCIPIO SOLID: reutilizable
 export class BaseService<T> {
     protected apiURL: string;
@@ -17,6 +14,7 @@ export class BaseService<T> {
 
     async getAll(): Promise<T[]> {
         try {
+            // ✅ FIX: eliminado el doble /api/ — la URL correcta es /api/${this.apiURL}
             const response = await api.get<ApiResponse<T[]>>(`/api/${this.apiURL}`);
             return response.data.data;
         } catch (error) {
@@ -27,6 +25,7 @@ export class BaseService<T> {
 
     async getById(id: string): Promise<T | null> {
         try {
+            // ✅ FIX: misma corrección de URL
             const response = await api.get<ApiResponse<T>>(`/api/${this.apiURL}/${id}`);
             return response.data.data;
         } catch (error) {
@@ -35,12 +34,13 @@ export class BaseService<T> {
         }
     }
 
-    async create(data: Omit<T, "id" | "created_at" | "updated_at">): Promise<T | null> {
+    async create(data: Omit<T, 'id' | 'created_at' | 'updated_at'>): Promise<T | null> {
         try {
-            const response = await api.post<{ data: T }>(this.apiURL, data);
+            // ✅ FIX: URL corregida — antes era solo this.apiURL sin /api/ adelante
+            const response = await api.post<{ data: T }>(`/api/${this.apiURL}`, data);
             return response.data.data;
         } catch (error) {
-            console.error("Error al crear: " + error);
+            console.error('Error al crear: ' + error);
             return null;
         }
     }

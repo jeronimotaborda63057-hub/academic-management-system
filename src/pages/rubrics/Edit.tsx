@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader"; // ✅ FIX: ruta corregida
 import FormField from "../../components/multiStepForm/FormField";
 import CriteriaEditor from "../../components/rubrics/CriteriaEditor";
 import RubricStatusBadge from "../../components/rubrics/RubricStatusBadge";
@@ -11,28 +11,6 @@ import { criteriaService } from "../../services/criteriaService";
 import { useState } from "react";
 import type { Rubric } from "../../models/Rubric";
 
-/**
- * Edit — página para editar una rúbrica existente.
- *
- * FIX CU-08 (bugs corregidos):
- *
- * 1. DUPLICACIÓN DE CRITERIOS
- *    Antes: handleSubmit llamaba criteriaService.create() sin borrar los
- *    anteriores, acumulando duplicados en la DB y rompiendo la validación 100%.
- *    Ahora: handleSubmit llama `criteriaService.deleteByRubric(id)` antes de
- *    crear los nuevos, haciendo un replace atómico.
- *
- * 2. BORRADORES SIN CRITERIOS (race condition)
- *    Antes: el hook useRubricForm se inicializaba con [] antes de que llegaran
- *    los datos, y no había forma de sincronizar después del fetch.
- *    Ahora: useEffect llama `resetCriteria(criteriasFetched)` tras cargar,
- *    garantizando que el estado local refleje lo que devuelve la API.
- *
- * 3. CAMPOS RECHAZADOS POR EL BACKEND
- *    Antes: se enviaban `subject_id` e `is_archived` que el backend no acepta.
- *    Ahora: rubricService.update solo recibe { title, description, is_public }.
- */
-
 const Edit: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -41,7 +19,6 @@ const Edit: React.FC = () => {
     const [isFetching, setIsFetching] = useState(true);
     const [rubric,     setRubric]     = useState<Rubric | null>(null);
 
-    // Hook centralizado de estado del formulario
     const {
         form,
         setForm,
@@ -56,7 +33,6 @@ const Edit: React.FC = () => {
         resetCriteria,
     } = useRubricForm();
 
-    // ── Carga inicial: rúbrica + criterios en paralelo ──────────────────────
     useEffect(() => {
         if (!id) return;
 
@@ -69,14 +45,11 @@ const Edit: React.FC = () => {
 
                 setRubric(r);
 
-                // Inicializar campos del formulario con datos del servidor
                 setForm({
                     title:       r.title       ?? "",
                     description: r.description ?? "",
                 });
 
-                // FIX 2: sincronizar criterios después del fetch
-                // Evita el bug de borradores que cargaban con criterios vacíos
                 resetCriteria(
                     fetchedCriteria.map((c) => ({
                         id:          c.id          ?? crypto.randomUUID(),
@@ -98,27 +71,21 @@ const Edit: React.FC = () => {
     const isArchived  = rubric?.is_archived === true;
     const isPublished = rubric?.is_public   === true;
 
-    // ── Guardar (borrador o publicar) ────────────────────────────────────────
     const handleSubmit = async (isPublic: boolean) => {
-        if (isArchived)           return;
+        if (isArchived)             return;
         if (isPublic && !formValid)  return;
         if (!isPublic && !draftValid) return;
 
         setIsLoading(true);
         try {
-            // Paso 1: actualizar metadatos de la rúbrica
-            // FIX 3: NO se envían subject_id ni is_archived (backend los rechaza)
             await rubricService.update(id!, {
                 title:       form.title,
                 description: form.description,
                 is_public:   isPublic,
             });
 
-            // Paso 2: FIX 1 — borrar criterios viejos ANTES de crear los nuevos
-            // Sin este paso los criterios se acumulan y rompen la validación del 100%
             await criteriaService.deleteByRubric(id!);
 
-            // Paso 3: crear los criterios actuales
             if (criteriaRows.length > 0) {
                 await Promise.all(
                     criteriaRows.map((row) =>
@@ -146,7 +113,6 @@ const Edit: React.FC = () => {
         }
     };
 
-    // ── Desarchivar ──────────────────────────────────────────────────────────
     const handleUnarchive = async () => {
         const { isConfirmed } = await Swal.fire({
             title:             "¿Desarchivar rúbrica?",
@@ -167,7 +133,6 @@ const Edit: React.FC = () => {
         }
     };
 
-    // ── Estados de carga / error ─────────────────────────────────────────────
     if (isFetching) {
         return (
             <div className="flex items-center justify-center p-10">
@@ -182,7 +147,6 @@ const Edit: React.FC = () => {
         );
     }
 
-    // ── Render ───────────────────────────────────────────────────────────────
     return (
         <div>
             <PageHeader
@@ -191,7 +155,6 @@ const Edit: React.FC = () => {
                 breadcrumb={["Inicio", "Rúbricas", "Editar"]}
             />
 
-            {/* Banner: rúbrica archivada */}
             {isArchived && (
                 <div className="mb-4 px-4 py-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl text-sm text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
                     <span className="font-semibold">Archivada:</span>
@@ -201,7 +164,6 @@ const Edit: React.FC = () => {
 
             <div className="bg-white dark:bg-boxdark rounded-2xl border border-stroke dark:border-strokedark p-6 flex flex-col gap-6">
 
-                {/* ── Fila de estado ── */}
                 <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-xs text-gray-400 uppercase tracking-wider">Estado:</span>
                     <RubricStatusBadge isPublic={rubric.is_public} isArchived={rubric.is_archived} />
@@ -212,7 +174,6 @@ const Edit: React.FC = () => {
                     )}
                 </div>
 
-                {/* ── Campos: título + descripción ── */}
                 <section className="flex flex-col gap-4">
                     <FormField
                         field={{ name: "title", label: "Título", type: "text", required: true }}
@@ -243,7 +204,6 @@ const Edit: React.FC = () => {
                     </div>
                 </section>
 
-                {/* ── Tabla de criterios (solo si no está archivada) ── */}
                 {!isArchived && (
                     <section>
                         <CriteriaEditor
@@ -257,7 +217,6 @@ const Edit: React.FC = () => {
                     </section>
                 )}
 
-                {/* ── Acciones — rúbrica activa ── */}
                 {!isArchived && (
                     <div className="flex justify-end gap-3 pt-2 border-t border-stroke dark:border-strokedark flex-wrap">
                         <button
@@ -268,7 +227,6 @@ const Edit: React.FC = () => {
                             Cancelar
                         </button>
 
-                        {/* Guardar borrador: solo visible si aún no está publicada */}
                         {!isPublished && (
                             <button
                                 type="button"
@@ -295,7 +253,6 @@ const Edit: React.FC = () => {
                     </div>
                 )}
 
-                {/* ── Acciones — rúbrica archivada ── */}
                 {isArchived && (
                     <div className="flex justify-end gap-3 pt-2 border-t border-stroke dark:border-strokedark">
                         <button

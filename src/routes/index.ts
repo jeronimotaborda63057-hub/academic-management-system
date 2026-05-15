@@ -10,14 +10,14 @@ const SemestersList = lazy(() => import('../pages/semesters/List'));
 const SemestersCreate = lazy(() => import('../pages/semesters/Create'));
 const SemestersEdit = lazy(() => import('../pages/semesters/Edit'));
 const CurriculumList = lazy(() => import('../pages/study-plan/List'));
-const AssignTeacherPage = lazy(() => import('../pages/groups/AssignTeacherPage') )
+const AssignTeacherPage = lazy(() => import('../pages/groups/AssignTeacherPage'));
 const SubjectsList = lazy(() => import('../pages/subjects/List'));
 const SubjectsCreate = lazy(() => import('../pages/subjects/Create'));
 const SubjectsEdit = lazy(() => import('../pages/subjects/Edit'));
 const ScaleDefinitionPage = lazy(() => import('../pages/rubrics/RubricScaleDefinitionPage'));
 const StudentsList = lazy(() => import('../pages/students/List'));
 const EnrollmentList = lazy(() => import('../pages/enrollments/List'));
-const EnrollmentCreate = lazy(()=> import('../pages/enrollments/Create'));
+const EnrollmentCreate = lazy(() => import('../pages/enrollments/Create'));
 const EnrollmentEdit = lazy(() => import('../pages/enrollments/Edit'));
 
 // ── HU-08: Rúbricas ───────────────────────────────────────────────────────────
@@ -30,6 +30,7 @@ const coreRoutes = [
     { path: '/rubrics/list',         title: 'Rúbricas',           component: RubricsList     },
     { path: '/rubrics/create',       title: 'Crear rúbrica',      component: RubricsCreate   },
     { path: '/rubrics/edit/:id',     title: 'Editar rúbrica',     component: RubricsEdit     },
+    { path: '/rubrics/scales',       title: 'Definir criterios y escalas', component: ScaleDefinitionPage },
     {
         path: '/users/list',
         title: 'Usuarios',
@@ -81,19 +82,16 @@ const coreRoutes = [
         component: CurriculumList
     },
     {
-
         path: '/subjects/list',
         title: 'Asignaturas',
         component: SubjectsList
     },
     {
-
         path: '/subjects/create',
         title: 'Crear asignatura',
         component: SubjectsCreate
     },
     {
-
         path: '/subjects/edit/:id',
         title: 'Editar asignatura',
         component: SubjectsEdit
@@ -101,10 +99,10 @@ const coreRoutes = [
     {
         path: '/students/list',
         title: 'Estudiantes',
-        component : StudentsList
+        component: StudentsList
     },
     {
-        path: 'enrollments/list',
+        path: '/enrollments/list', // ✅ FIX: slash inicial agregado
         title: 'Asignar matrícula',
         component: EnrollmentList
     },
@@ -122,27 +120,7 @@ const coreRoutes = [
         path: '/groups/assign-teacher',
         title: 'Asignar docente a grupo',
         component: AssignTeacherPage
-    }, 
-    { 
-        path: '/subjects/list', 
-        title: 'Asignaturas', 
-        component: SubjectsList 
     },
-    { 
-        path: '/subjects/create', 
-        title: 'Crear asignatura', 
-        component: SubjectsCreate 
-    },
-    { 
-        path: '/subjects/edit/:id', 
-        title: 'Editar asignatura', 
-        component: SubjectsEdit 
-    },
-    {
-        path: '/rubrics/scales',
-        title: 'Definir criterios y escalas',
-        component: ScaleDefinitionPage
-    }
 ];
 
 const routes = [...coreRoutes];

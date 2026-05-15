@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader"; // ✅ FIX: ruta corregida
 import FormField from "../../components/multiStepForm/FormField";
 import CriteriaEditor from "../../components/rubrics/CriteriaEditor";
 import { useRubricForm } from "../../hooks/useRubricForm";
