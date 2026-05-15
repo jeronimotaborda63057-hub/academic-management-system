@@ -1,4 +1,4 @@
-import { api } from "./baseService";
+import { api } from './baseService';
 import type { Group } from "../models/Group";
 import { BaseService } from "./baseService";
 

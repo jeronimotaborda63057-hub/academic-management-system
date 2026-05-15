@@ -61,6 +61,7 @@ export const teacherMenu: NavGroup[] = [
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
             { label: "Evaluaciones", path: "/evaluations/list", icon: icons.evaluation },
             { label: "Calificaciones", path: "/grades/list", icon: icons.grade },
+            // Acceso a CU-12: Registrar nota final (se navega con groupId dinámico desde Grupos)
             { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
         ],
     },

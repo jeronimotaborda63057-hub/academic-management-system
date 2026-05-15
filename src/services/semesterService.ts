@@ -7,8 +7,7 @@ class SemesterService extends BaseService<Semester> {
     }
 
     async getByCareer(careerId: string): Promise<Semester[]> {
-        const all = await this.getAll();
-        return all.filter((s) => s.career_id === careerId);
+        return await this.getAll();
     }
 
     async setActive(id: string): Promise<Semester | null> {
