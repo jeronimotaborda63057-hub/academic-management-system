@@ -1,137 +1,170 @@
-import React, { useEffect, useState } from "react";
+// src/pages/careers/Edit.tsx
+
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { careerService } from "../../services/careerService";
-import type { CareerForm } from "../../models/Career";
-import PageHeader from "../../components/PageHeader";
-import type { StepField } from "../../models/StepField";
 import Swal from "sweetalert2";
 
-const FIELDS: StepField[] = [
-    { label: "Código",      name: "code",        type: "text",     required: true  },
-    { label: "Nombre",      name: "name",        type: "text",     required: true  },
-    { label: "Descripción", name: "description", type: "textarea", required: false },
-];
+import type { CareerForm } from "../../models/CareerForm";
+import { careerService }   from "../../services/careerService";
+import { useCareerForm }   from "../../hooks/useCareerForm";
 
-const Edit: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+import FormLayout from "../../components/ui/FormLayout";
+import FormField  from "../../components/ui/FormField";
+
+// ─────────────────────────────────────────────────────────────
+//  Edit
+//
+//  SRP  → carga datos, coordina submit. Validaciones en
+//          useCareerForm; UI en FormLayout/FormField.
+//  OCP  → campos nuevos = un <FormField> más.
+//  DIP  → depende de careerService (abstracción).
+// ─────────────────────────────────────────────────────────────
+
+export default function EditCareer() {
+
+    const { id }   = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [isLoading, setIsLoading] = useState(false);
-    const [values, setValues] = useState<Record<string, string>>({
-        code: "", name: "", description: "",
-    });
+
+    const [initialValues, setInitialValues] =
+        useState<CareerForm | null>(null);
+
+    // ── Carga inicial ──────────────────────────────────────
 
     useEffect(() => {
         if (!id) return;
-        careerService.getById(id).then((career) => {
-            if (!career) return;
-            setValues({
-                code:        career.code,
-                name:        career.name,
-                description: career.description ?? "",
+
+        careerService.getById(id).then((data) => {
+            if (!data) return;
+            setInitialValues({
+                code:        data.code,
+                name:        data.name,
+                description: data.description ?? "",
+                is_active:   data.is_active,
             });
         });
     }, [id]);
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-    ) => {
-        const { name, value } = e.target;
-        setValues((prev) => ({ ...prev, [name]: value }));
-    };
+    // ── Submit ─────────────────────────────────────────────
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!id) return;
-        setIsLoading(true);
+    const handleSubmit = async (data: CareerForm) => {
         try {
-            const payload: Partial<CareerForm> = {
-                name:        values.name,
-                description: values.description,
-            };
-            const result = await careerService.update(id, payload);
-            if (!result) throw new Error();
-            Swal.fire("Éxito", "Carrera actualizada correctamente.", "success");
-            navigate("/careers");
+
+            await careerService.update(id!, data);
+
+            await Swal.fire({
+                icon:  "success",
+                title: "Carrera actualizada",
+                text:  "Se guardó correctamente.",
+            });
+
+            navigate("/careers/list");
+
         } catch {
-            Swal.fire("Error", "Ocurrió un error al actualizar la carrera.", "error");
-        } finally {
-            setIsLoading(false);
+
+            Swal.fire({
+                icon:  "error",
+                title: "Error",
+                text:  "No se pudo actualizar la carrera.",
+            });
         }
     };
 
+    const formik = useCareerForm({
+        initialValues: initialValues ?? {
+            code: "", name: "", description: "", is_active: true,
+        },
+        onSubmit: handleSubmit,
+    });
+
+    const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        formik.handleSubmit();
+    };
+
+    // ── Loading inicial ────────────────────────────────────
+
+    if (!initialValues) {
+        return (
+            <div className="flex items-center justify-center h-40">
+                <p className="text-sm text-gray-500 dark:text-bodydark2">
+                    Cargando carrera...
+                </p>
+            </div>
+        );
+    }
+
+    // ── Render ─────────────────────────────────────────────
+
     return (
-        <div>
-            <PageHeader
-                title="Editar carrera"
-                subtitle="Modifica los datos de la carrera."
-                breadcrumb={["Inicio", "Carreras", "Editar"]}
+        <FormLayout
+            title="Editar carrera"
+            subtitle="Gestiona la información de la carrera académica."
+            breadcrumb={["Inicio", "Carreras", "Editar"]}
+            onSubmit={handleFormSubmit}
+            onCancel={() => navigate("/careers/list")}
+            submitLabel="Guardar cambios"
+            isLoading={formik.isSubmitting}
+        >
+
+            {/* Código */}
+            <FormField
+                type="text"
+                name="code"
+                label="Código"
+                value={formik.values.code}
+                onChange={formik.handleChange}
+                placeholder="Ej. ING-SIS"
+                required
+                error={
+                    formik.touched.code && formik.errors.code
+                        ? formik.errors.code
+                        : undefined
+                }
             />
 
-            <form
-                onSubmit={handleSubmit}
-                className="bg-white dark:bg-boxdark rounded-2xl border border-stroke dark:border-strokedark p-6 flex flex-col gap-4"
-            >
-                {FIELDS.map((field) =>
-                    field.type === "textarea" ? (
-                        <div key={field.name} className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-gray-500 dark:text-bodydark2 uppercase tracking-wider">
-                                {field.label}
-                            </label>
-                            <textarea
-                                name={field.name}
-                                value={values[field.name] ?? ""}
-                                onChange={handleChange}
-                                rows={3}
-                                maxLength={200}
-                                className="px-4 py-3 rounded-xl border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-sm text-black dark:text-white outline-none focus:border-primary transition-colors resize-none"
-                            />
-                            <p className="text-xs text-right text-gray-400">
-                                {(values[field.name] ?? "").length}/200
-                            </p>
-                        </div>
-                    ) : (
-                        <div key={field.name} className="flex flex-col gap-1.5">
-                            <label className="text-xs font-semibold text-gray-500 dark:text-bodydark2 uppercase tracking-wider">
-                                {field.label}
-                                {field.required && <span className="text-red-500 ml-1">*</span>}
-                            </label>
-                            <input
-                                type={field.type}
-                                name={field.name}
-                                value={values[field.name] ?? ""}
-                                onChange={handleChange}
-                                disabled={field.name === "code"} // ✅ código no editable
-                                required={field.required}
-                                className="h-11 px-4 rounded-xl border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-sm text-black dark:text-white outline-none focus:border-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            />
-                            {field.name === "code" && (
-                                <p className="text-xs text-gray-400 dark:text-bodydark2">
-                                    El código no se puede modificar.
-                                </p>
-                            )}
-                        </div>
-                    )
-                )}
+            {/* Nombre */}
+            <FormField
+                type="text"
+                name="name"
+                label="Nombre"
+                value={formik.values.name}
+                onChange={formik.handleChange}
+                placeholder="Ej. Ingeniería de Sistemas"
+                required
+                error={
+                    formik.touched.name && formik.errors.name
+                        ? formik.errors.name
+                        : undefined
+                }
+            />
 
-                <div className="flex justify-end gap-3 pt-2">
-                    <button
-                        type="button"
-                        onClick={() => navigate("/careers/list")}
-                        className="h-11 px-6 rounded-xl border border-stroke dark:border-strokedark text-sm text-black dark:text-white hover:bg-gray-50 dark:hover:bg-meta-4 transition"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="h-11 px-6 rounded-xl bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition disabled:opacity-60"
-                    >
-                        {isLoading ? "Guardando..." : "Guardar cambios"}
-                    </button>
-                </div>
-            </form>
-        </div>
+            {/* Descripción */}
+            <FormField
+                type="textarea"
+                name="description"
+                label="Descripción"
+                value={formik.values.description ?? ""}
+                onChange={formik.handleChange}
+                placeholder="Describe la carrera..."
+                rows={3}
+                maxLength={200}
+                showCount
+                error={
+                    formik.touched.description && formik.errors.description
+                        ? formik.errors.description
+                        : undefined
+                }
+            />
+
+            {/* Activo */}
+            <FormField
+                type="checkbox"
+                name="is_active"
+                label="Carrera activa"
+                value={formik.values.is_active}
+                onChange={formik.handleChange}
+            />
+
+        </FormLayout>
     );
-};
-
-export default Edit;
+}

@@ -6,3 +6,5 @@ export class ScaleService extends BaseService<Scale> {
         super("evaluation/scales");
     }
 }
+
+export const scaleService = new ScaleService();

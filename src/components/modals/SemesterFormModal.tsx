@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { X, Info } from "lucide-react";
-import type { Semester, SemesterForm } from "../models/Semester";
-import type { Career } from "../models/Career";
+import type { Semester, SemesterForm } from "../../models/Semester";
+import type { Career } from "../../models/Career";
 
 interface SemesterFormModalProps {
     isOpen: boolean;

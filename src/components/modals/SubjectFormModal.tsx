@@ -1,22 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import type { Career, CareerForm } from "../models/Career";
-import type { StepField } from "../models/StepField";
-interface CareerFormModalProps {
+import type { Subject, SubjectForm } from "../../models/Subject";
+
+interface SubjectFormModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (form: CareerForm) => Promise<void>;
-    initialData?: Career | null;
+    onSubmit: (form: SubjectForm) => Promise<void>;
+    initialData?: Subject | null;
     isLoading?: boolean;
 }
 
-const FIELDS: StepField[] = [
-    { label: "Código",      name: "code",        type: "text",     required: true  },
-    { label: "Nombre",      name: "name",        type: "text",     required: true  },
-    { label: "Descripción", name: "description", type: "text", required: false },
-];
-
-const CareerFormModal: React.FC<CareerFormModalProps> = ({
+const SubjectFormModal: React.FC<SubjectFormModalProps> = ({
     isOpen,
     onClose,
     onSubmit,
@@ -25,27 +19,30 @@ const CareerFormModal: React.FC<CareerFormModalProps> = ({
 }) => {
     const isEdit = Boolean(initialData);
 
-    const [values, setValues] = useState<Record<string, string>>({
-        code: "",
-        name: "",
+    const [values, setValues] = useState({
+        code:        "",
+        name:        "",
         description: "",
+        credits:     "1",
+        is_active:   true,
     });
 
-    // ✅ Carga los datos al abrir en modo edición
     useEffect(() => {
         if (initialData) {
             setValues({
-                code:        initialData.code,
-                name:        initialData.name,
+                code:        initialData.code ?? "",
+                name:        initialData.name ?? "",
                 description: initialData.description ?? "",
+                credits:     String(initialData.credits),
+                is_active:   initialData.is_active ?? true,
             });
         } else {
-            setValues({ code: "", name: "", description: "" });
+            setValues({ code: "", name: "", description: "", credits: "1", is_active: true });
         }
     }, [initialData, isOpen]);
 
     const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { name, value } = e.target;
         setValues((prev) => ({ ...prev, [name]: value }));
@@ -57,27 +54,26 @@ const CareerFormModal: React.FC<CareerFormModalProps> = ({
             code:        values.code,
             name:        values.name,
             description: values.description,
-            is_active:   initialData?.is_active ?? true,
+            credits:     Number(values.credits),
+            is_active:   values.is_active,
         });
     };
+
+    const baseInput = "h-11 px-4 rounded-xl border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-sm text-black dark:text-white outline-none focus:border-primary transition-colors w-full";
+    const labelClass = "text-xs font-semibold text-gray-500 dark:text-bodydark2 uppercase tracking-wider";
 
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-9999 flex items-center justify-center">
-            {/* Overlay */}
-            <div
-                className="absolute inset-0 bg-black bg-opacity-40"
-                onClick={onClose}
-            />
+            <div className="absolute inset-0 bg-black bg-opacity-40" onClick={onClose} />
 
-            {/* Modal */}
             <div className="relative z-10 w-full max-w-md mx-4 bg-white dark:bg-boxdark rounded-2xl border border-stroke dark:border-strokedark shadow-xl">
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-stroke dark:border-strokedark">
                     <h2 className="text-base font-semibold text-black dark:text-white">
-                        {isEdit ? "Editar carrera" : "Nueva carrera"}
+                        {isEdit ? "Editar asignatura" : "Nueva asignatura"}
                     </h2>
                     <button
                         onClick={onClose}
@@ -87,12 +83,11 @@ const CareerFormModal: React.FC<CareerFormModalProps> = ({
                     </button>
                 </div>
 
-                {/* Form */}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4 px-6 py-5">
 
-                    {/* Código — solo lectura en edición */}
+                    {/* Código — solo lectura en edición (HU-04 criterio 2) */}
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-500 dark:text-bodydark2 uppercase tracking-wider">
+                        <label className={labelClass}>
                             Código <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -101,9 +96,9 @@ const CareerFormModal: React.FC<CareerFormModalProps> = ({
                             value={values.code}
                             onChange={handleChange}
                             disabled={isEdit}
-                            placeholder="Ej. ING-SIS"
+                            placeholder="Ej. MAT-101"
                             required
-                            className="h-11 px-4 rounded-xl border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-sm text-black dark:text-white outline-none focus:border-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className={`${baseInput} ${isEdit ? "opacity-50 cursor-not-allowed" : ""}`}
                         />
                         {isEdit && (
                             <p className="text-xs text-gray-400 dark:text-bodydark2">
@@ -114,7 +109,7 @@ const CareerFormModal: React.FC<CareerFormModalProps> = ({
 
                     {/* Nombre */}
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-500 dark:text-bodydark2 uppercase tracking-wider">
+                        <label className={labelClass}>
                             Nombre <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -122,22 +117,37 @@ const CareerFormModal: React.FC<CareerFormModalProps> = ({
                             name="name"
                             value={values.name}
                             onChange={handleChange}
-                            placeholder="Ej. Ingeniería de Sistemas"
+                            placeholder="Ej. Matemáticas I"
                             required
-                            className="h-11 px-4 rounded-xl border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-sm text-black dark:text-white outline-none focus:border-primary transition-colors"
+                            className={baseInput}
+                        />
+                    </div>
+
+                    {/* Créditos */}
+                    <div className="flex flex-col gap-1.5">
+                        <label className={labelClass}>
+                            Créditos <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            name="credits"
+                            value={values.credits}
+                            onChange={handleChange}
+                            min="1"
+                            max="20"
+                            required
+                            className={baseInput}
                         />
                     </div>
 
                     {/* Descripción */}
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-gray-500 dark:text-bodydark2 uppercase tracking-wider">
-                            Descripción
-                        </label>
+                        <label className={labelClass}>Descripción</label>
                         <textarea
                             name="description"
                             value={values.description}
                             onChange={handleChange}
-                            placeholder="Describe la carrera..."
+                            placeholder="Describe la asignatura..."
                             rows={3}
                             maxLength={200}
                             className="px-4 py-3 rounded-xl border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-sm text-black dark:text-white outline-none focus:border-primary transition-colors resize-none"
@@ -163,16 +173,13 @@ const CareerFormModal: React.FC<CareerFormModalProps> = ({
                         >
                             {isLoading
                                 ? "Guardando..."
-                                : isEdit
-                                    ? "Guardar cambios"
-                                    : "Guardar carrera"}
+                                : isEdit ? "Guardar cambios" : "Guardar asignatura"}
                         </button>
                     </div>
-
                 </form>
             </div>
         </div>
     );
 };
 
-export default CareerFormModal;
+export default SubjectFormModal;

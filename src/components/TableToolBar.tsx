@@ -12,6 +12,7 @@ interface TableToolbarProps {
     onAction?: () => void;
 }
 
+
 const TableToolbar: React.FC<TableToolbarProps> = ({
     searchPlaceholder = "Buscar...",
     filters = [],

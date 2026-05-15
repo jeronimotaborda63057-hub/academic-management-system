@@ -3,7 +3,7 @@ import { BaseService } from "./baseService";
 
 export class StudentService extends BaseService<Student>{
     constructor(){
-        super("academic/students/search?identification=1001001");
+        super("academic/students");
     }
 }
 

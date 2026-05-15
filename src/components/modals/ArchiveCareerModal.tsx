@@ -1,6 +1,6 @@
 import React from "react";
 import { AlertTriangle, X } from "lucide-react";
-import type { Semester } from "../models/Semester";
+import type { Semester } from "../../models/Semester";
 
 interface ArchiveCareerModalProps {
     isOpen: boolean;

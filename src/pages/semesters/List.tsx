@@ -1,142 +1,115 @@
 import React, { useEffect, useState } from "react";
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
-import GenericTable from "../../components/GenericTable";
+import GenericTable from "../../components/ui/GenericTable";
 import { semesterService } from "../../services/semesterService";
-import { careerService } from "../../services/careerService";
-import type { Semester, SemesterForm } from "../../models/Semester";
-import type { Career } from "../../models/Career";
-import type { Action } from "../../models/Action";
-import { Pencil, Eye } from "lucide-react";
-import Swal from "sweetalert2";
-import SemesterFormModal from "../../components/SemesterFormModal";
+import type { Semester } from "../../models/Semester";
+import { Pencil, ToggleLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const List: React.FC = () => {
-    const [data, setData]         = useState<Semester[]>([]);
-    const [careers, setCareers]   = useState<Career[]>([]);
-    const [search, setSearch]     = useState("");
-    const [modalOpen, setModalOpen] = useState(false);
-    const [selected, setSelected] = useState<Semester | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [data, setData] = useState<Semester[]>([]);
+    const [search, setSearch] = useState("");
     const navigate = useNavigate();
-    const fetchData = async () => {
-        const [semesters, careerList] = await Promise.all([
-            semesterService.getAll(),
-            careerService.getAll(),
-        ]);
-        setData(semesters ?? []);
-        setCareers(careerList ?? []);
-    };
 
-    useEffect(() => { fetchData(); }, []);
+    useEffect(() => {
+        semesterService.getAll().then(setData);
+    }, []);
 
-    const handleAction = (action: string, item: Semester) => {
-    if (action === "edit") navigate(`/semesters/edit/${item.id}`); // ✅
-};
-
-    const handleSubmit = async (form: SemesterForm) => {
-        setIsLoading(true);
-        try {
-            if (selected) {
-                await semesterService.update(selected.id, form);
-                Swal.fire("Éxito", "Semestre actualizado correctamente.", "success");
-            } else {
-                await semesterService.create(form);
-                Swal.fire("Éxito", "Semestre creado correctamente.", "success");
-            }
-            setModalOpen(false);
-            setSelected(null);
-            fetchData();
-        } catch {
-            Swal.fire("Error", "Ocurrió un error al guardar el semestre.", "error");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const getCareerName = (careerId: string) =>
-        careers.find((c) => c.id === careerId)?.name ?? "-";
-
-    const filteredData = data.filter(
-        (s) =>
-            s.name.toLowerCase().includes(search.toLowerCase()) ||
-            s.code.toLowerCase().includes(search.toLowerCase())
+    const filteredData = data.filter((s) =>
+        s.name.toLowerCase().includes(search.toLowerCase()) ||
+        s.code.toLowerCase().includes(search.toLowerCase())
     );
 
     const columns = [
         { key: "code", label: "Código" },
         { key: "name", label: "Nombre" },
         {
-            key: "career_id",
-            label: "Carrera",
-            render: (value: string) => <span>{getCareerName(value)}</span>,
-        },
-        {
             key: "start_date",
-            label: "Fecha inicio",
-            render: (value: string) => (
-                <span>{new Date(value).toLocaleDateString("es-CO")}</span>
-            ),
+            label: "Inicio",
+            render: (v: string) => new Date(v).toLocaleDateString(),
         },
         {
             key: "end_date",
-            label: "Fecha fin",
-            render: (value: string) => (
-                <span>{new Date(value).toLocaleDateString("es-CO")}</span>
-            ),
+            label: "Fin",
+            render: (v: string) => new Date(v).toLocaleDateString(),
         },
         {
             key: "is_active",
             label: "Estado",
-            render: (value: boolean) => (
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    value
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-200 text-gray-600"
-                }`}>
-                    {value ? "Activo" : "Inactivo"}
-                </span>
-            ),
+            render: (v: boolean) => (v ? "Activo" : "Cerrado"),
         },
     ];
 
-    const actions: Action[] = [
-        { name: "edit", label: "Editar semestre", icon: <Pencil size={16} />, primary: true, variant: "default" },
-        { name: "view", label: "Ver detalle",      icon: <Eye size={16} />,    variant: "default" },
+    const actions = [
+        {
+            name: "edit",
+            label: "Editar",
+            icon: <Pencil size={18} />,
+            primary: true, // 🔥 ESTE ES EL BOTÓN DEL LÁPIZ
+        },
+        {
+            name: "toggle",
+            label: "Activar/Desactivar",
+            icon: <ToggleLeft size={18} />, // ⚠️ se cambia dinámicamente
+            primary: false,
+        },
     ];
+
+    const handleAction = async (action: string, semester: any) => {
+        try {
+            if (action === "edit") {
+                navigate(`/semesters/edit/${semester.id}`);
+            }
+
+            if (action === "toggle") {
+                const newStatus = !semester.is_active;
+
+                await semesterService.update(semester.id, {
+                    ...semester,
+                    is_active: newStatus,
+                });
+
+                await Swal.fire({
+                    icon: "success",
+                    title: "Actualizado",
+                    text: `Semestre ${newStatus ? "activado" : "desactivado"}`,
+                });
+
+            }
+        } catch (error: any) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo realizar la acción",
+            });
+        }
+    };
 
     return (
         <div>
             <PageHeader
                 title="Semestres"
-                subtitle="Gestiona los semestres académicos del sistema."
-                breadcrumb={["Inicio", "Semestres"]}
-            />
+                subtitle="Gestiona los semestres" />
+
+
             <TableToolbar
-                searchPlaceholder="Buscar semestre por nombre o código..."
+                searchPlaceholder="Buscar..."
                 onSearchChange={setSearch}
                 onClear={() => setSearch("")}
-                actionLabel="Nuevo semestre"
+                actionLabel="Nuevo"
                 onAction={() => navigate("/semesters/create")}
                 filters={[]}
                 filterValues={{}}
-                onFilterChange={() => {}}
+                onFilterChange={() => { }}
             />
+
             <GenericTable
                 data={filteredData}
                 columns={columns}
                 actions={actions}
                 onAction={handleAction}
-            />
-
-            <SemesterFormModal
-                isOpen={modalOpen}
-                onClose={() => { setModalOpen(false); setSelected(null); }}
-                onSubmit={handleSubmit}
-                initialData={selected}
-                careers={careers}
-                isLoading={isLoading}
             />
         </div>
     );
