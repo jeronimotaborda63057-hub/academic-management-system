@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import MultiStepForm from "../../components/multi-step-form/MultiStepForm";
+import MultiStepForm from "../../components/multiStepForm/MultiStepForm";
 import { userService } from "../../services/userService";
 import Swal from "sweetalert2";
 

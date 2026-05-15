@@ -20,7 +20,7 @@ export const useUser = (autoLoad = true) => {
 
     const createUser = async (payload: CreateUserPayload): Promise<User | null> => {
         setError(null);
-        const result = await userService.createUser(payload);
+        const result = await userService.createUser({ payload });
         if (!result) { setError("Error al crear el usuario"); return null; }
         await fetchUsers();
         return result;
