@@ -3,7 +3,7 @@ import type { Subject } from "../models/Subject";
 
 class SubjectService extends BaseService<Subject> {
     constructor() {
-        super("/academic/subjects/");
+        super("/academic/subjects");
     }
 
     // ✅ HU-04 criterio 3: archivar en vez de eliminar

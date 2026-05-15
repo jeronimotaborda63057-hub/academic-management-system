@@ -1,4 +1,3 @@
-import type { StringSchema } from "yup";
 import type { Rubric } from "./Rubric";
 import type { Scale } from "./Scale";
 

@@ -1,8 +1,8 @@
-import type { Scale } from "../models/Scale";
+import type { Scale, UpdateScaleDTO } from "../models/Scale";
 import { BaseService } from "./baseService";
 
 export class ScaleService extends BaseService<Scale> {
-    constructor (){
+    constructor() {
         super("evaluation/scales");
     }
 }

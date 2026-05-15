@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import DarkModeSwitcher from '../DarkModeSwitcher';
 import PageHeader from '../ui/PageHeader';
 
 const Header = (props: {
@@ -44,14 +43,6 @@ const Header = (props: {
                         subtitle={props.description ?? 'Bienvenido al sistema de gestión académica'}
                     />
                 </div>
-
-                {/* Dark mode */}
-                <div className="flex items-center gap-3 2xsm:gap-7">
-                    <ul className="flex items-center gap-2 2xsm:gap-4">
-                        <DarkModeSwitcher />
-                    </ul>
-                </div>
-
             </div>
         </header>
     );

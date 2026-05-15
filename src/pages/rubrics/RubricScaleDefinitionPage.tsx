@@ -1,24 +1,22 @@
-// src/pages/rubrics/RubricScaleDefinitionPage.tsx
-
 import { useEffect, useMemo, useState } from "react";
 import { Pencil, X, Check } from "lucide-react";
 import Swal from "sweetalert2";
 
 import type { Criteria } from "../../models/Criteria";
-import type { Rubric }   from "../../models/Rubric";
+import type { Rubric } from "../../models/Rubric";
 
-import { rubricService }   from "../../services/rubricService";
+import { rubricService } from "../../services/rubricService";
 import { criteriaService } from "../../services/criteriaService";
 
 import { useScaleDefinition } from "../../hooks/useScaleDefinition";
 
 import PageHeader from "../../components/ui/PageHeader";
 
-import { CriteriaSidebar }  from "../../components/scales/CriteriaSidebar";
-import { ScaleLevelsTable } from "../../components/scales/ScaleLevelsTable";
+import { CriteriaSidebar } from "../../components/scales/CriteriaSidebar";
 import { ScaleSummaryCard } from "../../components/scales/ScaleSummaryCard";
 
 import FormField from "../../components/ui/FormField";
+import { ScaleLevelsTableContainer } from "../../components/scales/ScaleLevelsTableContainer";
 
 // ─────────────────────────────────────────────────────────────
 //  Sub-componente: RubricEditPanel
@@ -30,9 +28,9 @@ import FormField from "../../components/ui/FormField";
 // ─────────────────────────────────────────────────────────────
 
 interface RubricEditPanelProps {
-    rubric:   Rubric;
-    saving:   boolean;
-    onSave:   (patch: Partial<Rubric>) => Promise<void>;
+    rubric: Rubric;
+    saving: boolean;
+    onSave: (patch: Partial<Rubric>) => Promise<void>;
     onCancel: () => void;
 }
 
@@ -44,9 +42,9 @@ const RubricEditPanel = ({
 }: RubricEditPanelProps) => {
 
     const [values, setValues] = useState({
-        title:       rubric.title       ?? "",
+        title: rubric.title ?? "",
         description: rubric.description ?? "",
-        is_public:   rubric.is_public   ?? false,
+        is_public: rubric.is_public ?? false,
     });
 
     const handleChange = (
@@ -55,7 +53,7 @@ const RubricEditPanel = ({
         >
     ) => {
         const target = e.target as HTMLInputElement;
-        const value  = target.type === "checkbox"
+        const value = target.type === "checkbox"
             ? target.checked
             : target.value;
 
@@ -187,7 +185,7 @@ const RubricEditPanel = ({
 // ─────────────────────────────────────────────────────────────
 
 interface RubricInfoCardProps {
-    rubric:         Rubric;
+    rubric: Rubric;
     onStartEditing: () => void;
 }
 
@@ -305,6 +303,7 @@ const RubricScaleDefinitionPage = () => {
     // ── Hook escalas ──────────────────────────────────────
 
     const {
+        allScales,      // ← nuevo
         scales,
         loading,
         saving,
@@ -380,9 +379,9 @@ const RubricScaleDefinitionPage = () => {
             setEditingRubric(false);
 
             await Swal.fire({
-                title:             "Rúbrica actualizada",
-                icon:              "success",
-                timer:             1500,
+                title: "Rúbrica actualizada",
+                icon: "success",
+                timer: 1500,
                 showConfirmButton: false,
             });
 
@@ -390,8 +389,8 @@ const RubricScaleDefinitionPage = () => {
 
             Swal.fire({
                 title: "Error",
-                text:  "No fue posible actualizar la rúbrica.",
-                icon:  "error",
+                text: "No fue posible actualizar la rúbrica.",
+                icon: "error",
             });
 
         } finally {
@@ -409,12 +408,12 @@ const RubricScaleDefinitionPage = () => {
     const handleDeleteScale = async (id: string) => {
 
         const result = await Swal.fire({
-            title:             "¿Eliminar nivel?",
-            text:              "Esta acción no se puede deshacer.",
-            icon:              "warning",
-            showCancelButton:  true,
+            title: "¿Eliminar nivel?",
+            text: "Esta acción no se puede deshacer.",
+            icon: "warning",
+            showCancelButton: true,
             confirmButtonText: "Eliminar",
-            cancelButtonText:  "Cancelar",
+            cancelButtonText: "Cancelar",
             confirmButtonColor: "#dc2626",
         });
 
@@ -423,9 +422,9 @@ const RubricScaleDefinitionPage = () => {
         await deleteScale(id);
 
         await Swal.fire({
-            title:             "Nivel eliminado",
-            icon:              "success",
-            timer:             1500,
+            title: "Nivel eliminado",
+            icon: "success",
+            timer: 1500,
             showConfirmButton: false,
             customClass: {
                 confirmButton: "swal-confirm-btn",
@@ -494,7 +493,9 @@ const RubricScaleDefinitionPage = () => {
 
                 {/* ===== TABLA NIVELES ===== */}
                 <div className="col-span-6">
-                    <ScaleLevelsTable
+                    <ScaleLevelsTableContainer
+                        criterionId={selectedCriterion?.id ?? ""}
+                        allScales={allScales}
                         scales={scales}
                         loading={loading}
                         saving={saving}
@@ -512,26 +513,6 @@ const RubricScaleDefinitionPage = () => {
                         criterion={selectedCriterion || undefined}
                         scales={scales}
                     />
-
-                    {/* ── Rúbrica: edición / info ── */}
-                    {rubric && (
-                        editingRubric ? (
-
-                            <RubricEditPanel
-                                rubric={rubric}
-                                saving={savingRubric}
-                                onSave={handleSaveRubric}
-                                onCancel={() => setEditingRubric(false)}
-                            />
-
-                        ) : (
-
-                            <RubricInfoCard
-                                rubric={rubric}
-                                onStartEditing={() => setEditingRubric(true)}
-                            />
-                        )
-                    )}
 
                     {/* ── Reglas / total niveles ── */}
                     <div
