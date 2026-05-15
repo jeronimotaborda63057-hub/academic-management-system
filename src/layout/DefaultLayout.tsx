@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar/Sidebar';
+import Sidebar from '../components/layout/sidebar/Sidebar';
 import { Outlet } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from '../store/store';
