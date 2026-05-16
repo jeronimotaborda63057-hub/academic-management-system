@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import routes from './routes';
+import RoleGuard from './routes/RoleGuard';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 const SignIn = lazy(() => import('./pages/authentication/SignIn'));
@@ -50,15 +51,23 @@ function App() {
                             }
                         />
                         {routes.map((route, index) => {
-                            const { path, component: Component } = route;
+                            const { path, component: Component, roles } = route;
+                            const page = (
+                                <Suspense fallback={<Loader />}>
+                                    <Component />
+                                </Suspense>
+                            );
+
                             return (
                                 <Route
                                     key={index}
                                     path={path}
                                     element={
-                                        <Suspense fallback={<Loader />}>
-                                            <Component />
-                                        </Suspense>
+                                        roles ? (
+                                            <RoleGuard allowedRoles={roles}>
+                                                {page}
+                                            </RoleGuard>
+                                        ) : page
                                     }
                                 />
                             );

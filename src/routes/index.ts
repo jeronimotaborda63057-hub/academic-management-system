@@ -1,4 +1,12 @@
-import { lazy } from 'react';
+import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
+import type { UserRole } from '../models/User';
+
+interface AppRoute {
+    path: string;
+    title: string;
+    component: LazyExoticComponent<ComponentType>;
+    roles?: UserRole[];
+}
 
 const UsersList = lazy(() => import('../pages/users/List'));
 const UsersCreate = lazy(() => import('../pages/users/Create'));
@@ -6,6 +14,7 @@ const UsersEdit = lazy(() => import('../pages/users/Edit'));
 const AdminTeachersList = lazy(() => import('../pages/admin/TeachersList'));
 const AdminTeacherDetail = lazy(() => import('../pages/admin/TeacherDetail'));
 const AdminEnrollment = lazy(() => import('../pages/students/Enrollment'));
+const StudentMySubjects = lazy(() => import('../pages/student/MySubjects'));
 const CareersList = lazy(() => import('../pages/careers/List'));
 const CareersCreate = lazy(() => import('../pages/careers/Create'));
 const CareersEdit = lazy(() => import('../pages/careers/Edit'));
@@ -38,7 +47,7 @@ const RegisterFinalGradePage = lazy(() => import('../pages/grades/RegisterFinalG
 const TeacherGroupsPage = lazy(() => import('../pages/groups/TeacherGroupsPage'));
 const TeacherMyGroups = lazy(() => import('../pages/teachers/MyGroups'));
 
-const coreRoutes = [
+const coreRoutes: AppRoute[] = [
     // ── Rúbricas (HU-08) ──────────────────────────────────────────────────────
     { path: '/rubrics/list',         title: 'Rúbricas',           component: RubricsList     },
     { path: '/rubrics/create',       title: 'Crear rúbrica',      component: RubricsCreate   },
@@ -62,17 +71,20 @@ const coreRoutes = [
     {
         path: '/admin/teachers',
         title: 'Docentes',
-        component: AdminTeachersList
+        component: AdminTeachersList,
+        roles: ["ADMIN"]
     },
     {
         path: '/admin/teachers/:id',
         title: 'Detalle docente',
-        component: AdminTeacherDetail
+        component: AdminTeacherDetail,
+        roles: ["ADMIN"]
     },
     {
         path: '/admin/enrollment',
         title: 'Matricula de estudiantes',
-        component: AdminEnrollment
+        component: AdminEnrollment,
+        roles: ["ADMIN"]
     },
     {
         path: '/careers/list',
@@ -157,7 +169,14 @@ const coreRoutes = [
     {
         path: '/teacher/my-groups',
         title: 'Mis grupos',
-        component: TeacherMyGroups
+        component: TeacherMyGroups,
+        roles: ["TEACHER"]
+    },
+    {
+        path: '/student/my-subjects',
+        title: 'Mis asignaturas',
+        component: StudentMySubjects,
+        roles: ["STUDENT"]
     },
 
     // ── CU-12: Registrar nota final ───────────────────────────────────────────
