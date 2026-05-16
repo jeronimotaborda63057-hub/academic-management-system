@@ -4,11 +4,11 @@ import type { User } from "../../models/User";
 import type { Career } from "../../models/Career";
 import type { FilterConfig } from "../../models/FilterConfig";
 import type { UserFilters } from "../../models/UserFilters";
-import GenericTable from "../../components/GenericTable";
+import GenericTable from "../../components/ui/GenericTable";
 import type { Column } from "../../models/Column";
 import type { Action } from "../../models/Action";
 import TableToolbar from "../../components/TableToolBar";
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 import { userService } from "../../services/userService";
 import { careerService } from "../../services/careerService";
 import Swal from "sweetalert2";
@@ -28,7 +28,6 @@ const List: React.FC = () => {
             options: [
                 { label: "Docente", value: "TEACHER" },
                 { label: "Estudiante", value: "STUDENT" },
-                { label: "Admin", value: "ADMIN" },
             ],
         },
         {

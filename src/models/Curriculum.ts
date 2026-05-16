@@ -7,6 +7,7 @@ export interface Curriculum {
     id?: string;
     is_published?: boolean;
     name?: string;
+    year?: number;           // ← versión del plan
     subject_id?: string;
     suggested_semester?: number;
     updated_at?: string;

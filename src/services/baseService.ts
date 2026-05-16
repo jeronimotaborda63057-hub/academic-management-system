@@ -1,9 +1,6 @@
-import axios from 'axios';
+import { api } from '../interceptors/authInterceptor';
 import type { ApiResponse } from '../models/services/ApiResponse';
 
-const api = axios.create({
-    baseURL: '/api',
-});
 // 🔥 PRINCIPIO SOLID: reutilizable
 export class BaseService<T> {
     protected apiURL: string;
@@ -32,12 +29,12 @@ export class BaseService<T> {
         }
     }
 
-    async create(data: Partial<T>): Promise<T | null> {
+    async create(data: Omit<T, "id" | "created_at" | "updated_at">): Promise<T | null> {
         try {
-            const response = await api.post<ApiResponse<T>>(this.apiURL, data);
+            const response = await api.post<{ data: T }>(this.apiURL, data);
             return response.data.data;
         } catch (error) {
-            console.error("Error al crear:", error);
+            console.error("Error al crear: " + error);
             return null;
         }
     }
@@ -52,7 +49,7 @@ export class BaseService<T> {
         }
     }
 
-    async delete(id: number): Promise<boolean> {
+    async delete(id: string): Promise<boolean> {
         try {
             await api.delete(`${this.apiURL}/${id}`);
             return true;

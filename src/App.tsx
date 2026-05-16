@@ -6,9 +6,11 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import routes from './routes';
+import { UserSwitcher } from './components/UserSwitcher';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 const SignIn = lazy(() => import('./pages/authentication/SignIn'));
+const Home = lazy(() => import('./pages/home/Home'));
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -40,6 +42,14 @@ function App() {
                             <DefaultLayout />
                         </Suspense>
                     }>
+                        <Route
+                            index
+                            element={
+                                <Suspense fallback={<Loader />}>
+                                    <Home />
+                                </Suspense>
+                            }
+                        />
                         {routes.map((route, index) => {
                             const { path, component: Component } = route;
                             return (
