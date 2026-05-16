@@ -21,6 +21,8 @@ const EnrollmentCreate = lazy(()=> import('../pages/enrollments/Create'));
 const EnrollmentEdit = lazy(() => import('../pages/enrollments/Edit'));
 const EvaluationsList = lazy(() => import('../pages/evaluations/List'));
 const GradesList = lazy(() => import('../pages/grades/List'));
+const RubricConsultationList = lazy(() => import('../pages/rubrics/RubricConsultationListPage'));
+const RubricConsultation = lazy(() => import('../pages/rubrics/RubricConsultationPage'));
 
 const coreRoutes = [
     {
@@ -150,6 +152,16 @@ const coreRoutes = [
         path: '/grades/list',
         title: 'Notas finales',
         component: GradesList
+    },
+    {
+        path: '/rubrics/list',
+        title: 'Mis evaluaciones',
+        component: RubricConsultationList
+    },
+    {
+        path: '/rubrics/evaluations/:evaluationId',
+        title: 'Consultar rubrica',
+        component: RubricConsultation
     },
 ];
 

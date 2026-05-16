@@ -87,14 +87,15 @@ export const teacherMenu: NavGroup[] = [
 // ─── ESTUDIANTE ───────────────────────────────────────
 export const studentMenu: NavGroup[] = [
     {
-        title: "MI CLASE",
+        title: "MI ESPACIO",
         items: [
-            { label: "Grupos", path: "/groups/list", icon: icons.group },
-            { label: "Calificaciones", path: "/grades/list", icon: icons.grade },
+            { label: "Mis asignaturas", path: "/groups/list", icon: icons.group },
+            { label: "Mis evaluaciones", path: "/rubrics/list", icon: icons.evaluation },
+            { label: "Mis notas", path: "/grades/list", icon: icons.grade },
         ],
     },
     {
-        title: "RÚBRICAS",
+        title: "RECURSOS",
         items: [
             { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
         ],
