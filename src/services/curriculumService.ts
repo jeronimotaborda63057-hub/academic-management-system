@@ -20,6 +20,11 @@ export class CurriculumService extends BaseService<Curriculum> {
         }
     }
 
+    async getAllWithAuth(): Promise<Curriculum[]> {
+        const response = await api.get<{ data: Curriculum[] }>(this.apiURL);
+        return response.data.data ?? [];
+    }
+
     async addSubject(planId: string, subjectId: string): Promise<boolean> {
         try {
             await api.post(`${this.apiURL}/${planId}/subjects/${subjectId}`);

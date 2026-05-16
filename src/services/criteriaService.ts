@@ -13,6 +13,11 @@ export class CriteriaService extends BaseService<Criteria> {
             (criterion) => String(criterion.rubric_id) === rubricId
         );
     }
+
+    async getAllWithAuth(): Promise<Criteria[]> {
+        const response = await api.get<{ data: Criteria[] }>(this.apiURL);
+        return response.data.data ?? [];
+    }
 }
 
 export const criteriaService = new CriteriaService();

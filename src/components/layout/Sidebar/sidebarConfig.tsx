@@ -90,7 +90,7 @@ export const studentMenu: NavGroup[] = [
         title: "MI CLASE",
         items: [
             { label: "Grupos", path: "/groups/list", icon: icons.group },
-            { label: "Calificaciones", path: "/grades/list", icon: icons.grade },
+            { label: "Calificaciones", path: "/grades/details", icon: icons.grade },
         ],
     },
     {
