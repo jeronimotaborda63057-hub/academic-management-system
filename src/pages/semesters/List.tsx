@@ -4,7 +4,7 @@ import TableToolbar from "../../components/TableToolBar";
 import GenericTable from "../../components/ui/GenericTable";
 import { semesterService } from "../../services/semesterService";
 import type { Semester } from "../../models/Semester";
-import { Pencil, ToggleLeft } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -47,13 +47,7 @@ const List: React.FC = () => {
             name: "edit",
             label: "Editar",
             icon: <Pencil size={18} />,
-            primary: true, // 🔥 ESTE ES EL BOTÓN DEL LÁPIZ
-        },
-        {
-            name: "toggle",
-            label: "Activar/Desactivar",
-            icon: <ToggleLeft size={18} />, // ⚠️ se cambia dinámicamente
-            primary: false,
+            primary: true,
         },
     ];
 

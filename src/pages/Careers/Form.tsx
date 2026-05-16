@@ -24,7 +24,7 @@ import Swal from "sweetalert2";
 
 import type { CareerForm } from "../../models/Career";
 import { careerService } from "../../services/careerService";
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 
 // ─── Subcomponente de campo (SRP: solo renderiza un input) ────────────────────
 const Field = ({

@@ -1,4 +1,4 @@
-import { api } from "./baseService";
+import { api } from "../interceptors/authInterceptor";
 import type { Curriculum } from "../models/Curriculum";
 import type { Subject } from "../models/Subject";
 import { BaseService } from "./baseService";
@@ -18,6 +18,11 @@ export class CurriculumService extends BaseService<Curriculum> {
             console.error("Error al obtener asignaturas del plan:", error);
             return [];
         }
+    }
+
+    async getAllWithAuth(): Promise<Curriculum[]> {
+        const response = await api.get<{ data: Curriculum[] }>(this.apiURL);
+        return response.data.data ?? [];
     }
 
     async addSubject(planId: string, subjectId: string): Promise<boolean> {

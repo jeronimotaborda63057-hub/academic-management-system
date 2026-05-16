@@ -34,7 +34,7 @@ const StatusBadge: React.FC<{ isComplete: boolean }> = ({ isComplete }) => {
 const FinalGradeTable: React.FC<FinalGradeTableProps> = ({
     evaluations,
     rows,
-    totalWeight,
+    totalWeight: _totalWeight,
 }) => {
 
     // Calcula el promedio de una evaluación entre todos los estudiantes

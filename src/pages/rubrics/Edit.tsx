@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import PageHeader from "../../components/ui/PageHeader"; // ✅ FIX: ruta corregida
-import FormField from "../../components/multiStepForm/FormField";
+import FormField from "../../components/multi-step-form/FormField";
 import CriteriaEditor from "../../components/rubrics/CriteriaEditor";
 import RubricStatusBadge from "../../components/rubrics/RubricStatusBadge";
 import { useRubricForm } from "../../hooks/useRubricForm";

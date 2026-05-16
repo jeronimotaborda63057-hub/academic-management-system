@@ -1,33 +1,33 @@
 import type { Rubric } from "../models/Rubric";
-import { BaseService } from "./baseService";
 import { api } from "../interceptors/authInterceptor";
+import { BaseService } from "./baseService";
 
 export class RubricService extends BaseService<Rubric> {
-    constructor() {
-        super("evaluation/rubrics");
-    }
+  constructor() {
+    super("evaluation/rubrics");
+  }
 
-    async publish(id: string): Promise<Rubric | null> {
-        return this.update(id, { is_public: true });
-    }
+  async getByIdWithAuth(id: string): Promise<Rubric | null> {
+    const response = await api.get<{ data: Rubric }>(`${this.apiURL}/${id}`);
+    return response.data.data ?? null;
+  }
 
-    async archive(id: string): Promise<Rubric | null> {
-        return this.update(id, { is_archived: true });
-    }
+  async getAllWithAuth(): Promise<Rubric[]> {
+    const response = await api.get<{ data: Rubric[] }>(this.apiURL);
+    return response.data.data ?? [];
+  }
 
-    async unarchive(id: string): Promise<Rubric | null> {
-        return this.update(id, { is_archived: false });
-    }
+  async archive(id: string): Promise<Rubric | null> {
+    return this.update(id, { is_archived: true });
+  }
 
-    async deleteById(id: string): Promise<boolean> {
-        try {
-            await api.delete(`/api/evaluation/rubrics/${id}`);
-            return true;
-        } catch (error) {
-            console.error(`[rubricService] deleteById(${id}) falló:`, error);
-            return false;
-        }
-    }
+  async unarchive(id: string): Promise<Rubric | null> {
+    return this.update(id, { is_archived: false });
+  }
+
+  async deleteById(id: string): Promise<boolean> {
+    return this.delete(id);
+  }
 }
 
 export const rubricService = new RubricService();

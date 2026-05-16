@@ -1,6 +1,6 @@
 import type { Criteria } from "../models/Criteria";
-import { BaseService } from "./baseService";
 import { api } from "../interceptors/authInterceptor";
+import { BaseService } from "./baseService";
 
 /**
  * CriteriaService — CRUD para criterios de rúbricas.
@@ -19,34 +19,29 @@ export class CriteriaService extends BaseService<Criteria> {
         super("evaluation/criteria");
     }
 
-    /** Filtra localmente los criterios de una rúbrica. */
     async getByRubric(rubricId: string): Promise<Criteria[]> {
-        const all = await this.getAll();
-        return all.filter((c) => c.rubric_id === rubricId);
+        const response = await api.get<{ data: Criteria[] }>(this.apiURL);
+        return (response.data.data ?? []).filter(
+            (criterion) => String(criterion.rubric_id) === rubricId
+        );
     }
 
-    /**
-     * Elimina un criterio por UUID.
-     * El backend no acepta subject_id ni is_archived — solo el UUID en la URL.
-     */
+    async getAllWithAuth(): Promise<Criteria[]> {
+        const response = await api.get<{ data: Criteria[] }>(this.apiURL);
+        return response.data.data ?? [];
+    }
+
     async deleteById(id: string): Promise<boolean> {
-        try {
-            await api.delete(`/api/evaluation/criteria/${id}`);
-            return true;
-        } catch (error) {
-            console.error(`[criteriaService] deleteById(${id}) falló:`, error);
-            return false;
-        }
+        return this.delete(id);
     }
 
-    /**
-     * Elimina TODOS los criterios existentes de una rúbrica en paralelo.
-     * Debe llamarse ANTES de crear los criterios nuevos en Edit.tsx.
-     */
     async deleteByRubric(rubricId: string): Promise<void> {
-        const existing = await this.getByRubric(rubricId);
-        if (existing.length === 0) return;
-        await Promise.all(existing.map((c) => this.deleteById(c.id!)));
+        const criteria = await this.getByRubric(rubricId);
+        await Promise.all(
+            criteria
+                .filter((criterion) => Boolean(criterion.id))
+                .map((criterion) => this.deleteById(criterion.id))
+        );
     }
 }
 

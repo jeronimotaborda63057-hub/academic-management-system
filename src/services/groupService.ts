@@ -1,4 +1,4 @@
-import { api } from './baseService';
+import { api } from "../interceptors/authInterceptor";
 import type { Group } from "../models/Group";
 import { BaseService } from "./baseService";
 
@@ -18,6 +18,11 @@ export class GroupService extends BaseService<Group> {
             console.error("Error al buscar grupos:", error);
             return [];
         }
+    }
+
+    async getAllWithAuth(): Promise<Group[]> {
+        const response = await api.get<{ data: Group[] }>(this.apiURL);
+        return response.data.data ?? [];
     }
 
     async assignTeacherToGroup(groupId: string, teacherId: string): Promise<any> {

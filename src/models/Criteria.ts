@@ -1,4 +1,3 @@
-
 import type { Rubric } from "./Rubric";
 import type { Scale } from "./Scale";
 
@@ -7,7 +6,7 @@ export interface Criteria{
     name: string;
     description?: string | "...";
     rubric?: Rubric;
-    rubric_id?: String;
+    rubric_id?: string;
     scales?: Scale[];
     weight: number;
 }

@@ -9,6 +9,7 @@ import routes from './routes';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 const SignIn = lazy(() => import('./pages/authentication/SignIn'));
+const Home = lazy(() => import('./pages/home/Home'));
 
 function App() {
     const [loading, setLoading] = useState(true);
@@ -40,6 +41,14 @@ function App() {
                             <DefaultLayout />
                         </Suspense>
                     }>
+                        <Route
+                            index
+                            element={
+                                <Suspense fallback={<Loader />}>
+                                    <Home />
+                                </Suspense>
+                            }
+                        />
                         {routes.map((route, index) => {
                             const { path, component: Component } = route;
                             return (

@@ -251,13 +251,36 @@ const List: React.FC = () => {
 
         if (!year) return;
 
-        const yearExists = planItems.some((p) => p.year === parseInt(year));
+        const parsedYear = parseInt(year);
+        const yearExists = planItems.some((p) => p.year === parsedYear);
         if (yearExists) {
             Swal.fire("Ya existe", `Ya hay un plan con el año ${year}.`, "warning");
             return;
         }
 
-        setSelectedYear(parseInt(year));
+        const newVersion: Omit<Curriculum, "id" | "created_at" | "updated_at"> = {
+            career_id: selectedCareer.id,
+            name: `Plan ${parsedYear}`,
+            year: parsedYear,
+            suggested_semester: 1,
+            is_published: false,
+        };
+
+        const createdPlan = await curriculumService.create(newVersion);
+
+        if (!createdPlan?.id) {
+            Swal.fire("Error", "No se pudo crear la versión del plan.", "error");
+            return;
+        }
+
+        setPlanItems((prev) => [...prev, createdPlan]);
+        setYearSubjectCount((prev) => ({
+            ...prev,
+            [parsedYear]: prev[parsedYear] ?? 0,
+        }));
+        setPlanSubjects([]);
+        setSubjectPlanMap({});
+        setSelectedYear(parsedYear);
         setActiveTab("structure");
 
         Swal.fire({

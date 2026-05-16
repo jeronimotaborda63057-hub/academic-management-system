@@ -3,6 +3,7 @@ import { lazy } from 'react';
 const UsersList = lazy(() => import('../pages/users/List'));
 const UsersCreate = lazy(() => import('../pages/users/Create'));
 const UsersEdit = lazy(() => import('../pages/users/Edit'));
+const AdminTeachersList = lazy(() => import('../pages/admin/TeachersList'));
 const CareersList = lazy(() => import('../pages/careers/List'));
 const CareersCreate = lazy(() => import('../pages/careers/Create'));
 const CareersEdit = lazy(() => import('../pages/careers/Edit'));
@@ -19,6 +20,11 @@ const StudentsList = lazy(() => import('../pages/students/List'));
 const EnrollmentList = lazy(() => import('../pages/enrollments/List'));
 const EnrollmentCreate = lazy(() => import('../pages/enrollments/Create'));
 const EnrollmentEdit = lazy(() => import('../pages/enrollments/Edit'));
+const EvaluationsList = lazy(() => import('../pages/evaluations/List'));
+const GradesList = lazy(() => import('../pages/grades/List'));
+const RubricConsultationList = lazy(() => import('../pages/rubrics/RubricConsultationListPage'));
+const RubricConsultation = lazy(() => import('../pages/rubrics/RubricConsultationPage'));
+const GradeDetails = lazy(() => import('../pages/grades/Details'));
 
 // ── HU-08: Rúbricas ───────────────────────────────────────────────────────────
 const RubricsList   = lazy(() => import('../pages/rubrics/List'));
@@ -49,6 +55,11 @@ const coreRoutes = [
         path: '/users/edit/:id',
         title: 'Editar usuario',
         component: UsersEdit
+    },
+    {
+        path: '/admin/teachers',
+        title: 'Docentes',
+        component: AdminTeachersList
     },
     {
         path: '/careers/list',
@@ -125,18 +136,52 @@ const coreRoutes = [
         title: 'Asignar docente a grupo',
         component: AssignTeacherPage
     },
+    {
+        path: '/groups/teacher',
+        title: 'Mis grupos',
+        component: TeacherGroupsPage
+    },
 
     // ── CU-12: Registrar nota final ───────────────────────────────────────────
     {
-        path: '/grades/register/:groupId',
+        path: '/rubrics/scales',
+        title: 'Definir criterios y escalas',
+        component: ScaleDefinitionPage
+    },
+    {
+        path: '/evaluations',
+        title: 'Evaluaciones',
+        component: EvaluationsList
+    },
+    {
+        path: '/evaluations/list',
+        title: 'Evaluaciones',
+        component: EvaluationsList
+    },
+    {
+        path: '/grades/list',
+        title: 'Notas finales',
+        component: GradesList
+    },
+    {
+        path: '/grades/register',
         title: 'Registrar nota final',
         component: RegisterFinalGradePage
     },
-    // ── Lista de grupos del docente (entrada al CU-12) ────────────────────────
     {
-        path: '/groups/list',
-        title: 'Mis grupos',
-        component: TeacherGroupsPage
+        path: '/rubrics/consultations',
+        title: 'Mis evaluaciones',
+        component: RubricConsultationList
+    },
+    {
+        path: '/rubrics/evaluations/:evaluationId',
+        title: 'Consultar rubrica',
+        component: RubricConsultation,
+    },
+    {
+        path: '/grades/details',
+        title: 'Mis calificaciones',
+        component: GradeDetails
     },
 ];
 

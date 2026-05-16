@@ -1,6 +1,13 @@
-import { api } from "./baseService";
+import { api } from "../interceptors/authInterceptor";
 import type { Enrollment } from "../models/Enrollment";
 import { BaseService } from "./baseService";
+
+export interface CreateGroupEnrollmentPayload {
+    enrollment_date: string;
+    group_id: string;
+    status: "ACTIVE";
+    student_id: string;
+}
 
 export class EnrollmentService extends BaseService<Enrollment> {
     constructor() {
@@ -20,6 +27,24 @@ export class EnrollmentService extends BaseService<Enrollment> {
         }
     }
 
+    async getAllWithAuth(): Promise<Enrollment[]> {
+        const response = await api.get<{ data: Enrollment[] }>(this.apiURL);
+        return response.data.data ?? [];
+    }
+
+    async createGroupEnrollment(payload: CreateGroupEnrollmentPayload): Promise<Enrollment | null> {
+        const response = await api.post<{ data: Enrollment }>(this.apiURL, payload);
+        return response.data.data ?? null;
+    }
+
+    async cancel(id: string): Promise<Enrollment | null> {
+        const response = await api.put<{ data: Enrollment }>(
+            `${this.apiURL}/${id}`,
+            { status: "INACTIVE" }
+        );
+        return response.data.data ?? null;
+    }
+    
     
 }
 

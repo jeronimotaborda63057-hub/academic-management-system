@@ -1,9 +1,6 @@
-import axios from 'axios';
+import { api } from '../interceptors/authInterceptor';
 import type { ApiResponse } from '../models/services/ApiResponse';
 
-export const api = axios.create({
-    baseURL: '/api',
-});
 // 🔥 PRINCIPIO SOLID: reutilizable
 export class BaseService<T> {
     protected apiURL: string;

@@ -15,9 +15,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import type { SemesterForm } from "../../models/Semester";
+import type { SemesterForm } from "../../models/SemesterForm";
 import { semesterService } from "../../services/semesterService";
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 
 // ── Subcomponente de campo (reutilizable, SRP) ────────────────────────────────
 const Field = ({

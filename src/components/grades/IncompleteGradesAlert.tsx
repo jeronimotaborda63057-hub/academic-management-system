@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, XCircle } from 'lucide-react';
+import { XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface IncompleteGradesAlertProps {

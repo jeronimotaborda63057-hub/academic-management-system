@@ -12,3 +12,7 @@ export interface Career {
     enrollments?: Enrollment[];
     curriculums?: Curriculum[]
 }
+
+export type CareerForm = Pick<Career, "name" | "code" | "is_active"> & {
+    description?: string;
+};

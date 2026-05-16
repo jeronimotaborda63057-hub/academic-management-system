@@ -40,14 +40,6 @@ export const adminMenu: NavGroup[] = [
             { label: "Docentes", path: "/teachers/list", icon: icons.profile },
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
             { label: "Matrículas", path: "/enrollments/list", icon: icons.enrollment },
-            { label: "Reportes", path: "/reports", icon: icons.report },
-        ],
-    },
-    {
-        title: "SISTEMA",
-        items: [
-            { label: "Auditoría", path: "/audit", icon: icons.audit },
-            { label: "Configuración", path: "/settings", icon: icons.settings },
         ],
     },
 ];
@@ -59,7 +51,7 @@ export const teacherMenu: NavGroup[] = [
         items: [
             { label: "Grupos", path: "/groups/list", icon: icons.group },
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
-            { label: "Evaluaciones", path: "/evaluations/list", icon: icons.evaluation },
+            { label: "Evaluaciones", path: "/evaluations", icon: icons.evaluation },
             { label: "Calificaciones", path: "/grades/list", icon: icons.grade },
             // CU-12: Notas finales — se navega desde la lista de grupos con groupId dinámico
             { label: "Notas finales", path: "/groups/list", icon: icons.report },
@@ -68,44 +60,19 @@ export const teacherMenu: NavGroup[] = [
     {
         title: "RÚBRICAS",
         items: [
-            { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
-            { label: "Mis rúbricas", path: "/rubrics/mine", icon: icons.rubric },
+            { label: "Rúbricas", path: "/rubrics/scales", icon: icons.rubric },
         ],
-    },
-    {
-        title: "RECURSOS",
-        items: [
-            { label: "Escalas", path: "/scales/list", icon: icons.scale },
-        ],
-    },
-    {
-        title: "CONFIGURACIÓN",
-        items: [
-            { label: "Perfil", path: "/profile", icon: icons.profile },
-            { label: "Preferencias", path: "/settings", icon: icons.settings },
-        ],
-    },
+    }
 ];
 
 // ─── ESTUDIANTE ───────────────────────────────────────
 export const studentMenu: NavGroup[] = [
     {
-        title: "MI CLASE",
+        title: "MI ESPACIO",
         items: [
-            { label: "Grupos", path: "/groups/list", icon: icons.group },
-            { label: "Calificaciones", path: "/grades/list", icon: icons.grade },
-        ],
-    },
-    {
-        title: "RÚBRICAS",
-        items: [
-            { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
-        ],
-    },
-    {
-        title: "CONFIGURACIÓN",
-        items: [
-            { label: "Perfil", path: "/profile", icon: icons.profile },
+            { label: "Mis asignaturas", path: "/subjects/list", icon: icons.group },
+            { label: "Mis evaluaciones", path: "/rubrics/list", icon: icons.evaluation },
+            { label: "Mis notas", path: "/grades/details", icon: icons.grade },
         ],
     },
 ];
