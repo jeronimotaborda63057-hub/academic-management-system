@@ -1,9 +1,9 @@
-import type { FinalGradeRow } from "./types";
+import type { FinalGradeRow } from "../../models/FinalGradeRow";
 import {
     formatScore,
     getFinalGradeStudentIdentification,
     getFinalGradeStudentName,
-} from "./gradeDisplay";
+} from "../../hooks/gradeDisplay";
 
 interface FinalGradesTableProps {
     rows: FinalGradeRow[];
@@ -58,13 +58,12 @@ export const FinalGradesTable = ({ rows, onReview }: FinalGradesTableProps) => (
                                 </td>
                                 <td className="px-5 py-4">
                                     <span
-                                        className={`rounded-full px-3 py-1 text-xs font-medium ${
-                                            row.isLocked
-                                                ? "bg-green-100 text-green-700"
-                                                : row.isComplete
-                                                    ? "bg-blue-100 text-blue-700"
-                                                    : "bg-amber-100 text-amber-700"
-                                        }`}
+                                        className={`rounded-full px-3 py-1 text-xs font-medium ${row.isLocked
+                                            ? "bg-green-100 text-green-700"
+                                            : row.isComplete
+                                                ? "bg-blue-100 text-blue-700"
+                                                : "bg-amber-100 text-amber-700"
+                                            }`}
                                     >
                                         {row.isLocked
                                             ? "Oficial"

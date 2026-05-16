@@ -40,7 +40,6 @@ function App() {
                     <Route path="/" element={
                         <Suspense fallback={<Loader />}>
                             <DefaultLayout />
-                            <UserSwitcher></UserSwitcher>
                         </Suspense>
                     }>
                         <Route

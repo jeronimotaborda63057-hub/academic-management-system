@@ -1,268 +1,165 @@
-import React, {
-    useCallback,
-    useEffect,
-    useState,
-} from "react";
-
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
-import * as Yup from "yup";
-
-import type { Student } from "../../models/Student";
-import type { Group } from "../../models/Group";
-import type { Enrollment } from "../../models/Enrollment";
-
-import {
-    enrollmentService,
-} from "../../services/enrollmentService";
-
-import {
-    studentService,
-} from "../../services/studentService";
-
-import {
-    groupService,
-} from "../../services/groupService";
-
+import { ExistingEnrollmentsPanel } from "../../components/groupEnrollments/ExistingEnrollmentsPanel";
+import { GroupEnrollmentActions } from "../../components/groupEnrollments/GroupEnrollmentActions";
+import { GroupEnrollmentTable } from "../../components/groupEnrollments/GroupEnrollmentTable";
+import { StudentEnrollmentSelector } from "../../components/groupEnrollments/StudentEnrollmentSelector";
+import { StudentEnrollmentSummary } from "../../components/groupEnrollments/StudentEnrollmentSummary";
 import PageHeader from "../../components/ui/PageHeader";
+import { useGroupEnrollment } from "../../hooks/useGroupEnrollment";
 
-import EnrollmentForm, {
-    type EnrollmentFormValues,
-} from "../../components/forms/EnrollmentForm";
-
-const PERIOD_REGEX = /^\d{4}-(S1|S2)$/;
-
-const schema = Yup.object({
-    student_id: Yup.string()
-        .required("Selecciona un estudiante."),
-
-    group_id: Yup.string()
-        .required("Selecciona un grupo."),
-
-    periodo_ingreso: Yup.string()
-        .matches(
-            PERIOD_REGEX,
-            "Formato inválido. Usa YYYY-S1 o YYYY-S2."
-        )
-        .required("Ingresa el periodo."),
-
-    status: Yup.string()
-        .required(),
-});
-
-function buildEnrollmentDate(
-    periodo: string
-): string {
-    const [year, sem] = periodo.split("-");
-
-    const month =
-        sem === "S1"
-            ? "01"
-            : "07";
-
-    return `${year}-${month}-01T00:00:00.000Z`;
-}
-
-const EnrollmentCreatePage: React.FC = () => {
-
+const EnrollmentCreatePage = () => {
     const navigate = useNavigate();
-
-    const [students, setStudents] =
-        useState<Student[]>([]);
-
-    const [groups, setGroups] =
-        useState<Group[]>([]);
-
-    const [enrollments, setEnrollments] =
-        useState<Enrollment[]>([]);
-
-    const [loading, setLoading] =
-        useState(true);
-
-    const [isSubmitting, setIsSubmitting] =
-        useState(false);
-
-    const [apiError, setApiError] =
-        useState<string | null>(null);
-
-    const [errors, setErrors] =
-        useState<Record<string, string>>({});
-
-    const [form, setForm] =
-        useState<EnrollmentFormValues>({
-            student_id: "",
-            group_id: "",
-            periodo_ingreso: "",
-            status: "ACTIVE",
-        });
-
-    const fetchData = useCallback(async () => {
-
-        const [
-            studentData,
-            groupData,
-            enrollmentData,
-        ] = await Promise.all([
-            studentService.getAll(),
-            groupService.getAll(),
-            enrollmentService.getAll(),
-        ]);
-
-        setStudents(studentData);
-        setGroups(groupData);
-        setEnrollments(enrollmentData);
-
-        setLoading(false);
-
-    }, []);
-
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
-
-    const handleChange = (
-        field: keyof EnrollmentFormValues,
-        value: string
-    ) => {
-
-        setForm((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-
-        setErrors((prev) => ({
-            ...prev,
-            [field]: "",
-        }));
-    };
-
-    const validateDuplicate = () => {
-
-        const exists = enrollments.find(
-            (enrollment) =>
-                enrollment.student_id === form.student_id &&
-                enrollment.group_id === form.group_id &&
-                enrollment.status === "ACTIVE"
-        );
-
-        if (!exists) return true;
-
-        setErrors((prev) => ({
-            ...prev,
-            group_id:
-                "El estudiante ya tiene una matrícula activa en este grupo.",
-        }));
-
-        return false;
-    };
+    const {
+        activeSemester,
+        cancelEnrollment,
+        createEnrollments,
+        enrollableStudents,
+        error,
+        existingEnrollmentRows,
+        groupRows,
+        hasOutOfPlanSelection,
+        loading,
+        maxCredits,
+        search,
+        selectedCredits,
+        selectedGroupIds,
+        selectedStudent,
+        selectedStudentId,
+        setSearch,
+        setSelectedStudentId,
+        submitting,
+        toggleGroup,
+        validationError,
+    } = useGroupEnrollment();
 
     const handleSubmit = async () => {
-
-        try {
-
-            await schema.validate(form, {
-                abortEarly: false,
-            });
-
-            setErrors({});
-
-        } catch (err: any) {
-
-            const nextErrors: Record<string, string> = {};
-
-            err.inner.forEach((e: any) => {
-                nextErrors[e.path] = e.message;
-            });
-
-            setErrors(nextErrors);
-
+        if (validationError) {
+            Swal.fire("No se puede inscribir", validationError, "warning");
             return;
         }
 
-        if (!validateDuplicate()) {
-            return;
+        if (hasOutOfPlanSelection) {
+            const result = await Swal.fire({
+                title: "Asignatura fuera del plan",
+                text: "Alguno de los grupos seleccionados no pertenece al plan de estudios de la carrera. Puedes continuar bajo confirmacion.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Continuar",
+                cancelButtonText: "Revisar",
+            });
+
+            if (!result.isConfirmed) return;
         }
 
         try {
-
-            setIsSubmitting(true);
-
-            await enrollmentService.create({
-                student_id: form.student_id,
-                group_id: form.group_id,
-                status: form.status,
-                enrollment_date:
-                    buildEnrollmentDate(
-                        form.periodo_ingreso
-                    ),
-            } as any);
-
-            navigate("/enrollments/list");
-
-        } catch (err: any) {
-
-            setApiError(
-                err?.message ??
-                "Ocurrió un error inesperado."
-            );
-
-        } finally {
-
-            setIsSubmitting(false);
+            await createEnrollments();
+            Swal.fire({
+                title: "Inscripcion creada",
+                icon: "success",
+                timer: 1600,
+                showConfirmButton: false,
+            });
+        } catch {
+            Swal.fire("Error", "No fue posible inscribir al estudiante.", "error");
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64 text-gray-400 text-sm">
-                Cargando datos...
-            </div>
-        );
-    }
+    const handleCancelEnrollment = async (enrollmentId: string) => {
+        const result = await Swal.fire({
+            title: "Cancelar inscripcion",
+            text: "La inscripcion se marcara como inactiva, sin eliminar el registro.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Cancelar inscripcion",
+            cancelButtonText: "Volver",
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            await cancelEnrollment(enrollmentId);
+            Swal.fire({
+                title: "Inscripcion cancelada",
+                icon: "success",
+                timer: 1600,
+                showConfirmButton: false,
+            });
+        } catch {
+            Swal.fire("Error", "No fue posible cancelar la inscripcion.", "error");
+        }
+    };
 
     return (
-        <div>
-
+        <div className="space-y-6">
             <PageHeader
-                title="Nueva matrícula"
-                subtitle="Vincula un estudiante a un grupo."
-                breadcrumb={[
-                    "Académico",
-                    "Matrículas",
-                    "Nueva",
-                ]}
+                title="Inscribir estudiante en grupo"
+                subtitle="Vincula estudiantes con grupos del semestre activo."
+                breadcrumb={["Academico", "Inscripciones", "Nueva"]}
             />
 
-            <div
-                className="
-                    bg-white dark:bg-boxdark
-                    rounded-2xl
-                    border border-stroke dark:border-strokedark
-                    p-6
-                "
-            >
+            {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                    {error}
+                </div>
+            )}
 
-                {apiError && (
-                    <div className="mb-5 text-sm text-red-500">
-                        {apiError}
+            {!activeSemester && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                    No hay semestre activo. Puedes revisar datos, pero la inscripcion deberia bloquearse desde backend.
+                </div>
+            )}
+
+            <StudentEnrollmentSelector
+                search={search}
+                selectedStudentId={selectedStudentId}
+                students={enrollableStudents}
+                onSearchChange={setSearch}
+                onStudentChange={setSelectedStudentId}
+            />
+
+            {loading ? (
+                <div className="rounded-2xl border border-gray-200 bg-white p-8 text-sm text-gray-500">
+                    Cargando informacion...
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 gap-6 xl:grid-cols-[320px_1fr]">
+                    <div className="space-y-6">
+                        <StudentEnrollmentSummary
+                            selectedStudent={selectedStudent}
+                            selectedCredits={selectedCredits}
+                            maxCredits={maxCredits}
+                        />
+
+                        <ExistingEnrollmentsPanel
+                            enrollments={existingEnrollmentRows}
+                            onCancelEnrollment={handleCancelEnrollment}
+                        />
                     </div>
-                )}
 
-                <EnrollmentForm
-                    values={form}
-                    students={students}
-                    groups={groups}
-                    errors={errors}
-                    isSubmitting={isSubmitting}
-                    onChange={handleChange}
-                    onSubmit={handleSubmit}
-                    onCancel={() =>
-                        navigate("/enrollments/list")
-                    }
-                />
+                    <div className="space-y-5">
+                        <GroupEnrollmentTable
+                            groups={groupRows}
+                            selectedGroupIds={selectedGroupIds}
+                            onToggleGroup={toggleGroup}
+                        />
 
-            </div>
+                        {validationError && (
+                            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                                {validationError}
+                            </div>
+                        )}
 
+                        <GroupEnrollmentActions
+                            canSubmit={!validationError}
+                            isSubmitting={submitting}
+                            onCancel={() => navigate("/enrollments/list")}
+                            onSubmit={handleSubmit}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -23,6 +23,7 @@ const EvaluationsList = lazy(() => import('../pages/evaluations/List'));
 const GradesList = lazy(() => import('../pages/grades/List'));
 const RubricConsultationList = lazy(() => import('../pages/rubrics/RubricConsultationListPage'));
 const RubricConsultation = lazy(() => import('../pages/rubrics/RubricConsultationPage'));
+const GradeDetails = lazy(() => import('../pages/grades/Details'));
 
 const coreRoutes = [
     {
@@ -161,7 +162,12 @@ const coreRoutes = [
     {
         path: '/rubrics/evaluations/:evaluationId',
         title: 'Consultar rubrica',
-        component: RubricConsultation
+        component: RubricConsultation,
+    },
+    {
+        path: '/grades/details',
+        title: 'Mis calificaciones',
+        component: GradeDetails
     },
 ];
 

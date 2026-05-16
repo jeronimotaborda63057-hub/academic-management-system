@@ -28,7 +28,6 @@ const List: React.FC = () => {
             options: [
                 { label: "Docente", value: "TEACHER" },
                 { label: "Estudiante", value: "STUDENT" },
-                { label: "Admin", value: "ADMIN" },
             ],
         },
         {

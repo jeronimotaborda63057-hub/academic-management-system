@@ -14,6 +14,11 @@ export class ScaleService extends BaseService<Scale> {
             (scale) => scale.criterion_id && allowedIds.has(scale.criterion_id)
         );
     }
+
+    async getAllWithAuth(): Promise<Scale[]> {
+        const response = await api.get<{ data: Scale[] }>(this.apiURL);
+        return response.data.data ?? [];
+    }
 }
 
 export const scaleService = new ScaleService();

@@ -6,7 +6,7 @@ import type { Group } from "../models/Group";
 import type { Registration } from "../models/Registration";
 import type { Semester } from "../models/Semester";
 import type { Student } from "../models/Student";
-import type { FinalGradeRow } from "../components/grades/types";
+import type { FinalGradeRow } from "../models/FinalGradeRow";
 import { evaluationService } from "../services/evaluationService";
 import { gradeService } from "../services/gradeService";
 import { groupService } from "../services/groupService";

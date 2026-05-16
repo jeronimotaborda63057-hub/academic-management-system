@@ -112,7 +112,7 @@ export const ScaleLevelsTable = ({
                         "
                     >
                         <Plus size={18} />
-                        Agregar nivel
+                        Agregar escala
                     </button>
 
                 </div>

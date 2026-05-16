@@ -183,27 +183,6 @@ function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                         ))}
                     </nav>
                 </div>
-
-                {/* Footer */}
-                <div className="border-t border-gray-200 px-6 py-4">
-                    <button
-                        onClick={() => setSidebarOpen(false)}
-                        className="flex items-center gap-2 text-sm text-gray-500 hover:text-black transition-colors"
-                    >
-                        <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                        >
-                            <path d="M15 18l-6-6 6-6" />
-                        </svg>
-
-                        Colapsar menú
-                    </button>
-                </div>
             </aside>
         </>
     );

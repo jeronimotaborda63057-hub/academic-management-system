@@ -69,7 +69,7 @@ export class GradeService extends BaseService<Grade> {
     }
 
     async finalizeGrade(id: string, payload: FinalizeGradePayload): Promise<Grade | null> {
-        const response = await api.patch<{ data: Grade }>(`${this.apiURL}/${id}`, payload);
+        const response = await api.put<{ data: Grade }>(`${this.apiURL}/${id}`, payload);
         return response.data.data ?? null;
     }
 }

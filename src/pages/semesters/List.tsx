@@ -47,13 +47,7 @@ const List: React.FC = () => {
             name: "edit",
             label: "Editar",
             icon: <Pencil size={18} />,
-            primary: true, // 🔥 ESTE ES EL BOTÓN DEL LÁPIZ
-        },
-        {
-            name: "toggle",
-            label: "Activar/Desactivar",
-            icon: <ToggleLeft size={18} />, // ⚠️ se cambia dinámicamente
-            primary: false,
+            primary: true,
         },
     ];
 

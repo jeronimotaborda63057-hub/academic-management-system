@@ -37,11 +37,6 @@ const STATUS_LABELS: Record<
         label: "Inactivo",
         cls: "bg-gray-100 text-gray-600",
     },
-
-    WITHDRAWN: {
-        label: "Retirado",
-        cls: "bg-red-100 text-red-600",
-    },
 };
 
 function StatusBadge({ status }: { status?: string }) {
@@ -330,11 +325,6 @@ const MatriculasPage: React.FC = () => {
                             {
                                 value: "INACTIVE",
                                 label: "Inactivo",
-                            },
-
-                            {
-                                value: "WITHDRAWN",
-                                label: "Retirado",
                             },
                         ],
                     },

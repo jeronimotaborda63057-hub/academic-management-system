@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 
 import type { RootState } from "../../store/store";
 import type { User } from "../../models/User";
+import { UserSwitcher } from "../../components/UserSwitcher";
 
 const getDisplayName = (user: User | null) => {
     if (!user) return "usuario";
@@ -25,16 +26,14 @@ const Home = () => {
     return (
         <section className="flex min-h-[60vh] items-center">
             <div className="w-full">
-                <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-primary">
-                    Inicio
-                </p>
                 <h1 className="max-w-4xl text-4xl font-bold leading-tight text-gray-900 md:text-5xl">
                     Bienvenido, {displayName}.
                 </h1>
                 <p className="mt-4 max-w-2xl text-base text-gray-500">
-                    Gestiona tus actividades academicas desde el menu principal.
+                    Gestiona tus actividades academicas desde el menú principal.
                 </p>
             </div>
+            <UserSwitcher></UserSwitcher>
         </section>
     );
 };

@@ -1,7 +1,7 @@
-import type { Evaluation } from "../../models/Evaluation";
-import type { Grade } from "../../models/Grade";
-import type { Registration } from "../../models/Registration";
-import type { Student } from "../../models/Student";
+import type { Evaluation } from "./Evaluation";
+import type { Grade } from "./Grade";
+import type { Registration } from "./Registration";
+import type { Student } from "./Student";
 
 export interface FinalGradeRow {
     completedEvaluations: number;
