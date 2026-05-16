@@ -8,25 +8,40 @@ import GenericTable from "../../components/ui/GenericTable";
 
 import type { Enrollment } from "../../models/Enrollment";
 import type { Student } from "../../models/Student";
-import type { Career } from "../../models/Career";
+import type { Group } from "../../models/Group";
 import type { Column } from "../../models/Column";
 import type { Action } from "../../models/Action";
 
 import { enrollmentService } from "../../services/enrollmentService";
 import { studentService } from "../../services/studentService";
-import { careerService } from "../../services/careerService";
+import { groupService } from "../../services/groupService";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
 function fullName(s?: Student) {
     if (!s) return "—";
+
     return `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim();
 }
 
-const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
-    ACTIVE:    { label: "Activo",    cls: "bg-green-100 text-green-700" },
-    INACTIVE:  { label: "Inactivo",  cls: "bg-gray-100 text-gray-600" },
-    WITHDRAWN: { label: "Retirado",  cls: "bg-red-100 text-red-600" },
+const STATUS_LABELS: Record<
+    string,
+    { label: string; cls: string }
+> = {
+    ACTIVE: {
+        label: "Activo",
+        cls: "bg-green-100 text-green-700",
+    },
+
+    INACTIVE: {
+        label: "Inactivo",
+        cls: "bg-gray-100 text-gray-600",
+    },
+
+    WITHDRAWN: {
+        label: "Retirado",
+        cls: "bg-red-100 text-red-600",
+    },
 };
 
 function StatusBadge({ status }: { status?: string }) {
@@ -36,7 +51,15 @@ function StatusBadge({ status }: { status?: string }) {
     };
 
     return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${meta.cls}`}>
+        <span
+            className={`
+                inline-flex items-center
+                px-2.5 py-0.5
+                rounded-full
+                text-xs font-medium
+                ${meta.cls}
+            `}
+        >
             {meta.label}
         </span>
     );
@@ -48,37 +71,61 @@ const MatriculasPage: React.FC = () => {
     const navigate = useNavigate();
 
     const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-    const [students, setStudents] = useState<Student[]>([]);
-    const [careers, setCareers] = useState<Career[]>([]);
+    const [groups, setGroups] = useState<Group[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [search, setSearch] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
-    const [filterCareerId, setFilterCareerId] = useState("");
+    const [filterGroupId, setFilterGroupId] = useState("");
 
     // ── Carga datos ───────────────────────────────────────────────────────
+
     const fetchAll = useCallback(async () => {
-        setLoading(true);
+        try {
+            setLoading(true);
 
-        const [enrollData, studentData, careerData] = await Promise.all([
-            enrollmentService.getAll(),
-            studentService.getAll(),
-            careerService.getAll(),
-        ]);
+            const [enrollData, studentData, groupData] =
+                await Promise.all([
+                    enrollmentService.getAll(),
+                    studentService.getAll(),
+                    groupService.getAll(),
+                ]);
 
-        const studMap = Object.fromEntries(studentData.map((s) => [s.id!, s]));
-        const careerMap = Object.fromEntries(careerData.map((c) => [c.id, c]));
+            // ── Mapas ───────────────────────────────────────────────
 
-        const enriched: Enrollment[] = enrollData.map((e) => ({
-            ...e,
-            student: studMap[e.student_id ?? ""],
-            career: careerMap[e.group_id ?? ""],
-        }));
+            const studentMap = Object.fromEntries(
+                studentData.map((s) => [s.id!, s])
+            );
 
-        setEnrollments(enriched);
-        setStudents(studentData);
-        setCareers(careerData);
-        setLoading(false);
+            const groupMap = Object.fromEntries(
+                groupData.map((g) => [g.id!, g])
+            );
+
+            // ── Enriquecer matrículas ──────────────────────────────
+
+            const enriched: Enrollment[] = enrollData.map((e) => ({
+                ...e,
+
+                student:
+                    studentMap[e.student_id ?? ""],
+
+                // IMPORTANTE:
+                // group_id → Group
+                group:
+                    groupMap[e.group_id ?? ""],
+            }));
+
+            setEnrollments(enriched);
+            setGroups(groupData);
+
+        } catch (error) {
+
+            console.error(error);
+
+        } finally {
+
+            setLoading(false);
+        }
     }, []);
 
     useEffect(() => {
@@ -86,48 +133,86 @@ const MatriculasPage: React.FC = () => {
     }, [fetchAll]);
 
     // ── Filtros ───────────────────────────────────────────────────────────
-    const filtered = enrollments.filter((e) => {
+
+    const filtered = enrollments.filter((e: any) => {
         const name = fullName(e.student).toLowerCase();
-        const id = (e.student?.identification ?? "").toLowerCase();
-        const q = search.toLowerCase();
 
-        const matchSearch = !q || name.includes(q) || id.includes(q);
-        const matchStatus = !filterStatus || e.status === filterStatus;
-        const matchCareer = !filterCareerId || e.career?.id === filterCareerId;
+        const identification =
+            (e.student?.identification ?? "").toLowerCase();
 
-        return matchSearch && matchStatus && matchCareer;
+        const query = search.toLowerCase();
+
+        const matchSearch =
+            !query ||
+            name.includes(query) ||
+            identification.includes(query);
+
+        const matchStatus =
+            !filterStatus ||
+            e.status === filterStatus;
+
+        const matchGroup =
+            !filterGroupId ||
+            e.group?.id === filterGroupId;
+
+        return (
+            matchSearch &&
+            matchStatus &&
+            matchGroup
+        );
     });
 
     // ── Columnas ──────────────────────────────────────────────────────────
+
     const columns: Column<Enrollment>[] = [
         {
             label: "Estudiante",
             key: "student_id",
-            render: (_: any, row: Enrollment) => (
+
+            render: (_: any, row: any) => (
                 <div>
                     <p className="font-medium text-black dark:text-white text-sm">
                         {fullName(row.student)}
                     </p>
+
                     <p className="text-xs text-gray-400">
-                        {row.student?.identification}
+                        {row.student?.identification ?? "—"}
                     </p>
                 </div>
             ),
         },
+
         {
-            label: "Carrera",
+            label: "Grupo",
             key: "group_id",
-            render: (_: any, row: Enrollment) => (
-                <span className="text-sm">{row.career?.name ?? "—"}</span>
+
+            render: (_: any, row: any) => (
+                <div>
+                    <p className="text-sm font-medium">
+                        {row.group?.name ?? "—"}
+                    </p>
+
+                    <p className="text-xs text-gray-400">
+                        {row.group?.group_code ?? ""}
+                    </p>
+                </div>
             ),
         },
+
         {
             label: "Periodo",
             key: "enrollment_date",
+
             render: (val: string) => {
                 if (!val) return "—";
+
                 const d = new Date(val);
-                const sem = d.getMonth() < 6 ? "S1" : "S2";
+
+                const sem =
+                    d.getMonth() < 6
+                        ? "S1"
+                        : "S2";
+
                 return (
                     <span className="text-sm">
                         {d.getFullYear()}-{sem}
@@ -135,20 +220,29 @@ const MatriculasPage: React.FC = () => {
                 );
             },
         },
+
         {
             label: "Estado",
             key: "status",
-            render: (val: string) => <StatusBadge status={val} />,
+
+            render: (val: string) => (
+                <StatusBadge status={val} />
+            ),
         },
+
         {
             label: "Fecha matrícula",
             key: "enrollment_date",
+
             render: (val: string) =>
-                val ? new Date(val).toLocaleDateString("es-CO") : "—",
+                val
+                    ? new Date(val).toLocaleDateString("es-CO")
+                    : "—",
         },
     ];
 
     // ── Acciones ─────────────────────────────────────────────────────────
+
     const actions: Action[] = [
         {
             name: "view",
@@ -156,6 +250,7 @@ const MatriculasPage: React.FC = () => {
             icon: <Eye size={15} />,
             primary: true,
         },
+
         {
             name: "edit",
             label: "Editar matrícula",
@@ -163,7 +258,10 @@ const MatriculasPage: React.FC = () => {
         },
     ];
 
-    function handleAction(action: string, item: Enrollment) {
+    function handleAction(
+        action: string,
+        item: Enrollment
+    ) {
         if (action === "edit") {
             navigate(`/enrollments/edit/${item.id}`);
         }
@@ -176,24 +274,41 @@ const MatriculasPage: React.FC = () => {
     function handleClearFilters() {
         setSearch("");
         setFilterStatus("");
-        setFilterCareerId("");
+        setFilterGroupId("");
     }
 
     // ─── Render ───────────────────────────────────────────────────────────
+
     return (
         <div className="p-6 space-y-5">
+
             <PageHeader
                 title="Matrículas"
                 subtitle={`${filtered.length} registro${
-                    filtered.length !== 1 ? "s" : ""
+                    filtered.length !== 1
+                        ? "s"
+                        : ""
                 }`}
-                breadcrumb={["Académico", "Matrículas"]}
+                breadcrumb={[
+                    "Académico",
+                    "Matrículas",
+                ]}
                 action={
                     <button
                         onClick={openCreate}
-                        className="h-10 px-5 rounded-xl bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition flex items-center gap-2"
+                        className="
+                            h-10 px-5 rounded-xl
+                            bg-green-600 text-white
+                            text-sm font-medium
+                            hover:bg-green-700
+                            transition
+                            flex items-center gap-2
+                        "
                     >
-                        <span className="text-lg leading-none">+</span>
+                        <span className="text-lg leading-none">
+                            +
+                        </span>
+
                         Matricular estudiante
                     </button>
                 }
@@ -205,57 +320,87 @@ const MatriculasPage: React.FC = () => {
                     {
                         key: "status",
                         label: "Estado",
+
                         options: [
-                            { value: "ACTIVE", label: "Activo" },
-                            { value: "INACTIVE", label: "Inactivo" },
-                            { value: "WITHDRAWN", label: "Retirado" },
+                            {
+                                value: "ACTIVE",
+                                label: "Activo",
+                            },
+
+                            {
+                                value: "INACTIVE",
+                                label: "Inactivo",
+                            },
+
+                            {
+                                value: "WITHDRAWN",
+                                label: "Retirado",
+                            },
                         ],
                     },
+
                     {
-                        key: "career_id",
-                        label: "Carrera",
-                        options: careers.map((c) => ({
-                            value: c.id,
-                            label: c.name,
+                        key: "group_id",
+                        label: "Grupo",
+
+                        options: groups.map((g) => ({
+                            value: g.id!,
+                            label: g.name ?? "Sin nombre",
                         })),
                     },
                 ]}
                 filterValues={{
                     status: filterStatus,
-                    career_id: filterCareerId,
+                    group_id: filterGroupId,
                 }}
                 onSearchChange={setSearch}
                 onFilterChange={(key, val) => {
-                    if (key === "status") setFilterStatus(val);
-                    if (key === "career_id") setFilterCareerId(val);
+
+                    if (key === "status") {
+                        setFilterStatus(val);
+                    }
+
+                    if (key === "group_id") {
+                        setFilterGroupId(val);
+                    }
                 }}
                 onClear={handleClearFilters}
             />
 
             {loading ? (
+
                 <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
                     Cargando matrículas…
                 </div>
+
             ) : filtered.length === 0 ? (
+
                 <div className="flex flex-col items-center justify-center h-48 gap-2 text-gray-400">
+
                     <p className="text-sm">
                         No se encontraron matrículas.
                     </p>
+
                     <button
                         onClick={openCreate}
                         className="text-sm text-green-600 hover:underline"
                     >
                         Matricular un estudiante
                     </button>
+
                 </div>
+
             ) : (
+
                 <GenericTable<Enrollment>
                     data={filtered}
                     columns={columns}
                     actions={actions}
                     onAction={handleAction}
                 />
+
             )}
+
         </div>
     );
 };

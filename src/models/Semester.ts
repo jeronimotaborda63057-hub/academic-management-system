@@ -8,5 +8,6 @@ export interface Semester {
     is_active: boolean;
     created_at: string;
     updated_at: string;
+    career_id?: string;
     carrers?: Career[];
 }

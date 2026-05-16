@@ -1,4 +1,4 @@
-import { api } from "./baseService";
+import { api } from "../interceptors/authInterceptor";
 import type { Enrollment } from "../models/Enrollment";
 import { BaseService } from "./baseService";
 

@@ -11,6 +11,7 @@ class AuthInterceptor {
         this.storage = new LocalStorageProvider();
         this.api = axios.create({
             headers: { "Content-Type": "application/json" },
+            baseURL: "/api",
         });
         this.initializeInterceptors();
     }

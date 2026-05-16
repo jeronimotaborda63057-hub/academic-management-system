@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { X, Info } from "lucide-react";
-import type { Semester, SemesterForm } from "../../models/Semester";
+import type { Semester } from "../../models/Semester";
+import type { SemesterForm } from "../../models/SemesterForm";
 import type { Career } from "../../models/Career";
+
+type SemesterModalForm = SemesterForm & {
+    career_id: string;
+};
 
 interface SemesterFormModalProps {
     isOpen: boolean;
@@ -22,7 +27,7 @@ const SemesterFormModal: React.FC<SemesterFormModalProps> = ({
 }) => {
     const isEdit = Boolean(initialData);
 
-    const [values, setValues] = useState<SemesterForm>({
+    const [values, setValues] = useState<SemesterModalForm>({
         career_id:  "",
         code:       "",
         name:       "",
@@ -34,7 +39,7 @@ const SemesterFormModal: React.FC<SemesterFormModalProps> = ({
     useEffect(() => {
         if (initialData) {
             setValues({
-                career_id:  initialData.career_id,
+                career_id:  initialData.career_id ?? "",
                 code:       initialData.code,
                 name:       initialData.name,
                 start_date: initialData.start_date,

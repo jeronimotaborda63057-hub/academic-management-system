@@ -3,17 +3,40 @@ import { Eye } from "lucide-react";
 
 import GenericTable from "../ui/GenericTable";
 
+import type { Action } from "../../models/Action";
+import type { Column } from "../../models/Column";
 import type { Rubric } from "../../models/Rubric";
 
 interface Props {
   rubrics: Rubric[];
-
   selectedRubric: Rubric | null;
-
   onSelect: (rubric: Rubric) => void;
-
   onPreview?: (rubric: Rubric) => void;
 }
+
+interface RubricSelectionRow {
+  id?: string;
+  rubric: string;
+  subject: string;
+  criteriaCount: number;
+  publicationDate: string;
+  originalRubric: Rubric;
+}
+
+const columns: Column<RubricSelectionRow>[] = [
+  { key: "rubric", label: "Rubrica" },
+  { key: "subject", label: "Asignatura" },
+  { key: "criteriaCount", label: "Criterios" },
+  { key: "publicationDate", label: "Fecha publicacion" },
+];
+
+const actions: Action[] = [
+  {
+    name: "preview",
+    label: "Vista previa",
+    icon: <Eye size={16} />,
+  },
+];
 
 const RubricSelectionTable: React.FC<Props> = ({
   rubrics,
@@ -21,85 +44,39 @@ const RubricSelectionTable: React.FC<Props> = ({
   onSelect,
   onPreview,
 }) => {
-
-  /**
-   * Transforma información
-   * para GenericTable.
-   */
-  const data = rubrics.map((rubric) => ({
-
-    // Mantiene información original
-    ...rubric,
-
-    // Campos renderizables
-    rubric: rubric.title,
-
-    /**
-     * Rubric NO tiene subject.
-     *
-     * Se usa subject_id directamente.
-     */
-    subject:
-      rubric.subject_id || "Sin asignatura",
-
-    criteria:
-      rubric.criteria?.length || 0,
-
-    publication_date:
-      rubric.created_at
-        ? new Date(
-            rubric.created_at
-          ).toLocaleDateString()
-        : "Sin fecha",
+  const data: RubricSelectionRow[] = rubrics.map((rubric) => ({
+    id: rubric.id,
+    rubric: rubric.title ?? "Rubrica sin titulo",
+    subject: rubric.subject_id || "Sin asignatura",
+    criteriaCount: rubric.criteria?.length ?? 0,
+    publicationDate: rubric.created_at
+      ? new Date(rubric.created_at).toLocaleDateString()
+      : "Sin fecha",
+    originalRubric: rubric,
   }));
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-
-      {/* Header */}
       <div className="mb-5">
-
         <h2 className="text-lg font-semibold text-gray-900">
-          Seleccionar rúbrica publicada
+          Seleccionar rubrica publicada
         </h2>
 
         <p className="text-sm text-gray-500 mt-1">
-          Solo se muestran rúbricas públicas.
+          Solo se muestran rubricas publicas.
         </p>
       </div>
 
-      {/* Tabla reutilizable */}
-      <GenericTable
+      <GenericTable<RubricSelectionRow>
         data={data}
-        columns={[
-          "rubric",
-          "subject",
-          "criteria",
-          "publication_date",
-        ]}
-        actions={[
-          {
-            name: "preview",
-            label: "Vista previa",
-            icon: <Eye size={16} />,
-          },
-        ]}
+        columns={columns}
+        actions={actions}
         selectedRowId={selectedRubric?.id}
-
-        /**
-         * Selección de fila.
-         */
-        onRowClick={(item) =>
-          onSelect(item as Rubric)
-        }
-
-        /**
-         * Acciones tabla.
-         */
+        getRowId={(item) => item.id}
+        onRowClick={(item) => onSelect(item.originalRubric)}
         onAction={(action, item) => {
-
           if (action === "preview") {
-            onPreview?.(item as Rubric);
+            onPreview?.(item.originalRubric);
           }
         }}
       />

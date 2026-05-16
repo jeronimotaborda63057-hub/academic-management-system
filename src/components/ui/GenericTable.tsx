@@ -39,6 +39,12 @@ interface GenericTableProps<T> {
         item: T
     ) => void;
 
+    onRowClick?: (item: T) => void;
+
+    selectedRowId?: string;
+
+    getRowId?: (item: T) => string | undefined;
+
     /**
      * NUEVO:
      * Ocultar botón menú (...)
@@ -76,6 +82,9 @@ function GenericTable<T>({
     actions = [],
 
     onAction,
+    onRowClick,
+    selectedRowId,
+    getRowId,
 
     hideMenuButton = false
 }: GenericTableProps<T>) {
@@ -142,6 +151,7 @@ function GenericTable<T>({
         rowIndex: number,
         event: React.MouseEvent<HTMLButtonElement>
     ) => {
+        event.stopPropagation();
 
         if (openMenu === rowIndex) {
 
@@ -249,11 +259,20 @@ function GenericTable<T>({
                                         !action.primary
                                 );
 
+                            const rowId = getRowId?.(row);
+                            const isSelected =
+                                Boolean(rowId && selectedRowId === rowId);
+
                             return (
 
                                 <tr
                                     key={rowIndex}
-                                    className="border-t"
+                                    onClick={() => onRowClick?.(row)}
+                                    className={`
+                                        border-t
+                                        ${onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
+                                        ${isSelected ? "bg-green-50" : ""}
+                                    `}
                                 >
 
                                     {/* Columnas */}
@@ -327,12 +346,13 @@ function GenericTable<T>({
                                                                         flex items-center justify-center
                                                                         transition
                                                                     "
-                                                                    onClick={() =>
+                                                                    onClick={(event) => {
+                                                                        event.stopPropagation();
                                                                         onAction?.(
                                                                             action.name,
                                                                             row
-                                                                        )
-                                                                    }
+                                                                        );
+                                                                    }}
                                                                 >
 
                                                                     {
@@ -422,7 +442,8 @@ function GenericTable<T>({
                                                                                     transition
                                                                                     ${textStyle}
                                                                                 `}
-                                                                                onClick={() => {
+                                                                                onClick={(event) => {
+                                                                                    event.stopPropagation();
 
                                                                                     onAction?.(
                                                                                         action.name,

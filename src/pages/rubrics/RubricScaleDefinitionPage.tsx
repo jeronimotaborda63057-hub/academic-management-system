@@ -508,6 +508,22 @@ const RubricScaleDefinitionPage = () => {
                 {/* ===== COLUMNA DERECHA ===== */}
                 <div className="col-span-3 flex flex-col gap-6">
 
+                    {rubric && (
+                        editingRubric ? (
+                            <RubricEditPanel
+                                rubric={rubric}
+                                saving={savingRubric}
+                                onSave={handleSaveRubric}
+                                onCancel={() => setEditingRubric(false)}
+                            />
+                        ) : (
+                            <RubricInfoCard
+                                rubric={rubric}
+                                onStartEditing={() => setEditingRubric(true)}
+                            />
+                        )
+                    )}
+
                     {/* Resumen criterio */}
                     <ScaleSummaryCard
                         criterion={selectedCriterion || undefined}

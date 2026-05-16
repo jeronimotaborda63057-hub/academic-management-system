@@ -64,15 +64,11 @@ export const useAssociateRubric = ({
       const [
         evaluationResponse,
         rubricResponse,
-        subjectResponse,
-        gradesResponse
+        subjectResponse
       ] = await Promise.all([
         evaluationService.getById(evaluationId),
         rubricService.getAll(),
-        subjectService.getAll(),
-        gradeService.getByEvaluationId(
-          evaluationId
-        )
+        subjectService.getAll()
       ]);
 
       // Guardar evaluación
@@ -84,10 +80,13 @@ export const useAssociateRubric = ({
       // Guardar asignaturas
       setSubjects(subjectResponse || []);
 
-      // Validar si existen notas
-      setHasGrades(
-        (gradesResponse?.length || 0) > 0
-      );
+      const gradesResponse = evaluationResponse?.rubric_id
+        ? await gradeService.search({
+          rubric_id: evaluationResponse.rubric_id,
+        })
+        : [];
+
+      setHasGrades(gradesResponse.length > 0);
 
     } catch (error) {
 
@@ -174,16 +173,6 @@ export const useAssociateRubric = ({
       return false;
     }
 
-    // Validación asignatura
-    if (!selectedSubject) {
-
-      toast.error(
-        "Debes seleccionar una asignatura"
-      );
-
-      return false;
-    }
-
     // Validación bloqueo
     if (isAssociationBlocked) {
 
@@ -198,8 +187,7 @@ export const useAssociateRubric = ({
     const response =
       await evaluationService.associateRubric(
         evaluation.id!,
-        selectedRubric.id!,
-        selectedSubject.id!
+        selectedRubric.id!
       );
 
     // Error backend
