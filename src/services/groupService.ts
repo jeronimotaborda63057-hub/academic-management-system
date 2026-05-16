@@ -25,6 +25,11 @@ export class GroupService extends BaseService<Group> {
         return response.data.data ?? [];
     }
 
+    async getByTeacher(teacherId: string): Promise<Group[]> {
+        const groups = await this.getAllWithAuth();
+        return groups.filter((group) => group.teacher_id === teacherId);
+    }
+
     async assignTeacherToGroup(groupId: string, teacherId: string): Promise<any> {
         try {
             const response = await api.patch(

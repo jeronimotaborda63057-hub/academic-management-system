@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import Pagination from "../../components/common/Pagination";
 import PageHeader from "../../components/ui/PageHeader";
@@ -32,6 +33,7 @@ const getTeacherDepartment = (user: User): string => {
 };
 
 const TeachersList: React.FC = () => {
+    const navigate = useNavigate();
     const [teachers, setTeachers] = useState<User[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
@@ -120,6 +122,7 @@ const TeachersList: React.FC = () => {
                                             <td className="px-5 py-4">
                                                 <button
                                                     type="button"
+                                                    onClick={() => navigate(`/admin/teachers/${teacher.id}`)}
                                                     className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-200 px-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                                                 >
                                                     <Eye size={16} />

@@ -4,6 +4,8 @@ const UsersList = lazy(() => import('../pages/users/List'));
 const UsersCreate = lazy(() => import('../pages/users/Create'));
 const UsersEdit = lazy(() => import('../pages/users/Edit'));
 const AdminTeachersList = lazy(() => import('../pages/admin/TeachersList'));
+const AdminTeacherDetail = lazy(() => import('../pages/admin/TeacherDetail'));
+const AdminEnrollment = lazy(() => import('../pages/students/Enrollment'));
 const CareersList = lazy(() => import('../pages/careers/List'));
 const CareersCreate = lazy(() => import('../pages/careers/Create'));
 const CareersEdit = lazy(() => import('../pages/careers/Edit'));
@@ -34,6 +36,7 @@ const RubricsEdit   = lazy(() => import('../pages/rubrics/Edit'));
 // ── CU-12: Registrar nota final ───────────────────────────────────────────────
 const RegisterFinalGradePage = lazy(() => import('../pages/grades/RegisterFinalGradePage'));
 const TeacherGroupsPage = lazy(() => import('../pages/groups/TeacherGroupsPage'));
+const TeacherMyGroups = lazy(() => import('../pages/teachers/MyGroups'));
 
 const coreRoutes = [
     // ── Rúbricas (HU-08) ──────────────────────────────────────────────────────
@@ -60,6 +63,16 @@ const coreRoutes = [
         path: '/admin/teachers',
         title: 'Docentes',
         component: AdminTeachersList
+    },
+    {
+        path: '/admin/teachers/:id',
+        title: 'Detalle docente',
+        component: AdminTeacherDetail
+    },
+    {
+        path: '/admin/enrollment',
+        title: 'Matricula de estudiantes',
+        component: AdminEnrollment
     },
     {
         path: '/careers/list',
@@ -140,6 +153,11 @@ const coreRoutes = [
         path: '/groups/teacher',
         title: 'Mis grupos',
         component: TeacherGroupsPage
+    },
+    {
+        path: '/teacher/my-groups',
+        title: 'Mis grupos',
+        component: TeacherMyGroups
     },
 
     // ── CU-12: Registrar nota final ───────────────────────────────────────────
