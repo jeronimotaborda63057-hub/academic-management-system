@@ -6,3 +6,5 @@ export class GradeService extends BaseService<Grade> {
         super("evaluation/grades");
     }
 }
+
+export const gradeService = new GradeService();

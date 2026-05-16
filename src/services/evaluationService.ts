@@ -6,3 +6,5 @@ export class EvaluationService extends BaseService<Evaluation> {
         super("evaluation/evaluations");
     }
 }
+
+export const evaluationService = new EvaluationService();
