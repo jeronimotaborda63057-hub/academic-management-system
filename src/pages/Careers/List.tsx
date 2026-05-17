@@ -21,7 +21,9 @@ import Swal from "sweetalert2";
 
 import type { Career } from "../../models/Career";
 import type { FilterConfig } from "../../models/FilterConfig";
-import type { Column, Action } from "../../components/ui/GenericTable";
+import type { Action } from "../../models/Action";
+import type { Column } from "../../models/Column";
+
 import { careerService } from "../../services/careerService";
 
 import PageHeader from "../../components/ui/PageHeader";
@@ -29,7 +31,7 @@ import TableToolbar from "../../components/TableToolBar";
 import GenericTable from "../../components/ui/GenericTable";
 
 // ─── Configuración declarativa de columnas (OCP: cerrado a cambios, abierto a extensión) ─
-const COLUMNS: Column[] = [
+const COLUMNS: Column<Career>[] = [
     { key: "code",        label: "Código" },
     { key: "name",        label: "Nombre" },
     { key: "description", label: "Descripción" },
