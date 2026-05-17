@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Building2, GitBranch, Mail } from "lucide-react";
 
 import { useLogin } from "../../components/hooks/useLogin";
 import Logo from "../../assets/logo.png";
-import type { SocialAuthProvider } from "../../services/auth/firebaseAuthService";
+import { firebaseAuthService, type SocialAuthProvider } from "../../services/auth/firebaseAuthService";
+import { securityService } from "../../services/auth/securityService";
 
 const socialProviders: {
     icon: React.ReactNode;

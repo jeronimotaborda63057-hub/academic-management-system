@@ -1,15 +1,18 @@
-//
 import { initializeApp, getApps, type FirebaseOptions } from "firebase/app";
 import {
     getAuth,
     GithubAuthProvider,
     GoogleAuthProvider,
     OAuthProvider,
-    signInWithPopup,
+    signInWithRedirect,
+    onAuthStateChanged,
     type AuthProvider,
 } from "firebase/auth";
+import type { FirebaseUserInfo } from "./securityService";
 
 export type SocialAuthProvider = "google" | "microsoft" | "github";
+
+const PENDING_PROVIDER_KEY = "pending_auth_provider";
 
 const firebaseConfig: FirebaseOptions = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,9 +23,8 @@ const firebaseConfig: FirebaseOptions = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-const firebaseApp = getApps().length === 0
-    ? initializeApp(firebaseConfig)
-    : getApps()[0];
+const firebaseApp =
+    getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
 const auth = getAuth(firebaseApp);
 
@@ -52,14 +54,51 @@ const createProvider = (provider: SocialAuthProvider): AuthProvider => {
         microsoft: createMicrosoftProvider,
         github: createGithubProvider,
     };
-
     return providers[provider]();
 };
 
 class FirebaseAuthService {
-    async getIdToken(providerName: SocialAuthProvider): Promise<string> {
-        const credential = await signInWithPopup(auth, createProvider(providerName));
-        return credential.user.getIdToken();
+    // Guarda el provider en localStorage y redirige al proveedor OAuth.
+    async redirectToProvider(providerName: SocialAuthProvider): Promise<void> {
+        localStorage.setItem(PENDING_PROVIDER_KEY, providerName);
+        await signInWithRedirect(auth, createProvider(providerName));
+    }
+
+    // Espera el resultado del redirect. Retorna uid, email, displayName y provider
+    // para que securityService pueda hacer el auto-registro + login.
+    waitForRedirectResult(): Promise<FirebaseUserInfo | null> {
+        return new Promise((resolve, reject) => {
+            const provider = localStorage.getItem(
+                PENDING_PROVIDER_KEY
+            ) as SocialAuthProvider | null;
+
+            // Sin provider pendiente → no venimos de un redirect
+            if (!provider) {
+                resolve(null);
+                return;
+            }
+
+            const unsubscribe = onAuthStateChanged(auth, async (user) => {
+                unsubscribe();
+
+                if (!user) {
+                    resolve(null);
+                    return;
+                }
+
+                try {
+                    localStorage.removeItem(PENDING_PROVIDER_KEY);
+                    resolve({
+                        uid: user.uid,
+                        email: user.email!,
+                        displayName: user.displayName,
+                        provider,
+                    });
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
     }
 }
 
