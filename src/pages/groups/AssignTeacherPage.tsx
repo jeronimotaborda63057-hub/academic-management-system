@@ -38,9 +38,6 @@ const AssignTeacherPage = () => {
   const [selectedTeacher, setSelectedTeacher] =
     useState<Teacher | null>(null);
 
-  /* const activeSemesters = useMemo(() => {
-    return semesters.filter((semester: any) => semester?.is_active === true);
-  }, [semesters]); ACTIVAR CUANDO HAYAN SEMESTRES ACTIVOS.*/
   const activeSemesters = semesters;
 
   const filteredGroups = useMemo(() => {
@@ -176,10 +173,14 @@ const AssignTeacherPage = () => {
 
       await loadInitialData(true);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error asignando docente";
+
       toast.error(
-        error?.response?.data?.message ||
-        "Error asignando docente"
+        message
       );
     } finally {
       setLoading(false);
@@ -219,7 +220,7 @@ const AssignTeacherPage = () => {
                   Selecciona un semestre
                 </option>
 
-                {activeSemesters.map((semester: any) => (
+                {activeSemesters.map((semester) => (
                   <option
                     key={semester.id}
                     value={semester.id}

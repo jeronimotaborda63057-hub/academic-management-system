@@ -28,12 +28,12 @@ const COLUMNS: Column<Semester>[] = [
     {
         key: "start_date",
         label: "Inicio",
-        render: (v) => <span>{fmt(v)}</span>,
+        render: (v) => <span>{fmt(String(v))}</span>,
     },
     {
         key: "end_date",
         label: "Fin",
-        render: (v) => <span>{fmt(v)}</span>,
+        render: (v) => <span>{fmt(String(v))}</span>,
     },
     {
         key: "is_active",
@@ -140,7 +140,7 @@ const SemesterList: React.FC = () => {
         }
     };
 
-    const handleAction = (action: string, item: Record<string, any>) => {
+    const handleAction = (action: string, item: Semester) => {
         if (action === "edit")     navigate(`/semesters/edit/${item.id}`);
         if (action === "activate") activateSemester(item.id);
         if (action === "close")    closeSemester(item.id);

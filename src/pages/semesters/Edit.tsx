@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
+import type { Semester } from "../../models/Semester";
+import type { SemesterForm as SemesterFormValues } from "../../models/SemesterForm";
 import { semesterService } from "../../services/semesterService";
 import { useSemesterForm } from "../../hooks/useSemesterForm";
 import { toDateInputValue } from "../../utils/dateUtils";
@@ -25,8 +27,8 @@ const Edit = () => {
     const { id }   = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const [semesters,    setSemesters]    = useState<any[]>([]);
-    const [initialData,  setInitialData]  = useState<any>(null);
+    const [semesters,    setSemesters]    = useState<Semester[]>([]);
+    const [initialData,  setInitialData]  = useState<SemesterFormValues | undefined>(undefined);
     const [loading,      setLoading]      = useState(true);
 
     // ── Carga inicial ──────────────────────────────────────
@@ -60,12 +62,12 @@ const Edit = () => {
                     is_active:  current.is_active   ?? false,
                 });
 
-            } catch (error: any) {
+            } catch {
 
                 await Swal.fire({
                     icon:  "error",
                     title: "Error",
-                    text:  error?.response?.data?.message || "Error al cargar el semestre.",
+                    text:  "Error al cargar el semestre.",
                 });
 
                 navigate("/semesters/list");
@@ -82,7 +84,7 @@ const Edit = () => {
 
     // ── Submit ─────────────────────────────────────────────
 
-    const handleSubmit = async (values: any) => {
+    const handleSubmit = async (values: SemesterFormValues) => {
         try {
 
             await semesterService.update(id!, values);
@@ -95,12 +97,12 @@ const Edit = () => {
 
             navigate("/semesters/list");
 
-        } catch (error: any) {
+        } catch {
 
             Swal.fire({
                 icon:  "error",
                 title: "Error",
-                text:  error?.response?.data?.message || "Error al actualizar el semestre.",
+                text:  "Error al actualizar el semestre.",
             });
         }
     };

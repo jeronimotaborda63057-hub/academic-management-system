@@ -8,6 +8,14 @@ import { useRubricForm } from "../../hooks/useRubricForm";
 import { rubricService } from "../../services/rubricService";
 import { criteriaService } from "../../services/criteriaService";
 
+function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+        return error.message;
+    }
+
+    return "Error desconocido";
+}
+
 const Create: React.FC = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
@@ -60,15 +68,9 @@ const Create: React.FC = () => {
                 "success"
             );
             navigate("/rubrics/list");
-        } catch (error: any) {
-            const mensaje =
-                error?.response?.data?.message ||
-                error?.response?.data?.detail ||
-                error?.message ||
-                "Error desconocido";
-            const status = error?.response?.status ?? "";
-            Swal.fire(`Error ${status}`, mensaje, "error");
-            console.error("Error al guardar rúbrica:", error?.response ?? error);
+        } catch (error: unknown) {
+            Swal.fire("Error", getErrorMessage(error), "error");
+            console.error("Error al guardar rúbrica:", error);
         } finally {
             setIsLoading(false);
         }

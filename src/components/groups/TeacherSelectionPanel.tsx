@@ -20,7 +20,7 @@ const TeacherSelectionPanel = ({
   const [search, setSearch] = useState("");
 
   const filteredTeachers = useMemo(() => {
-    return teachers.filter((teacher: any) => {
+    return teachers.filter((teacher) => {
       const fullName = `
         ${teacher.first_name || ""}
         ${teacher.last_name || ""}
@@ -88,7 +88,7 @@ const TeacherSelectionPanel = ({
               </tr>
             )}
 
-            {filteredTeachers.map((teacher: any) => {
+            {filteredTeachers.map((teacher) => {
               const isSelected =
                 selectedTeacher?.id === teacher.id;
 

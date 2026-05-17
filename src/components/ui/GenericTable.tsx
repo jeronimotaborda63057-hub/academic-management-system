@@ -57,6 +57,17 @@ interface GenericTableProps<T> {
     hideMenuButton?: boolean;
 }
 
+function getColumnValue<T>(
+    row: T,
+    key: keyof T | string
+) {
+    if (typeof key !== "string") {
+        return row[key];
+    }
+
+    return (row as Record<string, unknown>)[key];
+}
+
 /**
  * Tabla genérica reutilizable.
  *
@@ -282,10 +293,7 @@ function GenericTable<T>({
                                             colIndex
                                         ) => {
 
-                                            const value =
-                                                typeof col.key === "string"
-                                                    ? (row as any)[col.key]
-                                                    : row[col.key];
+                                            const value = getColumnValue(row, col.key);
 
                                             return (
 
@@ -302,7 +310,7 @@ function GenericTable<T>({
                                                                 value,
                                                                 row
                                                             )
-                                                            : value
+                                                            : String(value ?? "")
                                                     }
 
                                                 </td>

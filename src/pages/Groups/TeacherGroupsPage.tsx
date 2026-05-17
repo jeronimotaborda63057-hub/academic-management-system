@@ -32,18 +32,18 @@ const TeacherGroupsPage: React.FC = () => {
         {
             key: 'subject',
             label: 'Asignatura',
-            render: (_: any, row: Group) =>
+            render: (_value, row) =>
                 row.subject ? `${row.subject.name} (${row.subject.code ?? ''})` : '—',
         },
         {
             key: 'semester',
             label: 'Semestre',
-            render: (_: any, row: Group) => row.semester?.name ?? '—',
+            render: (_value, row) => row.semester?.name ?? '—',
         },
         {
             key: 'semester',
             label: 'Estado',
-            render: (_: any, row: Group) =>
+            render: (_value, row) =>
                 row.semester ? (
                     <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-success/10 text-success">
                         Activo

@@ -5,6 +5,7 @@ import { useNavigate }         from "react-router-dom";
 import Swal from "sweetalert2";
 
 import type { Semester }         from "../../models/Semester";
+import type { SemesterForm as SemesterFormValues } from "../../models/SemesterForm";
 import { semesterService }       from "../../services/semesterService";
 import { useSemesterForm }       from "../../hooks/useSemesterForm";
 
@@ -34,7 +35,7 @@ const Create = () => {
 
     // ── Submit ─────────────────────────────────────────────
 
-    const handleSubmit = async (values: any) => {
+    const handleSubmit = async (values: SemesterFormValues) => {
         try {
 
             await semesterService.create(values);
@@ -47,12 +48,12 @@ const Create = () => {
 
             navigate("/semesters/list");
 
-        } catch (error: any) {
+        } catch {
 
             Swal.fire({
                 icon:  "error",
                 title: "Error",
-                text:  error?.response?.data?.message || "Error al crear el semestre.",
+                text:  "Error al crear el semestre.",
             });
         }
     };

@@ -7,13 +7,15 @@ import type { StepField } from "../../models/StepField";
 
 const STEPS = ["Datos de usuario", "Datos de perfil"];
 
+export type MultiStepFormValues = Record<string, string>;
+
 interface MultiStepFormProps {
     title: string;
     subtitle: string;
     breadcrumb: string[];
     step1Fields: StepField[];
-    initialValues?: Record<string, any>;
-    onSubmit: (values: Record<string, any>) => Promise<void>;
+    initialValues?: MultiStepFormValues;
+    onSubmit: (values: MultiStepFormValues) => Promise<void>;
     isLoading?: boolean;
 }
 
@@ -30,8 +32,8 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     const [currentStep, setCurrentStep] = useState(1);
 
     // ✅ Estado unificado — inicializado con valores externos si es edición
-    const [values, setValues] = useState<Record<string, any>>(() => {
-        const defaults: Record<string, any> = { role: "STUDENT" };
+    const [values, setValues] = useState<MultiStepFormValues>(() => {
+        const defaults: MultiStepFormValues = { role: "STUDENT" };
         step1Fields.forEach((f) => { defaults[f.name] = ""; });
         return { ...defaults, ...initialValues };
     });

@@ -11,6 +11,14 @@ import { criteriaService } from "../../services/criteriaService";
 import { useState } from "react";
 import type { Rubric } from "../../models/Rubric";
 
+function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+        return error.message;
+    }
+
+    return "No se pudo actualizar la rúbrica.";
+}
+
 const Edit: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -101,13 +109,8 @@ const Edit: React.FC = () => {
 
             await Swal.fire("¡Guardado!", "Rúbrica actualizada correctamente.", "success");
             navigate("/rubrics/list");
-        } catch (error: any) {
-            const mensaje =
-                error?.response?.data?.message ||
-                error?.response?.data?.detail  ||
-                error?.message                 ||
-                "No se pudo actualizar la rúbrica.";
-            Swal.fire("Error", mensaje, "error");
+        } catch (error: unknown) {
+            Swal.fire("Error", getErrorMessage(error), "error");
         } finally {
             setIsLoading(false);
         }

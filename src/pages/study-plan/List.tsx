@@ -17,6 +17,13 @@ import PlanDetail from "../../components/studyPlans/PlanDetail";
 import type { PlanDetailData, PlanVersion } from "../../components/studyPlans/PlanDetail";
 import Swal from "sweetalert2";
 
+type StudyPlanTab = "structure" | "drafts";
+
+const STUDY_PLAN_TABS: { key: StudyPlanTab; label: string }[] = [
+    { key: "structure", label: "Estructura del plan" },
+    { key: "drafts", label: "Borradores" },
+];
+
 const List: React.FC = () => {
     const [careers, setCareers] = useState<Career[]>([]);
     const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
@@ -28,7 +35,7 @@ const List: React.FC = () => {
     const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
     const [subjectSearch, setSubjectSearch] = useState("");
     const [yearSubjectCount, setYearSubjectCount] = useState<Record<number, number>>({});
-    const [activeTab, setActiveTab] = useState<"structure" | "drafts">("structure");
+    const [activeTab, setActiveTab] = useState<StudyPlanTab>("structure");
 
     // ─── Carga inicial ───────────────────────────────────────
     useEffect(() => {
@@ -152,13 +159,15 @@ const List: React.FC = () => {
         );
 
         if (!targetPlan) {
-            const newPlan = await curriculumService.create({
+            const newPlanPayload: Omit<Curriculum, "id" | "created_at" | "updated_at"> = {
                 career_id: selectedCareer.id,
                 name: `Plan ${selectedYear}`,
                 year: selectedYear,
                 suggested_semester: parseInt(semester),
                 is_published: false,
-            } as any);
+            };
+
+            const newPlan = await curriculumService.create(newPlanPayload);
 
             if (!newPlan || !newPlan.id) {
                 Swal.fire("Error", "No se pudo crear el plan.", "error");
@@ -460,13 +469,10 @@ const List: React.FC = () => {
 
                 {/* Tabs */}
                 <div className="flex gap-6 border-b border-stroke dark:border-strokedark mb-6">
-                    {[
-                        { key: "structure", label: "Estructura del plan" },
-                        { key: "drafts", label: "Borradores" },
-                    ].map((tab) => (
+                    {STUDY_PLAN_TABS.map((tab) => (
                         <button
                             key={tab.key}
-                            onClick={() => setActiveTab(tab.key as any)}
+                            onClick={() => setActiveTab(tab.key)}
                             className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key
                                     ? "border-primary text-primary"
                                     : "border-transparent text-gray-500 hover:text-black dark:hover:text-white"

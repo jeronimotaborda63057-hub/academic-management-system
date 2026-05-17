@@ -19,6 +19,8 @@ import type { SemesterForm } from "../../models/SemesterForm";
 import { semesterService } from "../../services/semesterService";
 import PageHeader from "../../components/ui/PageHeader";
 
+type SaveResult = Awaited<ReturnType<typeof semesterService.create>>;
+
 // ── Subcomponente de campo (reutilizable, SRP) ────────────────────────────────
 const Field = ({
     label, name, value, onChange,
@@ -109,7 +111,7 @@ const SemesterFormPage: React.FC = () => {
 
         setLoading(true);
         try {
-            let ok: any;
+            let ok: SaveResult;
             if (isEdit && id) {
                 ok = await semesterService.update(id, form);
             } else {

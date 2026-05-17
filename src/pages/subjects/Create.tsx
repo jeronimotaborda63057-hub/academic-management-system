@@ -28,6 +28,14 @@ const INITIAL: SubjectCreateValues = {
     credits:     "1",
 };
 
+function isDuplicateError(error: unknown): boolean {
+    if (!(error instanceof Error)) {
+        return false;
+    }
+
+    return error.message.includes("409");
+}
+
 // ─────────────────────────────────────────────────────────────
 //  Create
 //
@@ -81,9 +89,9 @@ const Create: React.FC = () => {
 
             navigate("/subjects/list");
 
-        } catch (error: any) {
+        } catch (error: unknown) {
 
-            const isDuplicate = error.response?.status === 409;
+            const isDuplicate = isDuplicateError(error);
 
             Swal.fire({
                 icon:  "error",

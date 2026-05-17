@@ -26,6 +26,16 @@ import type { CareerForm } from "../../models/Career";
 import { careerService } from "../../services/careerService";
 import PageHeader from "../../components/ui/PageHeader";
 
+type SaveResult = Awaited<ReturnType<typeof careerService.create>>;
+
+function isDuplicateCareerError(error: unknown): boolean {
+    if (!(error instanceof Error)) {
+        return false;
+    }
+
+    return error.message.includes("duplicate");
+}
+
 // ─── Subcomponente de campo (SRP: solo renderiza un input) ────────────────────
 const Field = ({
     label, name, value, onChange,
@@ -96,7 +106,7 @@ const CareerForm: React.FC = () => {
         setLoading(true);
 
         try {
-            let ok: any;
+            let ok: SaveResult;
             if (isEdit && id) {
                 // En edición solo se permite cambiar nombre y descripción (no el código)
                 ok = await careerService.update(id, {
@@ -116,9 +126,9 @@ const CareerForm: React.FC = () => {
             );
             navigate("/careers/list");
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             // E1: código duplicado (el backend lo notifica con 409/400)
-            if (err?.response?.status === 409 || err?.message?.includes("duplicate")) {
+            if (isDuplicateCareerError(err)) {
                 Swal.fire("Código duplicado", "Ya existe una carrera con ese código.", "error");
             } else {
                 Swal.fire("Error", "No se pudo guardar la carrera.", "error");

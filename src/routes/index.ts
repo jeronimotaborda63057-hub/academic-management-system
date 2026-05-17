@@ -240,6 +240,11 @@ const coreRoutes: AppRoute[] = [
         component: RegisterFinalGradePage
     },
     {
+        path: '/grades/register/:groupId',
+        title: 'Registrar nota final',
+        component: RegisterFinalGradePage
+    },
+    {
         path: '/rubrics/consultations',
         title: 'Mis evaluaciones',
         component: RubricConsultationList

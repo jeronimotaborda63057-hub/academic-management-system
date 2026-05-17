@@ -25,6 +25,14 @@ interface EnrollmentMatriculaModalProps {
     existingEnrollments: Enrollment[];
 }
 
+function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+        return error.message;
+    }
+
+    return "Ocurrió un error inesperado.";
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const PERIOD_REGEX = /^\d{4}-(S1|S2)$/;
@@ -179,8 +187,8 @@ const EnrollmentMatriculaModal: React.FC<EnrollmentMatriculaModalProps> = ({
                 status,
             });
             onClose();
-        } catch (err: any) {
-            setApiError(err?.message ?? "Ocurrió un error inesperado.");
+        } catch (err: unknown) {
+            setApiError(getErrorMessage(err));
         } finally {
             setSubmitting(false);
         }

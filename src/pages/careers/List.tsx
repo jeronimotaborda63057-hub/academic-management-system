@@ -50,7 +50,7 @@ const COLUMNS: Column<Career>[] = [
         key: "created_at",
         label: "Creada",
         render: (value) => (
-            <span>{new Date(value).toLocaleDateString("es-CO")}</span>
+            <span>{new Date(String(value)).toLocaleDateString("es-CO")}</span>
         ),
     },
 ];
@@ -154,7 +154,7 @@ const CareerList: React.FC = () => {
         }
     };
 
-    const handleAction = (action: string, item: Record<string, any>) => {
+    const handleAction = (action: string, item: Career) => {
         if (action === "edit")    navigate(`/careers/edit/${item.id}`);
         if (action === "archive") archiveCareer(item.id);
     };

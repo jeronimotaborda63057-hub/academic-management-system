@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -43,31 +43,6 @@ export function useLogin() {
         navigate("/");
     };
 
-    // Al montar el componente verifica si venimos de un redirect de Firebase.
-    // Si hay un provider pendiente en localStorage, espera al usuario autenticado,
-    // hace auto-registro si es necesario y completa el login contra el backend.
-    useEffect(() => {
-        setState((prev) => ({ ...prev, loading: true }));
-
-        firebaseAuthService
-            .waitForRedirectResult()
-            .then(async (firebaseUser) => {
-                if (!firebaseUser) {
-                    setState((prev) => ({ ...prev, loading: false }));
-                    return;
-                }
-                const user = await securityService.loginWithFirebase(firebaseUser);
-                completeLogin(user);
-            })
-            .catch((error) => {
-                setState({
-                    error: getAuthErrorMessage(error),
-                    loading: false,
-                    loadingProvider: null,
-                });
-            });
-    }, []);
-
     const login = async (email: string, password: string) => {
         setState({ error: null, loading: true, loadingProvider: null });
         try {
@@ -85,9 +60,9 @@ export function useLogin() {
     const loginWithProvider = async (provider: SocialAuthProvider) => {
         setState({ error: null, loading: true, loadingProvider: provider });
         try {
-            // Guarda el provider y redirige. La página se recarga sola al volver
-            // y el useEffect captura el resultado.
-            await firebaseAuthService.redirectToProvider(provider);
+            const firebaseUser = await firebaseAuthService.signInWithProvider(provider);
+            const user = await securityService.loginWithFirebase(firebaseUser);
+            completeLogin(user);
         } catch (error) {
             setState({
                 error: getAuthErrorMessage(error),

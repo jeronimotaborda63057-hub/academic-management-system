@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import MultiStepForm from "../../components/multi-step-form/MultiStepForm";
+import MultiStepForm, { type MultiStepFormValues } from "../../components/multi-step-form/MultiStepForm";
 import { userService } from "../../services/userService";
 import Swal from "sweetalert2";
+import type { TeacherProfile } from "../../models/TeacherProfile";
 
 // ✅ Sin contraseña en edición
 const STEP1_FIELDS_EDIT = [
@@ -35,13 +36,19 @@ const Edit: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
-    const [initialValues, setInitialValues] = useState<Record<string, any> | undefined>(undefined);
+    const [initialValues, setInitialValues] = useState<MultiStepFormValues | undefined>(undefined);
+
+    const getTeacherProfile = (profile: unknown): Partial<TeacherProfile> => {
+        if (!profile || typeof profile !== "object") return {};
+        return profile as Partial<TeacherProfile>;
+    };
 
     // ✅ Carga el usuario y mapea sus valores al formulario
     useEffect(() => {
         if (!id) return;
         userService.getById(id).then((user) => {
             if (!user) return;
+            const teacherProfile = getTeacherProfile(user.profile);
             setInitialValues({
                 email: user.email,
                 code: user.code,
@@ -49,13 +56,13 @@ const Edit: React.FC = () => {
                 first_name: user.profile?.first_name ?? "",
                 last_name: user.profile?.last_name ?? "",
                 identification: user.profile?.identification ?? "",
-                phone: (user.profile as any)?.phone ?? "",
-                specialty: (user.profile as any)?.specialty ?? "",
+                phone: teacherProfile.phone ?? "",
+                specialty: teacherProfile.specialty ?? "",
             });
         });
     }, [id]);
 
-    const handleSubmit = async (values: Record<string, any>) => {
+    const handleSubmit = async (values: MultiStepFormValues) => {
         if (!id) return;
         setIsLoading(true);
         try {
@@ -75,8 +82,8 @@ const Edit: React.FC = () => {
                 },
             });
             navigate("/users/list");
-        } catch (error: any) {
-            if (error.message === "EMAIL_DUPLICADO") {
+        } catch (error) {
+            if (error instanceof Error && error.message === "EMAIL_DUPLICADO") {
                 Swal.fire({
                     title: "Error",
                     text: "El correo institucional ya está registrado.",

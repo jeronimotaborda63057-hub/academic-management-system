@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { userService } from "../../services/userService";
 import type { CreateUserPayload } from "../../models/User";
 import Swal from "sweetalert2";
-import MultiStepForm from "../../components/multi-step-form/MultiStepForm";
+import MultiStepForm, { type MultiStepFormValues } from "../../components/multi-step-form/MultiStepForm";
 
 const STEP1_FIELDS_CREATE = [
     {
@@ -41,7 +41,7 @@ const Create: React.FC = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
-    const buildPayload = (values: Record<string, any>): CreateUserPayload => {
+    const buildPayload = (values: MultiStepFormValues): CreateUserPayload => {
         const base = { email: values.email, password: values.password, code: values.code };
         if (values.role === "ADMIN") return { ...base, role: "ADMIN" };
         if (values.role === "TEACHER") return {
@@ -60,15 +60,15 @@ const Create: React.FC = () => {
         };
     };
 
-    const handleSubmit = async (values: Record<string, any>) => {
+    const handleSubmit = async (values: MultiStepFormValues) => {
         setIsLoading(true);
         try {
             const result = await userService.createUser(buildPayload(values));
             if (!result) throw new Error();
             Swal.fire("Éxito", "Usuario creado correctamente.", "success");
             navigate("/users/list");
-        } catch (error: any) {
-            if (error.message === "EMAIL_DUPLICADO") {
+        } catch (error) {
+            if (error instanceof Error && error.message === "EMAIL_DUPLICADO") {
                 Swal.fire("Error", "El correo institucional ya está registrado.", "error");
             } else {
                 Swal.fire("Error", "Ocurrió un error al crear el usuario.", "error");

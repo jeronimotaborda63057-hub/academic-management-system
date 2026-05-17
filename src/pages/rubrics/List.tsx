@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Archive, Eye, Trash2, ArchiveRestore } from "lucide-react";
+import { Pencil, Archive, Trash2, ArchiveRestore } from "lucide-react";
 import Swal from "sweetalert2";
 import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
@@ -19,7 +19,7 @@ const List: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("");
 
   // ✅ FIX: fetchData solo hace el fetch y el setData, nada más
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const [rubrics, allCriteria] = await Promise.all([
       rubricService.getAll(),
       criteriaService.getAll(),
@@ -47,12 +47,12 @@ const List: React.FC = () => {
         criteria: Array(countByRubric[String(r.id)] ?? 0).fill(null),
       })),
     );
-  };
+  }, []);
 
   // ✅ FIX: useEffect al nivel del componente, no dentro de fetchData
   useEffect(() => {
-    fetchData();
-  }, []);
+    void Promise.resolve().then(fetchData);
+  }, [fetchData]);
 
   // ✅ FIX: cerrar el menú dropdown de GenericTable cuando el usuario hace scroll,
   // para evitar que quede flotando en una posición incorrecta.
@@ -70,10 +70,6 @@ const List: React.FC = () => {
     switch (action) {
       case "edit":
         navigate(`/rubrics/edit/${item.id}`);
-        break;
-
-      case "view":
-        navigate(`/rubrics/detail/${item.id}`);
         break;
 
       case "archive": {
@@ -199,12 +195,6 @@ const List: React.FC = () => {
       label: "Editar",
       icon: <Pencil size={16} />,
       primary: true,
-      variant: "default",
-    },
-    {
-      name: "view",
-      label: "Ver detalle",
-      icon: <Eye size={16} />,
       variant: "default",
     },
     {

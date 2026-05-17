@@ -1,5 +1,5 @@
 import React from "react";
-import { Pencil, UserX, Eye } from "lucide-react";
+import { Pencil, UserX } from "lucide-react";
 import type { FilterConfig } from "../../models/FilterConfig";
 import GenericTable from "../../components/ui/GenericTable";
 import type { Column } from "../../models/Column";
@@ -135,17 +135,6 @@ const List: React.FC = () => {
         ),
         variant: "danger",
     },
-    {
-        name: "view",
-        label: "Ver detalle",
-        icon: (
-            <Eye
-                size={16}
-                className="text-blue-600"
-            />
-        ),
-        variant: "default",
-    },
 ];
 
     const handleAction = (
@@ -156,8 +145,6 @@ const List: React.FC = () => {
             navigate(`/users/edit/${item.id}`);
         else if (action === "deactivate")
             deactivateUser(item.id);
-        else if (action === "view")
-            navigate(`/users/detail/${item.id}`);
     };
 
     const deactivateUser = async (id: string) => {

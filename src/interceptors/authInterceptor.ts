@@ -2,6 +2,12 @@ import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from "axio
 import { LocalStorageProvider } from "../storage/LocalStorageProvider";
 import type { StorageProvider } from "../storage/StorageProvider";
 
+type ResponseError = {
+    response?: {
+        status?: number;
+    };
+};
+
 class AuthInterceptor {
     private api: AxiosInstance;
     private storage: StorageProvider;
@@ -30,8 +36,10 @@ class AuthInterceptor {
         return config;
     }
 
-    private handleResponseError(error: any) {
-        if (error.response?.status === 401) {
+    private handleResponseError(error: unknown) {
+        const responseError = error as ResponseError;
+
+        if (responseError.response?.status === 401) {
             this.storage.removeItem("access_token");
             this.storage.removeItem("user");
             window.location.href = "/auth/signin";

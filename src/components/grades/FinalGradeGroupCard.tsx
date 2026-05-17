@@ -76,7 +76,7 @@ const FinalGradeGroupCard: React.FC<FinalGradeGroupCardProps> = ({
                     <span className="text-gray-500 dark:text-gray-400 min-w-[90px]">Docente:</span>
                     <span className="font-medium text-black dark:text-white">
                         {group.teacher
-                            ? `${(group.teacher as any).first_name ?? ''} ${(group.teacher as any).last_name ?? ''}`.trim()
+                            ? `${group.teacher.first_name ?? ''} ${group.teacher.last_name ?? ''}`.trim()
                             : '—'}
                     </span>
                 </div>
