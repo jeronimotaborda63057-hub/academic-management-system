@@ -1,3 +1,4 @@
+//
 import { initializeApp, getApps, type FirebaseOptions } from "firebase/app";
 import {
     getAuth,
