@@ -1,191 +1,123 @@
-/**
- * Careers/List.tsx — HU-02 (Gestionar carreras)
- *
- * SOLID aplicado:
- * - SRP  : este componente solo orquesta la vista de lista; la lógica de
- *          negocio vive en careerService.
- * - OCP  : los filtros y columnas son configuraciones declarativas (arrays),
- *          no condicionales en el JSX. Agregar una columna no cambia la lógica.
- * - DIP  : dependemos de careerService (abstracción BaseService), no de axios
- *          directamente.
- *
- * Criterios HU-02 cubiertos:
- *   ✅ 1 — Crear, editar y archivar carreras
- *   ✅ 3 — Filtrar por estado (activa/archivada)
- */
-
-import React, { useEffect, useState, useCallback } from "react";
-import { Pencil, Archive } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-
-import type { Career } from "../../models/Career";
-import type { FilterConfig } from "../../models/FilterConfig";
-import type { Column, Action } from "../../components/GenericTable";
-import { careerService } from "../../services/careerService";
-
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
-import GenericTable from "../../components/GenericTable";
+import GenericTable from "../../components/ui/GenericTable";
+import { careerService } from "../../services/careerService";
+import { semesterService } from "../../services/semesterService";
+import type { Career } from "../../models/Career";
+import type { Semester } from "../../models/Semester";
+import type { Action } from "../../models/Action";
+import { Pencil, Archive, Eye } from "lucide-react";
+import Swal from "sweetalert2";
+import ArchiveCareerModal from "../../components/modals/ArchiveCareerModal";
 
-// ─── Configuración declarativa de columnas (OCP: cerrado a cambios, abierto a extensión) ─
-const COLUMNS: Column[] = [
-    { key: "code",        label: "Código" },
-    { key: "name",        label: "Nombre" },
-    { key: "description", label: "Descripción" },
-    {
-        key: "is_active",
-        label: "Estado",
-        render: (value) => (
-            <span className={`rounded-full px-3 py-1 text-xs font-medium ${
-                value ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
-            }`}>
-                {value ? "Activa" : "Archivada"}
-            </span>
-        ),
-    },
-    {
-        key: "created_at",
-        label: "Creada",
-        render: (value) => (
-            <span>{new Date(value).toLocaleDateString("es-CO")}</span>
-        ),
-    },
-];
-
-// Acciones: editar es primaria (botón directo); archivar va en el dropdown
-const ACTIONS: Action[] = [
-    {
-        name: "edit",
-        label: "Editar carrera",
-        icon: <Pencil size={16} className="text-gray-700" />,
-        primary: true,
-    },
-    {
-        name: "archive",
-        label: "Archivar carrera",
-        icon: <Archive size={16} className="text-red-600" />,
-        variant: "danger",
-    },
-];
-
-// Filtros declarativos (OCP)
-const FILTERS: FilterConfig[] = [
-    {
-        key: "is_active",
-        label: "Estado",
-        options: [
-            { label: "Activa",    value: "true"  },
-            { label: "Archivada", value: "false" },
-        ],
-    },
-];
-
-// ─── Componente ───────────────────────────────────────────────────────────────
-
-const CareerList: React.FC = () => {
+const List: React.FC = () => {
     const navigate = useNavigate();
-    const [data,         setData]         = useState<Career[]>([]);
-    const [search,       setSearch]       = useState("");
-    const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+    const [data, setData]               = useState<Career[]>([]);
+    const [search, setSearch]           = useState("");
+    const [archiveOpen, setArchiveOpen] = useState(false);
+    const [selected, setSelected]       = useState<Career | null>(null);
+    const [activeSemesters, setActiveSemesters] = useState<Semester[]>([]);
 
-    // DIP: usamos el servicio; no sabemos nada de HTTP aquí
-    const fetchData = useCallback(async () => {
+    const fetchData = async () => {
         const careers = await careerService.getAll();
-        setData(careers);
-    }, []);
-
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
-
-    // ── Filtrado local (el backend de este proyecto no tiene endpoint de búsqueda de carreras) ──
-    const tableData = data
-        .filter((c) => {
-            const matchSearch =
-                !search ||
-                c.name.toLowerCase().includes(search.toLowerCase()) ||
-                c.code.toLowerCase().includes(search.toLowerCase());
-
-            const matchActive =
-                filterValues.is_active === undefined ||
-                filterValues.is_active === "" ||
-                String(c.is_active) === filterValues.is_active;
-
-            return matchSearch && matchActive;
-        });
-
-    const handleFilterChange = (key: string, value: string) =>
-        setFilterValues((prev) => ({ ...prev, [key]: value }));
-
-    const handleClear = () => {
-        setSearch("");
-        setFilterValues({});
+        setData(careers ?? []);
     };
 
-    // SRP: la lógica de archivo está en una función dedicada
-    const archiveCareer = async (id: string) => {
-        const result = await Swal.fire({
-            title: "¿Archivar carrera?",
-            text: "La carrera dejará de estar disponible para nuevas inscripciones.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Archivar",
-            cancelButtonText: "Cancelar",
-            confirmButtonColor: "#d33",
-        });
+    useEffect(() => { fetchData(); }, []);
 
-        if (!result.isConfirmed) return;
-
-        // HU-02 criterio 3: el backend valida que no haya estudiantes matriculados.
-        // Aquí reflejamos el error con un mensaje claro.
-        const archived = await careerService.archive(id);
-        if (archived) {
-            Swal.fire("Archivada", "La carrera fue archivada.", "success");
-            fetchData();
-        } else {
-            Swal.fire(
-                "No se puede archivar",
-                "La carrera tiene estudiantes matriculados activos.",
-                "error",
-            );
+    const handleAction = async (action: string, item: Career) => {
+        switch (action) {
+            case "edit":
+                navigate(`/careers/edit/${item.id}`); // ✅ navega a página
+                break;
+            case "archive":
+                const semesters = await semesterService.getByCareer(item.id);
+                const active = semesters.filter((s) => s.is_active);
+                setActiveSemesters(active);
+                setSelected(item);
+                setArchiveOpen(true);
+                break;
+            case "view":
+                navigate(`/careers/detail/${item.id}`);
+                break;
         }
     };
 
-    const handleAction = (action: string, item: Record<string, any>) => {
-        if (action === "edit")    navigate(`/careers/edit/${item.id}`);
-        if (action === "archive") archiveCareer(item.id);
+    const handleConfirmArchive = async () => {
+        if (!selected || activeSemesters.length > 0) return;
+        const res = await careerService.archive(selected.id);
+        if (res) {
+            Swal.fire("Archivada", "Carrera archivada correctamente.", "success");
+            fetchData();
+        }
+        setArchiveOpen(false);
+        setSelected(null);
     };
+
+    const filteredData = data.filter(
+        (c) =>
+            c.name.toLowerCase().includes(search.toLowerCase()) ||
+            c.code.toLowerCase().includes(search.toLowerCase())
+    );
+
+    const columns = [
+        { key: "code", label: "Código" },
+        { key: "name", label: "Nombre" },
+        { key: "description", label: "Descripción" },
+        {
+            key: "is_active",
+            label: "Estado",
+            render: (value: boolean) => (
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    value ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"
+                }`}>
+                    {value ? "Activa" : "Archivada"}
+                </span>
+            ),
+        },
+    ];
+
+    const actions: Action[] = [
+        { name: "edit",    label: "Editar carrera",  icon: <Pencil size={16} />,  primary: true, variant: "default" },
+        { name: "view",    label: "Ver detalle",      icon: <Eye size={16} />,     variant: "default" },
+        { name: "archive", label: "Archivar carrera", icon: <Archive size={16} />, variant: "danger" },
+    ];
 
     return (
         <div>
             <PageHeader
                 title="Carreras"
-                subtitle="Gestiona el catálogo de carreras disponibles en el sistema."
-                breadcrumb={["Inicio", "Académico", "Carreras"]}
+                subtitle="Gestiona las carreras del sistema."
+                breadcrumb={["Inicio", "Carreras"]}
             />
-
             <TableToolbar
-                searchPlaceholder="Buscar por nombre o código..."
-                filters={FILTERS}
-                filterValues={filterValues}
+                searchPlaceholder="Buscar carrera por nombre o código..."
                 onSearchChange={setSearch}
-                onFilterChange={handleFilterChange}
-                onClear={handleClear}
+                onClear={() => setSearch("")}
                 actionLabel="Nueva carrera"
                 onAction={() => navigate("/careers/create")}
+                filters={[]}
+                filterValues={{}}
+                onFilterChange={() => {}}
             />
-
-            <div className="mt-4">
-                <GenericTable
-                    data={tableData}
-                    columns={COLUMNS}
-                    actions={ACTIONS}
-                    onAction={handleAction}
-                />
-            </div>
+            <GenericTable
+                data={filteredData}
+                columns={columns}
+                actions={actions}
+                onAction={handleAction}
+            />
+            <ArchiveCareerModal
+                isOpen={archiveOpen}
+                onClose={() => { setArchiveOpen(false); setSelected(null); }}
+                onConfirm={handleConfirmArchive}
+                careerName={selected?.name ?? ""}
+                careerCode={selected?.code ?? ""}
+                activeSemesters={activeSemesters}
+            />
         </div>
     );
 };
 
-export default CareerList;
+export default List;
