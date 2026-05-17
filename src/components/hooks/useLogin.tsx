@@ -16,12 +16,6 @@ interface LoginState {
     loadingProvider: SocialAuthProvider | null;
 }
 
-const HOME_PATH_BY_ROLE = {
-    ADMIN: "/users/list",
-    TEACHER: "/",
-    STUDENT: "/",
-} satisfies Record<User["role"], string>;
-
 const getAuthErrorMessage = (error: unknown): string => {
     const code = (error as { code?: string }).code;
     if (code === "auth/popup-closed-by-user")
