@@ -13,7 +13,7 @@ const UsersCreate = lazy(() => import('../pages/users/Create'));
 const UsersEdit = lazy(() => import('../pages/users/Edit'));
 const AdminTeachersList = lazy(() => import('../pages/admin/TeachersList'));
 const AdminTeacherDetail = lazy(() => import('../pages/admin/TeacherDetail'));
-const AdminEnrollment = lazy(() => import('../pages/students/Enrollment'));
+const AdminCareerEnrollment = lazy(() => import('../pages/students/Enrollment'));
 const StudentMySubjects = lazy(() => import('../pages/student/MySubjects'));
 const CareersList = lazy(() => import('../pages/careers/List'));
 const CareersCreate = lazy(() => import('../pages/careers/Create'));
@@ -49,10 +49,26 @@ const TeacherMyGroups = lazy(() => import('../pages/teachers/MyGroups'));
 
 const coreRoutes: AppRoute[] = [
     // ── Rúbricas (HU-08) ──────────────────────────────────────────────────────
-    { path: '/rubrics/list',         title: 'Rúbricas',           component: RubricsList     },
-    { path: '/rubrics/create',       title: 'Crear rúbrica',      component: RubricsCreate   },
-    { path: '/rubrics/edit/:id',     title: 'Editar rúbrica',     component: RubricsEdit     },
-    { path: '/rubrics/scales',       title: 'Definir criterios y escalas', component: ScaleDefinitionPage },
+    { 
+        path: '/rubrics/list',        
+        title: 'Rúbricas',           
+        component: RubricsList     
+    },
+    { 
+        path: '/rubrics/create',     
+        title: 'Crear rúbrica',      
+        component: RubricsCreate   
+    },
+    { 
+        path: '/rubrics/edit/:id',   
+        title: 'Editar rúbrica',     
+        component: RubricsEdit     
+    },
+    { 
+        path: '/rubrics/scales',      
+        title: 'Definir criterios y escalas', 
+        component: ScaleDefinitionPage 
+    },
     {
         path: '/users/list',
         title: 'Usuarios',
@@ -82,8 +98,8 @@ const coreRoutes: AppRoute[] = [
     },
     {
         path: '/admin/enrollment',
-        title: 'Matricula de estudiantes',
-        component: AdminEnrollment,
+        title: 'Matricular estudiante en carrera',
+        component: AdminCareerEnrollment,
         roles: ["ADMIN"]
     },
     {

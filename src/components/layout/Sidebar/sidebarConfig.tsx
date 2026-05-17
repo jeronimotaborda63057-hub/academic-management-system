@@ -37,7 +37,7 @@ export const adminMenu: NavGroup[] = [
         title: "GESTIÓN",
         items: [
             { label: "Usuarios", path: "/users/list", icon: icons.users },
-            { label: "Docentes", path: "/teachers/list", icon: icons.profile },
+            { label: "Docentes", path: "/admin/teachers", icon: icons.profile },
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
             { label: "Matrículas", path: "/enrollments/list", icon: icons.enrollment },
         ],

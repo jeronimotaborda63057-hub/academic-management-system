@@ -4,7 +4,7 @@ interface PageHeaderProps {
     title: string;
     subtitle: string;
     breadcrumb?: string[];
-    action?: React.ReactNode;
+    action?: React.ReactNode | React.ReactNode[];
 }
 
 const PageHeader = ({ title, subtitle, breadcrumb = [], action }: PageHeaderProps) => {

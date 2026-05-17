@@ -1,119 +1,297 @@
-import React from "react";
-import Swal from "sweetalert2";
+import { useMemo, useState } from "react";
 
-import PageHeader from "../../components/ui/PageHeader";
+import { CareerEnrollmentForm } from "../../components/studentEnrollments/CareerEnrollmentForm";
+import { ConfirmationModal } from "../../components/studentEnrollments/ConfirmationModal";
+import { EnrollmentStepper } from "../../components/studentEnrollments/EnrollmentStepper";
+import { EnrollmentSummaryPanel } from "../../components/studentEnrollments/EnrollmentSummaryPanel";
 import {
-    getStudentDisplayName,
-    getStudentProfileId,
+    selectedStudentName,
+} from "../../components/studentEnrollments/enrollmentFormatters";
+import { FeedbackToast } from "../../components/studentEnrollments/FeedbackToast";
+import { InfoBanner } from "../../components/studentEnrollments/InfoBanner";
+import { ResultModal } from "../../components/studentEnrollments/ResultModal";
+import { StudentsSearchSection } from "../../components/studentEnrollments/StudentsSearchSection";
+import type {
+    ResultModalState,
+    ToastState,
+} from "../../components/studentEnrollments/types";
+import { UpdateStatusModal } from "../../components/studentEnrollments/UpdateStatusModal";
+import PageHeader from "../../components/ui/PageHeader";
+import type {
+    AcademicRegistrationStatus,
+    Registration,
+} from "../../models/Registration";
+import {
+    isValidAdmissionPeriod,
+    type StudentEnrollmentErrors,
+    type StudentEnrollmentOption,
     useStudentEnrollment,
 } from "../../hooks/useStudentEnrollment";
 
-const Enrollment: React.FC = () => {
+const ITEMS_PER_PAGE = 5;
+
+const AdminCareerEnrollmentPage = () => {
     const {
+        activeDuplicate,
         canSubmit,
         careers,
+        createRegistration,
+        draft,
         error,
+        filteredStudents,
         loading,
-        selectedCareerId,
+        search,
+        selectStudent,
+        selectedCareer,
+        selectedStudent,
         selectedStudentId,
+        setAcademicStatus,
+        setAdmissionPeriod,
+        setSearch,
         setSelectedCareerId,
-        setSelectedStudentId,
-        students,
         submitting,
-        submitEnrollment,
+        updateRegistrationStatus,
+        validateDraft,
     } = useStudentEnrollment();
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [formErrors, setFormErrors] = useState<StudentEnrollmentErrors>({});
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+    const [resultModal, setResultModal] = useState<ResultModalState>(null);
+    const [toast, setToast] = useState<ToastState>(null);
+    const [updateDraft, setUpdateDraft] = useState<{
+        registrationId: string;
+        status: AcademicRegistrationStatus;
+    }>({
+        registrationId: "",
+        status: "WITHDRAWN",
+    });
 
+    const currentStep = useMemo(() => {
+        if (!selectedStudent) return 1;
+        if (!draft.careerId) return 2;
+        if (!draft.admissionPeriod || !isValidAdmissionPeriod(draft.admissionPeriod)) {
+            return 3;
+        }
+
+        return isConfirmOpen || resultModal?.type === "success" ? 4 : 3;
+    }, [
+        draft.admissionPeriod,
+        draft.careerId,
+        isConfirmOpen,
+        resultModal,
+        selectedStudent,
+    ]);
+
+    const paginatedStudents = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredStudents.slice(start, start + ITEMS_PER_PAGE);
+    }, [currentPage, filteredStudents]);
+
+    const selectedRegistrations = selectedStudent?.registrations ?? [];
+    const selectedActiveCareer = selectedStudent?.activeRegistrations[0]?.career;
+    const studentName = selectedStudentName(selectedStudent);
+
+    const showToast = (nextToast: ToastState) => {
+        setToast(nextToast);
+        window.setTimeout(() => setToast(null), 4200);
+    };
+
+    const handleSearchChange = (value: string) => {
+        setSearch(value);
+        setCurrentPage(1);
+    };
+
+    const handleSelectStudent = (option: StudentEnrollmentOption) => {
+        selectStudent(option.user.id);
+        setFormErrors({});
+        setIsConfirmOpen(false);
+        setResultModal(null);
+    };
+
+    const handleRequestConfirmation = () => {
+        const validation = validateDraft(true);
+        setFormErrors(validation);
+
+        if (validation.duplicate) {
+            setResultModal({
+                type: "duplicate",
+                registration: activeDuplicate,
+            });
+            return;
+        }
+
+        if (Object.keys(validation).length > 0) return;
+
+        setIsConfirmOpen(true);
+    };
+
+    const handleCreateRegistration = async () => {
         try {
-            const registration = await submitEnrollment();
+            const registration = await createRegistration();
             if (!registration) return;
 
-            await Swal.fire({
-                icon: "success",
-                title: "Matricula registrada",
-                text: "El estudiante fue vinculado a la carrera correctamente.",
+            setIsConfirmOpen(false);
+            setResultModal({
+                type: "success",
+                registration,
+            });
+            showToast({
+                type: "success",
+                title: "Notificacion enviada",
+                message: `Se ha notificado a ${studentName} sobre su nueva matricula.`,
             });
         } catch (submitError) {
-            const message = submitError instanceof Error
-                ? submitError.message
-                : "No se pudo registrar la matricula.";
+            showToast({
+                type: "error",
+                title: "Matricula no registrada",
+                message:
+                    submitError instanceof Error
+                        ? submitError.message
+                        : "No se pudo registrar la matricula.",
+            });
+        }
+    };
 
-            Swal.fire("Error", message, "error");
+    const openUpdateModal = (registration?: Registration) => {
+        const targetRegistration = registration ?? selectedRegistrations[0];
+        setUpdateDraft({
+            registrationId: targetRegistration?.id ?? "",
+            status:
+                (targetRegistration?.academic_status as AcademicRegistrationStatus) ??
+                "WITHDRAWN",
+        });
+        setIsUpdateOpen(true);
+    };
+
+    const handleUpdateRegistration = async () => {
+        if (!updateDraft.registrationId) {
+            showToast({
+                type: "error",
+                title: "Seleccion incompleta",
+                message: "Selecciona una matricula existente para actualizar.",
+            });
+            return;
+        }
+
+        try {
+            await updateRegistrationStatus(updateDraft.registrationId, updateDraft.status);
+            setIsUpdateOpen(false);
+            setResultModal(null);
+            showToast({
+                type: "success",
+                title: "Estado actualizado",
+                message: "La matricula existente fue actualizada correctamente.",
+            });
+        } catch (updateError) {
+            showToast({
+                type: "error",
+                title: "No se pudo actualizar",
+                message:
+                    updateError instanceof Error
+                        ? updateError.message
+                        : "No se pudo actualizar el estado academico.",
+            });
         }
     };
 
     return (
-        <div>
+        <div className="space-y-5 p-6">
             <PageHeader
-                title="Matricula de estudiantes"
-                subtitle="Vincula un estudiante activo a una carrera academica."
-                breadcrumb={["Inicio", "Administracion", "Matricula"]}
+                title="Matricular estudiante en carrera"
+                subtitle="Registra la vinculacion formal de un estudiante a una carrera."
+                breadcrumb={["Inicio", "Academico", "Matriculas", "Matricular estudiante"]}
             />
 
-            <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                {loading ? (
-                    <p className="text-sm text-gray-500">Cargando datos...</p>
-                ) : error ? (
-                    <p className="text-sm text-red-600">{error}</p>
-                ) : (
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                    Estudiante
-                                </label>
-                                <select
-                                    value={selectedStudentId}
-                                    onChange={(event) => setSelectedStudentId(event.target.value)}
-                                    className="h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none transition focus:border-primary"
-                                    required
-                                >
-                                    <option value="">Selecciona un estudiante</option>
-                                    {students.map((student) => (
-                                        <option key={student.id} value={student.id}>
-                                            {getStudentDisplayName(student)}
-                                            {getStudentProfileId(student) ? "" : " (sin perfil)"}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+            <EnrollmentStepper currentStep={currentStep} />
 
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                                    Carrera
-                                </label>
-                                <select
-                                    value={selectedCareerId}
-                                    onChange={(event) => setSelectedCareerId(event.target.value)}
-                                    className="h-11 rounded-lg border border-gray-200 bg-white px-3 text-sm outline-none transition focus:border-primary"
-                                    required
-                                >
-                                    <option value="">Selecciona una carrera</option>
-                                    {careers.map((career) => (
-                                        <option key={career.id} value={career.id}>
-                                            {career.name} ({career.code})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
+            {error && (
+                <InfoBanner tone="error" title="No fue posible cargar la informacion">
+                    {error}
+                </InfoBanner>
+            )}
 
-                        <div className="flex justify-end border-t border-gray-100 pt-5">
-                            <button
-                                type="submit"
-                                disabled={!canSubmit}
-                                className="h-11 rounded-lg bg-primary px-5 text-sm font-medium text-white transition hover:bg-opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                                {submitting ? "Guardando..." : "Registrar matricula"}
-                            </button>
-                        </div>
-                    </form>
-                )}
-            </section>
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(360px,1fr)]">
+                <div className="space-y-5">
+                    <StudentsSearchSection
+                        currentPage={currentPage}
+                        filteredStudents={filteredStudents}
+                        itemsPerPage={ITEMS_PER_PAGE}
+                        loading={loading}
+                        onPageChange={setCurrentPage}
+                        onSearchChange={handleSearchChange}
+                        onSelectStudent={handleSelectStudent}
+                        paginatedStudents={paginatedStudents}
+                        search={search}
+                        selectedStudentId={selectedStudentId}
+                    />
+
+                    <CareerEnrollmentForm
+                        canSubmit={canSubmit}
+                        careers={careers}
+                        draft={draft}
+                        errors={formErrors}
+                        hasRegistrations={selectedRegistrations.length > 0}
+                        onOpenUpdate={() => openUpdateModal(activeDuplicate)}
+                        onRequestConfirmation={handleRequestConfirmation}
+                        setAcademicStatus={setAcademicStatus}
+                        setAdmissionPeriod={setAdmissionPeriod}
+                        setErrors={setFormErrors}
+                        setSelectedCareerId={setSelectedCareerId}
+                    />
+                </div>
+
+                <EnrollmentSummaryPanel
+                    admissionPeriod={draft.admissionPeriod}
+                    careerName={selectedCareer?.name}
+                    currentCareerName={selectedActiveCareer?.name}
+                    selectedStudent={selectedStudent}
+                    status={draft.academicStatus}
+                    studentName={studentName}
+                />
+            </div>
+
+            <UpdateStatusModal
+                isOpen={isUpdateOpen}
+                onClose={() => setIsUpdateOpen(false)}
+                onConfirm={handleUpdateRegistration}
+                registrations={selectedRegistrations}
+                selectedRegistrationId={updateDraft.registrationId}
+                selectedStatus={updateDraft.status}
+                setRegistrationId={(registrationId) =>
+                    setUpdateDraft((current) => ({ ...current, registrationId }))
+                }
+                setStatus={(status) =>
+                    setUpdateDraft((current) => ({ ...current, status }))
+                }
+                submitting={submitting}
+            />
+
+            <ConfirmationModal
+                admissionPeriod={draft.admissionPeriod}
+                careerName={selectedCareer?.name}
+                identification={selectedStudent?.profile.identification}
+                isOpen={isConfirmOpen}
+                onBack={() => setIsConfirmOpen(false)}
+                onConfirm={handleCreateRegistration}
+                status={draft.academicStatus}
+                studentName={studentName}
+                submitting={submitting}
+            />
+
+            <ResultModal
+                activeDuplicate={activeDuplicate}
+                careerName={selectedCareer?.name}
+                isOpen={Boolean(resultModal)}
+                onClose={() => setResultModal(null)}
+                result={resultModal}
+                studentName={studentName}
+            />
+
+            <FeedbackToast toast={toast} onClose={() => setToast(null)} />
         </div>
     );
 };
 
-export default Enrollment;
+export default AdminCareerEnrollmentPage;

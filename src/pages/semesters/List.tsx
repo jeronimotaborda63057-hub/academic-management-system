@@ -7,6 +7,7 @@ import type { Semester } from "../../models/Semester";
 import { Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { formatDateOnly } from "../../utils/dateUtils";
 
 const List: React.FC = () => {
     const [data, setData] = useState<Semester[]>([]);
@@ -28,12 +29,12 @@ const List: React.FC = () => {
         {
             key: "start_date",
             label: "Inicio",
-            render: (v: string) => new Date(v).toLocaleDateString(),
+            render: (v: string) => formatDateOnly(v),
         },
         {
             key: "end_date",
             label: "Fin",
-            render: (v: string) => new Date(v).toLocaleDateString(),
+            render: (v: string) => formatDateOnly(v),
         },
         {
             key: "is_active",
