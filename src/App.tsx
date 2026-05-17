@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { store } from './store/store';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import routes from './routes';
-import RoleGuard from './routes/RoleGuard';
+import RoleGuard from './components/RoleGuard';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 const SignIn = lazy(() => import('./pages/authentication/SignIn'));

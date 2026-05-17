@@ -14,7 +14,7 @@ const UsersEdit = lazy(() => import('../pages/users/Edit'));
 const AdminTeachersList = lazy(() => import('../pages/admin/TeachersList'));
 const AdminTeacherDetail = lazy(() => import('../pages/admin/TeacherDetail'));
 const AdminCareerEnrollment = lazy(() => import('../pages/students/Enrollment'));
-const StudentMySubjects = lazy(() => import('../pages/student/MySubjects'));
+const StudentMySubjects = lazy(() => import('../pages/students/MySubjects'));
 const CareersList = lazy(() => import('../pages/careers/List'));
 const CareersCreate = lazy(() => import('../pages/careers/Create'));
 const CareersEdit = lazy(() => import('../pages/careers/Edit'));
@@ -23,6 +23,9 @@ const SemestersCreate = lazy(() => import('../pages/semesters/Create'));
 const SemestersEdit = lazy(() => import('../pages/semesters/Edit'));
 const CurriculumList = lazy(() => import('../pages/study-plan/List'));
 const AssignTeacherPage = lazy(() => import('../pages/groups/AssignTeacherPage'));
+const GroupsCreate = lazy(() => import('../pages/groups/Create'));
+const GroupsEdit = lazy(() => import('../pages/groups/Edit'));
+const GroupsList = lazy(() => import('../pages/groups/List'));
 const SubjectsList = lazy(() => import('../pages/subjects/List'));
 const SubjectsCreate = lazy(() => import('../pages/subjects/Create'));
 const SubjectsEdit = lazy(() => import('../pages/subjects/Edit'));
@@ -38,9 +41,9 @@ const RubricConsultation = lazy(() => import('../pages/rubrics/RubricConsultatio
 const GradeDetails = lazy(() => import('../pages/grades/Details'));
 
 // ── HU-08: Rúbricas ───────────────────────────────────────────────────────────
-const RubricsList   = lazy(() => import('../pages/rubrics/List'));
+const RubricsList = lazy(() => import('../pages/rubrics/List'));
 const RubricsCreate = lazy(() => import('../pages/rubrics/Create'));
-const RubricsEdit   = lazy(() => import('../pages/rubrics/Edit'));
+const RubricsEdit = lazy(() => import('../pages/rubrics/Edit'));
 
 // ── CU-12: Registrar nota final ───────────────────────────────────────────────
 const RegisterFinalGradePage = lazy(() => import('../pages/grades/RegisterFinalGradePage'));
@@ -49,25 +52,25 @@ const TeacherMyGroups = lazy(() => import('../pages/teachers/MyGroups'));
 
 const coreRoutes: AppRoute[] = [
     // ── Rúbricas (HU-08) ──────────────────────────────────────────────────────
-    { 
-        path: '/rubrics/list',        
-        title: 'Rúbricas',           
-        component: RubricsList     
+    {
+        path: '/rubrics/list',
+        title: 'Rúbricas',
+        component: RubricsList
     },
-    { 
-        path: '/rubrics/create',     
-        title: 'Crear rúbrica',      
-        component: RubricsCreate   
+    {
+        path: '/rubrics/create',
+        title: 'Crear rúbrica',
+        component: RubricsCreate
     },
-    { 
-        path: '/rubrics/edit/:id',   
-        title: 'Editar rúbrica',     
-        component: RubricsEdit     
+    {
+        path: '/rubrics/edit/:id',
+        title: 'Editar rúbrica',
+        component: RubricsEdit
     },
-    { 
-        path: '/rubrics/scales',      
-        title: 'Definir criterios y escalas', 
-        component: ScaleDefinitionPage 
+    {
+        path: '/rubrics/scales',
+        title: 'Definir criterios y escalas',
+        component: ScaleDefinitionPage
     },
     {
         path: '/users/list',
@@ -158,7 +161,7 @@ const coreRoutes: AppRoute[] = [
         component: StudentsList
     },
     {
-        path: '/enrollments/list', // ✅ FIX: slash inicial agregado
+        path: '/enrollments/list',
         title: 'Asignar matrícula',
         component: EnrollmentList
     },
@@ -171,6 +174,21 @@ const coreRoutes: AppRoute[] = [
         path: '/enrollments/edit/:id',
         title: 'Editar matrícula',
         component: EnrollmentEdit
+    },
+    {
+        path: '/groups/list',
+        title: 'Grupos',
+        component: GroupsList
+    },
+    {
+        path: '/groups/create',
+        title: 'Crear grupo',
+        component: GroupsCreate
+    },
+    {
+        path: '/groups/edit/:id',
+        title: 'Editar grupo',
+        component: GroupsEdit
     },
     {
         path: '/groups/assign-teacher',
