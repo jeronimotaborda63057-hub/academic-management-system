@@ -21,11 +21,12 @@ import Swal from "sweetalert2";
 import type { Semester } from "../../models/Semester";
 import type { Column } from "../../models/Column";
 import type { Action } from "../../models/Action";
+
 import { semesterService } from "../../services/semesterService";
 
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
-import GenericTable from "../../components/GenericTable";
+import GenericTable from "../../components/ui/GenericTable";
 
 // ── Helpers de formato ────────────────────────────────────────────────────────
 const fmt = (dateStr: string) =>
@@ -36,7 +37,7 @@ const fmt = (dateStr: string) =>
     });
 
 // ── Columnas declarativas ─────────────────────────────────────────────────────
-const COLUMNS: Column[] = [
+const COLUMNS: Column<Semester>[] = [
     { key: "code", label: "Código" },
     { key: "name", label: "Nombre" },
     {
