@@ -21,12 +21,12 @@ import Swal from "sweetalert2";
 
 import type { Career } from "../../models/Career";
 import type { FilterConfig } from "../../models/FilterConfig";
-import type { Column, Action } from "../../components/GenericTable";
+import type { Column, Action } from "../../components/ui/GenericTable";
 import { careerService } from "../../services/careerService";
 
-import PageHeader from "../../components/PageHeader";
+import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
-import GenericTable from "../../components/GenericTable";
+import GenericTable from "../../components/ui/GenericTable";
 
 // ─── Configuración declarativa de columnas (OCP: cerrado a cambios, abierto a extensión) ─
 const COLUMNS: Column[] = [
