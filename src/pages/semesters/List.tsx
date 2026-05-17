@@ -1,18 +1,3 @@
-/**
- * Semesters/List.tsx — HU-02 (Gestionar semestres)
- *
- * SOLID aplicado:
- * - SRP  : orquesta la vista de semestres; la lógica de activación/cierre
- *          vive en semesterService.
- * - OCP  : columnas y acciones como configuraciones declarativas.
- * - DIP  : depende de semesterService, no de HTTP.
- *
- * Criterios HU-02 cubiertos:
- *   ✅ 2 — Semestres con fecha de inicio, fin y estado
- *   ✅ 4 — Solo puede haber un semestre activo a la vez.
- *          Al activar uno nuevo el servicio desactiva el anterior (backend).
- */
-
 import React, { useEffect, useState, useCallback } from "react";
 import { Pencil, CheckCircle, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
