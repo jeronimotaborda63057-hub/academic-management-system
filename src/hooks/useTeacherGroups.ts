@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import type { Group } from "../models/Group";
 import type { RootState } from "../store/store";
 import { groupService } from "../services/groupService";
+import { getTeacherProfile } from "./useTeacherDetail";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -14,7 +15,7 @@ export const getGroupSchedule = (group: Group): string => {
 
 export const useTeacherGroups = () => {
     const currentUser = useSelector((state: RootState) => state.user.user);
-    const currentTeacherId = currentUser?.profile?.id ?? currentUser?.id ?? "";
+    const currentTeacherId = getTeacherProfile(currentUser)?.id ?? "";
 
     const [groups, setGroups] = useState<Group[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -44,18 +45,16 @@ export const useTeacherGroups = () => {
         loadGroups();
     }, [currentTeacherId]);
 
-    const paginatedGroups = useMemo(() => {
-        const start = (currentPage - 1) * ITEMS_PER_PAGE;
-        return groups.slice(start, start + ITEMS_PER_PAGE);
-    }, [currentPage, groups]);
+    const totalPages = Math.max(1, Math.ceil(groups.length / ITEMS_PER_PAGE));
+    const normalizedCurrentPage = Math.min(currentPage, totalPages);
 
-    useEffect(() => {
-        const totalPages = Math.max(1, Math.ceil(groups.length / ITEMS_PER_PAGE));
-        if (currentPage > totalPages) setCurrentPage(totalPages);
-    }, [currentPage, groups.length]);
+    const paginatedGroups = useMemo(() => {
+        const start = (normalizedCurrentPage - 1) * ITEMS_PER_PAGE;
+        return groups.slice(start, start + ITEMS_PER_PAGE);
+    }, [normalizedCurrentPage, groups]);
 
     return {
-        currentPage,
+        currentPage: normalizedCurrentPage,
         error,
         groups,
         itemsPerPage: ITEMS_PER_PAGE,

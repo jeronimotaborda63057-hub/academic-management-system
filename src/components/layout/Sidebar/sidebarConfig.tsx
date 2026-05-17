@@ -49,7 +49,7 @@ export const teacherMenu: NavGroup[] = [
     {
         title: "MI CLASE",
         items: [
-            { label: "Grupos", path: "/groups/list", icon: icons.group },
+            { label: "Grupos", path: "/teacher/my-groups", icon: icons.group },
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
             { label: "Evaluaciones", path: "/evaluations", icon: icons.evaluation },
             { label: "Calificaciones", path: "/grades/list", icon: icons.grade },

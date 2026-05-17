@@ -183,7 +183,7 @@ const coreRoutes: AppRoute[] = [
         component: TeacherGroupsPage
     },
     {
-        path: '/teacher/my-groups',
+        path: "/teacher/my-groups",
         title: 'Mis grupos',
         component: TeacherMyGroups,
         roles: ["TEACHER"]
