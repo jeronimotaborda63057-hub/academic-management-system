@@ -19,7 +19,8 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 import type { Semester } from "../../models/Semester";
-import type { Column, Action } from "../../components/GenericTable";
+import type { Column } from "../../models/Column";
+import type { Action } from "../../models/Action";
 import { semesterService } from "../../services/semesterService";
 
 import PageHeader from "../../components/PageHeader";
@@ -64,9 +65,9 @@ const COLUMNS: Column[] = [
 // ── Acciones ──────────────────────────────────────────────────────────────────
 const ACTIONS: Action[] = [
     {
-            name: "edit",
-            label: "Editar",
-            icon: <Pencil size={18} />,
+        name:    "edit",
+        label:   "Editar semestre",
+        icon:    <Pencil size={16} className="text-gray-700" />,
         primary: true,
     },
     {
