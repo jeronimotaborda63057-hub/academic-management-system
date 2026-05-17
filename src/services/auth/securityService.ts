@@ -1,8 +1,10 @@
 import { api } from "../../interceptors/authInterceptor";
+import type { AuthData } from "../../models/auth/authData";
 import type { LoginResponse } from "../../models/auth/loginResponse";
 import type { User } from "../../models/User";
 import { LocalStorageProvider } from "../../storage/LocalStorageProvider";
 import type { StorageProvider } from "../../storage/StorageProvider";
+import type { SocialAuthProvider } from "./firebaseAuthService";
 
 class SecurityService {
     private storage: StorageProvider;
@@ -11,20 +13,35 @@ class SecurityService {
         this.storage = storage;
     }
 
-    async login(email: string, password: string): Promise<User> {
-        const response = await api.post<LoginResponse>("/api/auth/login/", {
-            email,
-            password,
-        });
+    private persistSession(authData: AuthData): User {
+        const { user, access_token, token_type } = authData;
 
-        const { user, access_token, token_type } = response.data.data;
-
-        // ✅ Guarda en localStorage
         this.storage.setItem("user", JSON.stringify(user));
         this.storage.setItem("access_token", access_token);
         this.storage.setItem("token_type", token_type);
 
         return user;
+    }
+
+    async login(email: string, password: string): Promise<User> {
+        const response = await api.post<LoginResponse>("/auth/login", {
+            email,
+            password,
+        });
+
+        return this.persistSession(response.data.data);
+    }
+
+    async loginWithFirebaseToken(
+        idToken: string,
+        provider: SocialAuthProvider
+    ): Promise<User> {
+        const response = await api.post<LoginResponse>("/auth/login", {
+            id_token: idToken,
+            provider,
+        });
+
+        return this.persistSession(response.data.data);
     }
 
     logout(): void {
