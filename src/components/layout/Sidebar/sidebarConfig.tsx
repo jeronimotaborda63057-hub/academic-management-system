@@ -28,7 +28,7 @@ export const adminMenu: NavGroup[] = [
             { label: "Carreras", path: "/careers/list", icon: icons.career },
             { label: "Asignaturas", path: "/subjects/list", icon: icons.subject },
             { label: "Plan de estudios", path: "/study-plans/list", icon: icons.plan },
-            { label: "Grupos", path: "/groups/assign-teacher", icon: icons.group },
+            { label: "Grupos", path: "/groups/list", icon: icons.group },
             { label: "Semestres", path: "/semesters/list", icon: icons.semester },
             { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
         ],
@@ -37,7 +37,7 @@ export const adminMenu: NavGroup[] = [
         title: "GESTIÓN",
         items: [
             { label: "Usuarios", path: "/users/list", icon: icons.users },
-            { label: "Docentes", path: "/teachers/list", icon: icons.profile },
+            { label: "Docentes", path: "/admin/teachers", icon: icons.profile },
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
             { label: "Matrículas", path: "/enrollments/list", icon: icons.enrollment },
         ],
@@ -49,7 +49,7 @@ export const teacherMenu: NavGroup[] = [
     {
         title: "MI CLASE",
         items: [
-            { label: "Grupos", path: "/groups/list", icon: icons.group },
+            { label: "Grupos", path: "/teacher/my-groups", icon: icons.group },
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
             { label: "Evaluaciones", path: "/evaluations", icon: icons.evaluation },
             { label: "Calificaciones", path: "/grades/list", icon: icons.grade },

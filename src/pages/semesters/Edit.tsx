@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 
 import { semesterService } from "../../services/semesterService";
 import { useSemesterForm } from "../../hooks/useSemesterForm";
+import { toDateInputValue } from "../../utils/dateUtils";
 
 import FormLayout from "../../components/ui/FormLayout";
 import FormField  from "../../components/ui/FormField";
@@ -54,8 +55,8 @@ const Edit = () => {
                     id:         current.id         ?? "",
                     name:       current.name        ?? "",
                     code:       current.code        ?? "",
-                    start_date: current.start_date  ?? "",
-                    end_date:   current.end_date    ?? "",
+                    start_date: toDateInputValue(current.start_date),
+                    end_date:   toDateInputValue(current.end_date),
                     is_active:  current.is_active   ?? false,
                 });
 

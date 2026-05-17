@@ -1,25 +1,27 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React from "react";
 import { Pencil, UserX, Eye } from "lucide-react";
-import type { User } from "../../models/User";
-import type { Career } from "../../models/Career";
 import type { FilterConfig } from "../../models/FilterConfig";
-import type { UserFilters } from "../../models/UserFilters";
 import GenericTable from "../../components/ui/GenericTable";
 import type { Column } from "../../models/Column";
 import type { Action } from "../../models/Action";
 import TableToolbar from "../../components/TableToolBar";
 import PageHeader from "../../components/ui/PageHeader";
 import { userService } from "../../services/userService";
-import { careerService } from "../../services/careerService";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useUsersList, type UserListRow } from "../../hooks/useUsersList";
 
 const List: React.FC = () => {
     const navigate = useNavigate();
-    const [data, setData] = useState<User[]>([]);
-    const [careers, setCareers] = useState<Career[]>([]);
-    const [search, setSearch] = useState("");
-    const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+    const {
+        careers,
+        fetchData,
+        filterValues,
+        handleClear,
+        handleFilterChange,
+        setSearch,
+        tableData,
+    } = useUsersList();
 
     const FILTERS: FilterConfig[] = [
         {
@@ -48,7 +50,7 @@ const List: React.FC = () => {
         },
     ];
 
-    const COLUMNS: Column<User>[] = [
+    const COLUMNS: Column<UserListRow>[] = [
         {
             key: "code",
             label: "Código",
@@ -64,7 +66,7 @@ const List: React.FC = () => {
         {
             key: "role",
             label: "Rol",
-            render: (value: any) => (
+            render: (value: UserListRow["role"]) => (
                 <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${value === "TEACHER"
                         ? "bg-green-100 text-green-700"
@@ -80,20 +82,14 @@ const List: React.FC = () => {
             ),
         },
         {
-            key: "careers",
+            key: "careerLabel",
             label: "Carrera",
-            render: (value: any[]) => (
-                <span>
-                    {Array.isArray(value)
-                        ? value.map((c: any) => c.name).join(", ")
-                        : "-"}
-                </span>
-            ),
+            render: (value: string) => <span>{value}</span>,
         },
         {
             key: "estado",
             label: "Estado",
-            render: (value: any) => (
+            render: (value: UserListRow["estado"]) => (
                 <span
                     className={`rounded-full px-3 py-1 text-xs font-medium ${value === "Activo"
                         ? "bg-green-100 text-green-700"
@@ -152,60 +148,9 @@ const List: React.FC = () => {
     },
 ];
 
-    useEffect(() => {
-        const loadCareers = async () => {
-            try {
-                const careersData = await careerService.getAll();
-                setCareers(careersData);
-            } catch (error) {
-                console.error("Error loading careers", error);
-            }
-        };
-
-        loadCareers();
-    }, []);
-
-    const fetchData = useCallback(async () => {
-        const filters: UserFilters = {
-            ...(filterValues.role
-                ? { role: filterValues.role as any }
-                : {}),
-            ...(filterValues.is_active !== undefined &&
-                filterValues.is_active !== ""
-                ? { is_active: filterValues.is_active === "true" }
-                : {}),
-            ...(filterValues.career_id
-                ? { career_id: filterValues.career_id }
-                : {}),
-            ...(search ? { first_name: search } : {}),
-        };
-
-        const hasFilters = Object.keys(filters).length > 0;
-
-        const users = hasFilters
-            ? await userService.search(filters)
-            : await userService.getAll();
-
-        setData(users);
-    }, [filterValues, search]);
-
-    useEffect(() => {
-        const timeout = setTimeout(() => fetchData(), 400);
-        return () => clearTimeout(timeout);
-    }, [fetchData]);
-
-    const handleFilterChange = (key: string, value: string) => {
-        setFilterValues((prev) => ({ ...prev, [key]: value }));
-    };
-
-    const handleClear = () => {
-        setSearch("");
-        setFilterValues({});
-    };
-
     const handleAction = (
         action: string,
-        item: Record<string, any>
+        item: UserListRow
     ) => {
         if (action === "edit")
             navigate(`/users/edit/${item.id}`);
@@ -261,22 +206,6 @@ const List: React.FC = () => {
             }
         });
     };
-
-    const tableData = data
-        .filter(
-            (user) =>
-                user.role === "TEACHER" ||
-                user.role === "STUDENT"
-        )
-        .map((user) => ({
-            ...user,
-            nombre: user.profile
-                ? `${user.profile.first_name} ${user.profile.last_name}`
-                : "Sin información",
-            estado: user.is_active
-                ? "Activo"
-                : "Inactivo",
-        }));
 
     return (
         <div>

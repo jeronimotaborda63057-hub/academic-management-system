@@ -262,8 +262,12 @@ const MatriculasPage: React.FC = () => {
         }
     }
 
-    function openCreate() {
+    function openAssignGroup() {
         navigate("/enrollments/create");
+    }
+
+    function openAssignCareer() {
+        navigate("/admin/enrollment")
     }
 
     function handleClearFilters() {
@@ -279,34 +283,53 @@ const MatriculasPage: React.FC = () => {
 
             <PageHeader
                 title="Matrículas"
-                subtitle={`${filtered.length} registro${
-                    filtered.length !== 1
+                subtitle={`${filtered.length} registro${filtered.length !== 1
                         ? "s"
                         : ""
-                }`}
+                    }`}
                 breadcrumb={[
                     "Académico",
                     "Matrículas",
                 ]}
-                action={
-                    <button
-                        onClick={openCreate}
-                        className="
-                            h-10 px-5 rounded-xl
-                            bg-green-600 text-white
-                            text-sm font-medium
-                            hover:bg-green-700
-                            transition
-                            flex items-center gap-2
-                        "
-                    >
-                        <span className="text-lg leading-none">
-                            +
-                        </span>
+                action={[
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={openAssignGroup}
+                            className="
+                h-10 px-5 rounded-xl
+                bg-green-600 text-white
+                text-sm font-medium
+                hover:bg-green-700
+                transition
+                flex items-center gap-2
+            "
+                        >
+                            <span className="text-lg leading-none">
+                                +
+                            </span>
 
-                        Matricular estudiante
-                    </button>
-                }
+                            Inscribir estudiante en grupo
+                        </button>
+
+                        <button
+                            onClick={openAssignCareer}
+                            className="
+                h-10 px-5 rounded-xl
+                bg-green-600 text-white
+                text-sm font-medium
+                hover:bg-green-700
+                transition
+                flex items-center gap-2
+            "
+                        >
+                            <span className="text-lg leading-none">
+                                +
+                            </span>
+
+                            Matricular estudiante en carrera
+                        </button>
+                    </div>
+                ]}
             />
 
             <TableToolbar
@@ -372,7 +395,7 @@ const MatriculasPage: React.FC = () => {
                     </p>
 
                     <button
-                        onClick={openCreate}
+                        onClick={openAssignGroup}
                         className="text-sm text-green-600 hover:underline"
                     >
                         Matricular un estudiante

@@ -1,6 +1,7 @@
 import React from "react";
 import { AlertTriangle, X } from "lucide-react";
 import type { Semester } from "../../models/Semester";
+import { formatDateOnly } from "../../utils/dateUtils";
 
 interface ArchiveCareerModalProps {
     isOpen: boolean;
@@ -22,11 +23,6 @@ const ArchiveCareerModal: React.FC<ArchiveCareerModalProps> = ({
     if (!isOpen) return null;
 
     const hasActiveSemesters = activeSemesters.length > 0;
-
-    const formatDate = (date: string) =>
-        new Date(date).toLocaleDateString("es-CO", {
-            day: "2-digit", month: "2-digit", year: "numeric",
-        });
 
     return (
         <div className="fixed inset-0 z-9999 flex items-center justify-center">
@@ -74,7 +70,7 @@ const ArchiveCareerModal: React.FC<ArchiveCareerModalProps> = ({
                                 </p>
                                 {activeSemesters.map((s) => (
                                     <p key={s.id} className="text-xs text-gray-500 dark:text-bodydark2">
-                                        {s.name} ({formatDate(s.start_date)} – {formatDate(s.end_date)})
+                                        {s.name} ({formatDateOnly(s.start_date)} – {formatDateOnly(s.end_date)})
                                     </p>
                                 ))}
                             </div>

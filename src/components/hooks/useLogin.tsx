@@ -1,61 +1,101 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
+import type { User } from "../../models/User";
+import {
+    firebaseAuthService,
+    type SocialAuthProvider,
+} from "../../services/auth/firebaseAuthService";
 import { securityService } from "../../services/auth/securityService";
 import { setUser } from "../../store/userSlice";
 
-// Tipo que describe el estado interno del hook:
-// si está cargando y si hay un mensaje de error.
 interface LoginState {
-    loading: boolean;
     error: string | null;
+    loading: boolean;
+    loadingProvider: SocialAuthProvider | null;
 }
 
-// Hook personalizado que orquesta el proceso de login completo.
-//
-// ¿Por qué un hook y no poner esta lógica directo en SignIn?
-// Principio de responsabilidad única (SRP):
-//   - SignIn solo maneja el formulario (qué escribe el usuario, cómo se ve).
-//   - useLogin maneja la lógica (llamar al servicio, actualizar Redux, navegar).
-//
-// Además, si mañana hay otra pantalla que también necesita hacer login
-// (por ejemplo una ventana modal), reutiliza este hook sin duplicar código.
+const getAuthErrorMessage = (error: unknown): string => {
+    const code = (error as { code?: string }).code;
+    if (code === "auth/popup-closed-by-user")
+        return "El inicio de sesión fue cancelado.";
+    if (code === "auth/account-exists-with-different-credential")
+        return "Ya existe una cuenta con este correo usando otro proveedor.";
+    const status = (error as { response?: { status?: number } }).response?.status;
+    if (status === 401) return "No fue posible validar tus credenciales.";
+    return "Ocurrió un error. Intenta de nuevo.";
+};
+
 export function useLogin() {
-    const dispatch = useDispatch();   // Para actualizar el estado global de Redux
-    const navigate = useNavigate();   // Para redirigir al usuario después del login
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const [state, setState] = useState<LoginState>({
-        loading: false,
         error: null,
+        loading: false,
+        loadingProvider: null,
     });
 
+    const completeLogin = (user: User) => {
+        setState({ error: null, loading: false, loadingProvider: null });
+        dispatch(setUser(user));
+        navigate("/");
+    };
+
+    // Al montar el componente verifica si venimos de un redirect de Firebase.
+    // Si hay un provider pendiente en localStorage, espera al usuario autenticado,
+    // hace auto-registro si es necesario y completa el login contra el backend.
+    useEffect(() => {
+        setState((prev) => ({ ...prev, loading: true }));
+
+        firebaseAuthService
+            .waitForRedirectResult()
+            .then(async (firebaseUser) => {
+                if (!firebaseUser) {
+                    setState((prev) => ({ ...prev, loading: false }));
+                    return;
+                }
+                const user = await securityService.loginWithFirebase(firebaseUser);
+                completeLogin(user);
+            })
+            .catch((error) => {
+                setState({
+                    error: getAuthErrorMessage(error),
+                    loading: false,
+                    loadingProvider: null,
+                });
+            });
+    }, []);
+
     const login = async (email: string, password: string) => {
-        // Activamos el estado de carga y limpiamos errores previos
-        setState({ loading: true, error: null });
-
+        setState({ error: null, loading: true, loadingProvider: null });
         try {
-            // 1. Llamamos al servicio que hace la petición al backend
-            //    y guarda el token en el storage.
             const user = await securityService.login(email, password);
-
-            // 2. Guardamos el usuario en Redux para que toda la app
-            //    sepa quién está logueado sin tener que leer el storage en cada lugar.
-            dispatch(setUser(user));
-
-            // 3. Redirigimos al inicio. El ProtectedRoute ya dejará pasar
-            //    porque ahora hay token en el storage.
-            navigate("/");
-
-        } catch {
-            // Si el backend rechaza las credenciales o hay un error de red,
-            // mostramos un mensaje amigable al usuario.
+            completeLogin(user);
+        } catch (error) {
             setState({
+                error: getAuthErrorMessage(error),
                 loading: false,
-                error: "Credenciales incorrectas. Intenta de nuevo.",
+                loadingProvider: null,
             });
         }
     };
 
-    // Exponemos el estado y la función login para que SignIn los use.
-    return { ...state, login };
+    const loginWithProvider = async (provider: SocialAuthProvider) => {
+        setState({ error: null, loading: true, loadingProvider: provider });
+        try {
+            // Guarda el provider y redirige. La página se recarga sola al volver
+            // y el useEffect captura el resultado.
+            await firebaseAuthService.redirectToProvider(provider);
+        } catch (error) {
+            setState({
+                error: getAuthErrorMessage(error),
+                loading: false,
+                loadingProvider: null,
+            });
+        }
+    };
+
+    return { ...state, login, loginWithProvider };
 }

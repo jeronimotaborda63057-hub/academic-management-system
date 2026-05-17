@@ -3,6 +3,7 @@ import { X, Info } from "lucide-react";
 import type { Semester } from "../../models/Semester";
 import type { SemesterForm } from "../../models/SemesterForm";
 import type { Career } from "../../models/Career";
+import { toDateInputValue } from "../../utils/dateUtils";
 
 type SemesterModalForm = SemesterForm & {
     career_id: string;
@@ -42,8 +43,8 @@ const SemesterFormModal: React.FC<SemesterFormModalProps> = ({
                 career_id:  initialData.career_id ?? "",
                 code:       initialData.code,
                 name:       initialData.name,
-                start_date: initialData.start_date,
-                end_date:   initialData.end_date,
+                start_date: toDateInputValue(initialData.start_date),
+                end_date:   toDateInputValue(initialData.end_date),
                 is_active:  initialData.is_active,
             });
         } else {
