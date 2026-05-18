@@ -53,14 +53,15 @@ export const teacherMenu: NavGroup[] = [
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
             { label: "Evaluaciones", path: "/evaluations", icon: icons.evaluation },
             { label: "Calificaciones", path: "/grades/list", icon: icons.grade },
-            // CU-12: Notas finales — se navega desde la lista de grupos con groupId dinámico
             { label: "Notas finales", path: "/groups/list", icon: icons.report },
         ],
     },
     {
         title: "RÚBRICAS",
         items: [
-            { label: "Rúbricas", path: "/rubrics/scales", icon: icons.rubric },
+            { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
+            { label: "Criterios y Escalas", path: "/rubrics/scales", icon: icons.rubric },
+            { label: "Evaluaciones", path: ""}
         ],
     }
 ];

@@ -4,8 +4,11 @@ import MultiStepForm, { type MultiStepFormValues } from "../../components/multi-
 import { userService } from "../../services/userService";
 import Swal from "sweetalert2";
 import type { TeacherProfile } from "../../models/TeacherProfile";
+import type { User, UserRole } from "../../models/User";
+import type { StudentProfile } from "../../models/StudentProfile";
 
-// ✅ Sin contraseña en edición
+const getPrefix = (role: string) => role === "TEACHER" ? "TCH-" : "STD-";
+
 const STEP1_FIELDS_EDIT = [
     {
         label: "Correo institucional",
@@ -18,6 +21,7 @@ const STEP1_FIELDS_EDIT = [
         name: "code",
         type: "text" as const,
         required: true,
+        prefix: (values: Record<string, string>) => getPrefix(values.role),
     },
     {
         label: "Rol",
@@ -27,7 +31,6 @@ const STEP1_FIELDS_EDIT = [
         options: [
             { label: "Estudiante", value: "STUDENT" },
             { label: "Docente", value: "TEACHER" },
-            { label: "Admin", value: "ADMIN" },
         ],
     },
 ];
@@ -43,15 +46,18 @@ const Edit: React.FC = () => {
         return profile as Partial<TeacherProfile>;
     };
 
-    // ✅ Carga el usuario y mapea sus valores al formulario
     useEffect(() => {
         if (!id) return;
         userService.getById(id).then((user) => {
             if (!user) return;
             const teacherProfile = getTeacherProfile(user.profile);
+
+            // El código viene como "STD-123" o "TCH-456"; el input solo muestra la parte numérica
+            const rawCode = user.code?.replace(/^(STD-|TCH-)/, "") ?? "";
+
             setInitialValues({
                 email: user.email,
-                code: user.code,
+                code: rawCode,
                 role: user.role,
                 first_name: user.profile?.first_name ?? "",
                 last_name: user.profile?.last_name ?? "",
@@ -62,56 +68,49 @@ const Edit: React.FC = () => {
         });
     }, [id]);
 
+    const handleBeforeNext = async (
+        values: MultiStepFormValues
+    ): Promise<Record<string, string>> => {
+        const errors: Record<string, string> = {};
+        const prefix = getPrefix(values.role);
+
+        const [emailTaken, codeTaken] = await Promise.all([
+            userService.emailExists(String(values.email), id),
+            userService.codeExists(`${prefix}${values.code}`, id),
+        ]);
+
+        if (emailTaken) errors.email = "Este correo ya está registrado.";
+        if (codeTaken) errors.code = "Este código ya está en uso.";
+
+        return errors;
+    };
+
     const handleSubmit = async (values: MultiStepFormValues) => {
         if (!id) return;
         setIsLoading(true);
         try {
+            const prefix = getPrefix(values.role);
+
             const result = await userService.update(id, {
                 email: values.email,
-                code: values.code,
-            });
+                code: `${prefix}${values.code}`,
+                role: values.role as UserRole,
+                first_name: values.first_name || undefined,
+                last_name: values.last_name || undefined,
+                phone: values.phone || undefined,
+                specialty: values.specialty || undefined,
+            } as Partial<User>);
+
             if (!result) throw new Error();
-            Swal.fire({
-                title: "Éxito",
-                text: "Usuario actualizado correctamente.",
-                icon: "success",
-                confirmButtonText: "Aceptar",
-                buttonsStyling: false,
-                customClass: {
-                    confirmButton: "swal-confirm-btn",
-                },
-            });
+            Swal.fire("Éxito", "Usuario actualizado correctamente.", "success");
             navigate("/users/list");
-        } catch (error) {
-            if (error instanceof Error && error.message === "EMAIL_DUPLICADO") {
-                Swal.fire({
-                    title: "Error",
-                    text: "El correo institucional ya está registrado.",
-                    icon: "error",
-                    confirmButtonText: "Aceptar",
-                    buttonsStyling: false,
-                    customClass: {
-                        confirmButton: "swal-error-btn",
-                    },
-                });
-            } else {
-                Swal.fire({
-                    title: "Error",
-                    text: "Ocurrió un error al actualizar el usuario.",
-                    icon: "error",
-                    confirmButtonText: "Aceptar",
-                    buttonsStyling: false,
-                    customClass: {
-                        confirmButton: "swal-error-btn",
-                    },
-                });
-            }
+        } catch {
+            Swal.fire("Error", "Ocurrió un error al actualizar el usuario.", "error");
         } finally {
             setIsLoading(false);
         }
     };
 
-    // ✅ Espera a que carguen los datos antes de renderizar el formulario
     if (!initialValues) {
         return (
             <div className="flex items-center justify-center h-40">
@@ -127,6 +126,7 @@ const Edit: React.FC = () => {
             breadcrumb={["Inicio", "Usuarios", "Editar"]}
             step1Fields={STEP1_FIELDS_EDIT}
             initialValues={initialValues}
+            onBeforeNext={handleBeforeNext}
             onSubmit={handleSubmit}
             isLoading={isLoading}
         />

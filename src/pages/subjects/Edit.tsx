@@ -1,17 +1,12 @@
-// src/pages/subjects/Edit.tsx
-
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 import { subjectService } from "../../services/subjectService";
+import { groupService }   from "../../services/groupService";     
 
 import FormLayout from "../../components/ui/FormLayout";
 import FormField  from "../../components/ui/FormField";
-
-// ─────────────────────────────────────────────────────────────
-//  State shape
-// ─────────────────────────────────────────────────────────────
 
 interface SubjectEditValues {
     code:        string;
@@ -26,17 +21,6 @@ const INITIAL: SubjectEditValues = {
     description: "",
     credits:     "1",
 };
-
-// ─────────────────────────────────────────────────────────────
-//  Edit
-//
-//  SRP  → coordina carga, estado y submit. El renderizado
-//          está delegado a FormLayout + FormField.
-//  OCP  → agregar campos = sumar <FormField>; no tocar lógica.
-//  LSP  → no rompe contratos de FormLayout ni FormField.
-//  ISP  → pasa solo las props que cada componente necesita.
-//  DIP  → depende de subjectService (abstracción), no de axios.
-// ─────────────────────────────────────────────────────────────
 
 const Edit: React.FC = () => {
 
@@ -87,6 +71,19 @@ const Edit: React.FC = () => {
         setIsLoading(true);
 
         try {
+            const groups = await groupService.search({ subject_id: id });
+
+            if (groups.length > 0) {
+                await Swal.fire({
+                    icon:  "error",
+                    title: "No se puede editar",
+                    html:  `Esta asignatura tiene <b>${groups.length}</b> grupo(s) activo(s).<br/>
+                            Finaliza los grupos antes de modificarla.`,
+                    confirmButtonText: "Entendido",
+                });
+                return;
+            }
+            // ────────────────────────────────────────────────────
 
             const result = await subjectService.update(id, {
                 name:        values.name,

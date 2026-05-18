@@ -16,9 +16,10 @@ interface MultiStepFormProps {
     step1Fields: StepField[];
     initialValues?: MultiStepFormValues;
     onSubmit: (values: MultiStepFormValues) => Promise<void>;
+    onBeforeNext?: (values: MultiStepFormValues) => Promise<Record<string, string>>;
     isLoading?: boolean;
+    isEditing?: boolean;
 }
-
 
 const MultiStepForm: React.FC<MultiStepFormProps> = ({
     title,
@@ -27,29 +28,65 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     step1Fields,
     initialValues = {},
     onSubmit,
+    onBeforeNext,
     isLoading = false,
+    isEditing = false,
 }) => {
-    const [currentStep, setCurrentStep] = useState(1);
+    const [currentStep,  setCurrentStep]  = useState(1);
+    const [fieldErrors,  setFieldErrors]  = useState<Record<string, string>>({});
+    const [isValidating, setIsValidating] = useState(false);
 
-    // ✅ Estado unificado — inicializado con valores externos si es edición
     const [values, setValues] = useState<MultiStepFormValues>(() => {
         const defaults: MultiStepFormValues = { role: "STUDENT" };
         step1Fields.forEach((f) => { defaults[f.name] = ""; });
         return { ...defaults, ...initialValues };
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setValues((prev) => ({ ...prev, [name]: value }));
+    const resolvePrefix = (field: StepField): string | undefined => {
+        if (!field.prefix) return undefined;
+        if (typeof field.prefix === "function") return field.prefix(values);
+        return field.prefix;
     };
 
-    const handleNext = (e: React.FormEvent) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+
+        const field = step1Fields.find((f) => f.name === name);
+        if (field?.prefix && !/^\d*$/.test(value)) return;
+
+        setValues((prev) => ({ ...prev, [name]: value }));
+
+        if (fieldErrors[name]) {
+            setFieldErrors((prev) => {
+                const next = { ...prev };
+                delete next[name];
+                return next;
+            });
+        }
+    };
+
+    const handleNext = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Si es ADMIN no tiene step 2 — va directo a submit
+
+        if (onBeforeNext) {
+            setIsValidating(true);
+            const errors = await onBeforeNext(values);
+            setIsValidating(false);
+
+            if (Object.keys(errors).length > 0) {
+                setFieldErrors(errors);
+                return; // 🔴 no avanza al paso 2
+            }
+        }
+
+        setFieldErrors({});
+
+        // ADMIN no tiene step 2 — va directo a submit
         if (values.role === "ADMIN") {
             onSubmit(values);
             return;
         }
+
         setCurrentStep(2);
     };
 
@@ -62,37 +99,83 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
 
     return (
         <div>
-            {/* Header de página */}
-            <PageHeader
-                title={title}
-                subtitle={subtitle}
-                breadcrumb={breadcrumb}
-            />
+            <PageHeader title={title} subtitle={subtitle} breadcrumb={breadcrumb} />
 
             <div className="bg-white dark:bg-boxdark rounded-2xl border border-stroke dark:border-strokedark p-6">
-                {/* Indicador de pasos */}
                 <StepIndicator currentStep={currentStep} steps={STEPS} />
 
                 {/* Step 1 — Datos de usuario */}
                 {currentStep === 1 && (
                     <form onSubmit={handleNext} className="flex flex-col gap-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {step1Fields.map((field) => (
-                                <FormField
-                                    key={field.name}
-                                    field={field}
-                                    value={values[field.name] ?? ""}
-                                    onChange={handleChange}
-                                />
-                            ))}
+                            {step1Fields.map((field) => {
+                                const prefix = resolvePrefix(field);
+
+                                return (
+                                    <div key={field.name} className="flex flex-col gap-1">
+                                        {prefix ? (
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-sm font-medium text-black dark:text-white">
+                                                    {field.label}
+                                                    {field.required && (
+                                                        <span className="text-red-500 ml-1">*</span>
+                                                    )}
+                                                </label>
+                                                <div className="relative flex items-center">
+                                                    <span className="absolute left-3 text-sm text-gray-500 select-none pointer-events-none">
+                                                        {prefix}
+                                                    </span>
+                                                    <input
+                                                        name={field.name}
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        required={field.required}
+                                                        value={values[field.name] ?? ""}
+                                                        onChange={handleChange}
+                                                        placeholder="000"
+                                                        className={`w-full border rounded-lg py-2 pr-3 pl-14 text-sm bg-transparent dark:text-white
+                                                            ${fieldErrors[field.name]
+                                                                ? "border-red-500 focus:ring-red-400"
+                                                                : "border-stroke dark:border-strokedark focus:ring-primary"
+                                                            } focus:outline-none focus:ring-2`}
+                                                    />
+                                                </div>
+                                                {fieldErrors[field.name] && (
+                                                    <p className="text-xs text-red-500">
+                                                        {fieldErrors[field.name]}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <FormField
+                                                    field={field}
+                                                    value={values[field.name] ?? ""}
+                                                    onChange={handleChange}
+                                                />
+                                                {fieldErrors[field.name] && (
+                                                    <p className="text-xs text-red-500 -mt-1">
+                                                        {fieldErrors[field.name]}
+                                                    </p>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         <div className="flex justify-end pt-2">
                             <button
                                 type="submit"
-                                className="h-11 px-6 rounded-xl bg-primary text-white text-sm font-medium hover:opacity-90 transition"
+                                disabled={isValidating}
+                                className="h-11 px-6 rounded-xl bg-primary text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
                             >
-                                {values.role === "ADMIN" ? "Guardar" : "Siguiente →"}
+                                {isValidating
+                                    ? "Verificando..."
+                                    : values.role === "ADMIN"
+                                        ? "Guardar"
+                                        : "Siguiente →"}
                             </button>
                         </div>
                     </form>

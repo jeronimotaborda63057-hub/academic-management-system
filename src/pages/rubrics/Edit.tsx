@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import PageHeader from "../../components/ui/PageHeader"; // ✅ FIX: ruta corregida
+import PageHeader from "../../components/ui/PageHeader";
 import FormField from "../../components/multi-step-form/FormField";
 import CriteriaEditor from "../../components/rubrics/CriteriaEditor";
 import RubricStatusBadge from "../../components/rubrics/RubricStatusBadge";
 import { useRubricForm } from "../../hooks/useRubricForm";
 import { rubricService } from "../../services/rubricService";
 import { criteriaService } from "../../services/criteriaService";
+import { scaleService } from "../../services/scaleService";
 import { useState } from "react";
 import type { Rubric } from "../../models/Rubric";
 
@@ -79,12 +80,58 @@ const Edit: React.FC = () => {
     const isArchived  = rubric?.is_archived === true;
     const isPublished = rubric?.is_public   === true;
 
+    const validateScalesBeforePublish = async (): Promise<boolean> => {
+        const criteriaIds = criteriaRows
+            .map((c) => c.id)
+            .filter(Boolean) as string[];
+
+        if (criteriaIds.length === 0) return true;
+
+        const scales = await scaleService.getByCriteria(criteriaIds);
+
+        const scalesPerCriterion = criteriaIds.map((criterionId) => ({
+            criterionId,
+            name: criteriaRows.find((c) => c.id === criterionId)?.name ?? criterionId,
+            count: scales.filter((s) => s.criterion_id === criterionId).length,
+        }));
+
+        const invalid = scalesPerCriterion.filter((c) => c.count < 2);
+
+        if (invalid.length > 0) {
+            const list = invalid
+                .map((c) => `• ${c.name} (${c.count} nivel${c.count === 1 ? "" : "es"})`)
+                .join("<br/>");
+
+            await Swal.fire({
+                icon: "error",
+                title: "No se puede publicar",
+                html: `Los siguientes criterios tienen menos de 2 niveles de escala:<br/><br/>${list}<br/><br/>Define al menos 2 niveles por criterio antes de publicar.`,
+                confirmButtonText: "Entendido",
+            });
+
+            return false;
+        }
+
+        return true;
+    };
+
     const handleSubmit = async (isPublic: boolean) => {
-        if (isArchived)             return;
+        if (isArchived)              return;
         if (isPublic && !formValid)  return;
         if (!isPublic && !draftValid) return;
 
-        setIsLoading(true);
+        // ── E2: validación de escalas solo al publicar ──
+        if (isPublic) {
+            setIsLoading(true);
+            const scalesValid = await validateScalesBeforePublish();
+            if (!scalesValid) {
+                setIsLoading(false);
+                return;
+            }
+        } else {
+            setIsLoading(true);
+        }
+
         try {
             await rubricService.update(id!, {
                 title:       form.title,

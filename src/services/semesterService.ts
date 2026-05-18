@@ -33,6 +33,16 @@ class SemesterService extends BaseService<Semester> {
     }
 
     async setActive(id: string): Promise<Semester | null> {
+        // 1. Busca el semestre actualmente activo (distinto al que se quiere activar)
+        const all = await this.getAll();
+        const currentActive = all.find(s => s.is_active && s.id !== id);
+
+        // 2. Si existe, lo desactiva primero
+        if (currentActive) {
+            await this.update(currentActive.id, { is_active: false });
+        }
+
+        // 3. Activa el nuevo
         return this.update(id, { is_active: true });
     }
 

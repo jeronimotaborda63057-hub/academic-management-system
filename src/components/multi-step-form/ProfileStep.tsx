@@ -3,21 +3,20 @@ import FormField from "./FormField";
 import type { StepField } from "../../models/StepField";
 import type { MultiStepFormValues } from "./MultiStepForm";
 
-// Campos según rol — S: Single Responsibility
 const PROFILE_FIELDS_BY_ROLE: Record<string, StepField[]> = {
     STUDENT: [
-        { label: "Nombre",         name: "first_name",     type: "text", required: true },
-        { label: "Apellido",       name: "last_name",      type: "text", required: true },
-        { label: "Cédula",         name: "identification", type: "text", required: true },
+        { label: "Nombre",       name: "first_name",     type: "text", required: true },
+        { label: "Apellido",     name: "last_name",      type: "text", required: true },
+        { label: "Cédula",       name: "identification", type: "text", required: true },
     ],
     TEACHER: [
-        { label: "Nombre",         name: "first_name",     type: "text", required: true },
-        { label: "Apellido",       name: "last_name",      type: "text", required: true },
-        { label: "Cédula",         name: "identification", type: "text", required: true },
-        { label: "Teléfono",       name: "phone",          type: "text" },
-        { label: "Especialidad",   name: "specialty",      type: "text" },
+        { label: "Nombre",       name: "first_name",     type: "text", required: true },
+        { label: "Apellido",     name: "last_name",      type: "text", required: true },
+        { label: "Cédula",       name: "identification", type: "text", required: true },
+        { label: "Teléfono",     name: "phone",          type: "text" },
+        { label: "Especialidad", name: "specialty",      type: "text" },
     ],
-    ADMIN: [], // Admin no tiene datos de perfil
+    ADMIN: [],
 };
 
 interface ProfileStepProps {
