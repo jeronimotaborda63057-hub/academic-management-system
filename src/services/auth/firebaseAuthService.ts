@@ -6,6 +6,7 @@ import {
     GithubAuthProvider,
     GoogleAuthProvider,
     OAuthProvider,
+    signOut as signOutFirebase,
     signInWithPopup,
     type AuthProvider,
     type User,
@@ -49,6 +50,7 @@ const normalizeFirebaseUser = (
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
+        photoURL: user.photoURL,
         provider,
     };
 };
@@ -74,6 +76,10 @@ class FirebaseAuthService {
         }
 
         return normalizeFirebaseUser(result.user, provider);
+    }
+
+    async signOut(): Promise<void> {
+        await signOutFirebase(auth);
     }
 }
 

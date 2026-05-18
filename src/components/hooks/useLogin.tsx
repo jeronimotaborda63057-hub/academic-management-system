@@ -7,7 +7,10 @@ import {
     firebaseAuthService,
     type SocialAuthProvider,
 } from "../../services/auth/firebaseAuthService";
-import { securityService } from "../../services/auth/securityService";
+import {
+    securityService,
+    type EmailSignUpData,
+} from "../../services/auth/securityService";
 import { setUser } from "../../store/userSlice";
 
 interface LoginState {
@@ -24,6 +27,7 @@ const getAuthErrorMessage = (error: unknown): string => {
         return "Ya existe una cuenta con este correo usando otro proveedor.";
     const status = (error as { response?: { status?: number } }).response?.status;
     if (status === 401) return "No fue posible validar tus credenciales.";
+    if (status === 409) return "Ya existe una cuenta con este correo.";
     return "Ocurrió un error. Intenta de nuevo.";
 };
 
@@ -72,5 +76,19 @@ export function useLogin() {
         }
     };
 
-    return { ...state, login, loginWithProvider };
+    const signUpWithEmailPassword = async (data: EmailSignUpData) => {
+        setState({ error: null, loading: true, loadingProvider: null });
+        try {
+            const user = await securityService.signUpWithEmailPassword(data);
+            completeLogin(user);
+        } catch (error) {
+            setState({
+                error: getAuthErrorMessage(error),
+                loading: false,
+                loadingProvider: null,
+            });
+        }
+    };
+
+    return { ...state, login, loginWithProvider, signUpWithEmailPassword };
 }

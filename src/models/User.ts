@@ -12,6 +12,8 @@ export interface User {
     code: string;
     role: UserRole;
     is_active: boolean;
+    display_name?: string;
+    photo_url?: string;
     created_at?: string;
     updated_at?: string;
     profile?: TeacherProfile | StudentProfile;

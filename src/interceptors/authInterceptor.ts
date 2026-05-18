@@ -3,6 +3,9 @@ import { LocalStorageProvider } from "../storage/LocalStorageProvider";
 import type { StorageProvider } from "../storage/StorageProvider";
 
 type ResponseError = {
+    config?: {
+        url?: string;
+    };
     response?: {
         status?: number;
     };
@@ -12,6 +15,7 @@ class AuthInterceptor {
     private api: AxiosInstance;
     private storage: StorageProvider;
     private readonly EXCLUDED_ROUTES = ["/login"];
+    private readonly AUTH_FLOW_ROUTES = ["/auth/login", "/auth/register-admin"];
 
     constructor() {
         this.storage = new LocalStorageProvider();
@@ -38,8 +42,11 @@ class AuthInterceptor {
 
     private handleResponseError(error: unknown) {
         const responseError = error as ResponseError;
+        const isAuthFlowRequest = this.AUTH_FLOW_ROUTES.some((route) =>
+            responseError.config?.url?.includes(route)
+        );
 
-        if (responseError.response?.status === 401) {
+        if (responseError.response?.status === 401 && !isAuthFlowRequest) {
             this.storage.removeItem("access_token");
             this.storage.removeItem("user");
             window.location.href = "/auth/signin";

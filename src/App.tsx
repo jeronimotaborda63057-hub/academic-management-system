@@ -10,6 +10,7 @@ import RoleGuard from './components/RoleGuard';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 const SignIn = lazy(() => import('./pages/authentication/SignIn'));
+const SignUp = lazy(() => import('./pages/authentication/SignUp'));
 const Home = lazy(() => import('./pages/home/Home'));
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
             <Routes>
                 {/* ✅ Ruta pública — signin sin layout */}
                 <Route path="/auth/signin" element={<SignIn />} />
+                <Route path="/auth/signup" element={<SignUp />} />
 
                 {/* ✅ Rutas protegidas — con layout */}
                 <Route element={<ProtectedRoute />}>

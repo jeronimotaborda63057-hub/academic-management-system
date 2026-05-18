@@ -5,7 +5,9 @@ import type { RootState } from "../../../store/store";
 import type { NavGroup } from "../../../models/nav/NavGroup";
 import { adminMenu, studentMenu, teacherMenu } from "./sidebarConfig";
 import SidebarNavGroup from "./SidebarNavGroup";
+import SidebarLogoutButton from "./SidebarLogoutButton";
 import Logo from "../../../assets/logo.png";
+import { useLogout } from "../../../hooks/useLogout";
 
 interface SidebarProps {
     sidebarOpen: boolean;
@@ -51,8 +53,16 @@ function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
     const sidebar = useRef<HTMLElement>(null);
 
     const user = useSelector((state: RootState) => state.user.user);
+    const logout = useLogout();
 
     const { menu, color, light } = getMenuByRole(user?.role);
+
+    const handleLogout = async () => {
+        const didLogout = await logout();
+        if (didLogout) {
+            setSidebarOpen(false);
+        }
+    };
 
     useEffect(() => {
         const clickHandler = ({ target }: MouseEvent) => {
@@ -182,6 +192,10 @@ function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                             />
                         ))}
                     </nav>
+                </div>
+
+                <div className="border-t border-gray-200 p-4">
+                    <SidebarLogoutButton onLogout={handleLogout} />
                 </div>
             </aside>
         </>
