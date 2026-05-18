@@ -1,67 +1,106 @@
-import type { FirebaseUserInfo } from "./securityService";
-import { initializeApp, getApp, getApps } from "firebase/app";
 import {
-    getAuth,
-    getRedirectResult,
+    fetchSignInMethodsForEmail,
     GithubAuthProvider,
     GoogleAuthProvider,
+    linkWithCredential,
     OAuthProvider,
-    signOut as signOutFirebase,
     signInWithPopup,
+    signOut,
+    type AuthCredential,
     type AuthProvider,
     type User,
 } from "firebase/auth";
+import type { FirebaseError } from "firebase/app";
+
+import { auth } from "./firebaseConfig";
+import type { FirebaseUserInfo } from "./securityService";
 
 export type SocialAuthProvider = "google" | "microsoft" | "github";
 
-const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+type FirebaseAuthError = {
+    code?: string;
+    customData?: {
+        email?: string;
+    };
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const FIREBASE_PROVIDER_BY_NAME: Record<SocialAuthProvider, string> = {
+    google: "google.com",
+    microsoft: "microsoft.com",
+    github: "github.com",
+};
 
-const createProvider = (providerName: SocialAuthProvider): AuthProvider => {
-    if (providerName === "google") {
-        const provider = new GoogleAuthProvider();
-        provider.addScope("email");
-        provider.addScope("profile");
-        provider.setCustomParameters({ prompt: "select_account" });
-        return provider;
-    }
+const SOCIAL_PROVIDER_BY_FIREBASE_ID: Record<string, SocialAuthProvider> = {
+    "google.com": "google",
+    "microsoft.com": "microsoft",
+    "github.com": "github",
+};
 
-    if (providerName === "microsoft") {
-        const provider = new OAuthProvider("microsoft.com");
-        provider.addScope("openid");
-        provider.addScope("profile");
-        provider.addScope("email");
-        provider.setCustomParameters({
-            prompt: "select_account",
-            tenant: "common",
-        });
-        return provider;
-    }
+const createGoogleProvider = (): GoogleAuthProvider => {
+    const provider = new GoogleAuthProvider();
+    provider.addScope("email");
+    provider.addScope("profile");
+    provider.setCustomParameters({ prompt: "select_account" });
+    return provider;
+};
 
+const createMicrosoftProvider = (): OAuthProvider => {
+    const provider = new OAuthProvider("microsoft.com");
+    provider.addScope("openid");
+    provider.addScope("profile");
+    provider.addScope("email");
+    provider.setCustomParameters({
+        prompt: "select_account",
+        tenant: "common",
+    });
+    return provider;
+};
+
+const createGithubProvider = (): GithubAuthProvider => {
     const provider = new GithubAuthProvider();
     provider.addScope("read:user");
     provider.addScope("user:email");
     return provider;
 };
 
-const firebaseProviderId: Record<string, SocialAuthProvider> = {
-    "google.com": "google",
-    "microsoft.com": "microsoft",
-    "github.com": "github",
+const createProvider = (providerName: SocialAuthProvider): AuthProvider => {
+    if (providerName === "google") return createGoogleProvider();
+    if (providerName === "microsoft") return createMicrosoftProvider();
+    return createGithubProvider();
+};
+
+const createProviderByFirebaseId = (providerId: string): AuthProvider | null => {
+    if (providerId === "google.com") return createGoogleProvider();
+    if (providerId === "microsoft.com") return createMicrosoftProvider();
+    if (providerId === "github.com") return createGithubProvider();
+    return null;
+};
+
+const getCredentialFromError = (
+    providerName: SocialAuthProvider,
+    error: unknown
+): AuthCredential | null => {
+    const firebaseError = error as FirebaseError;
+    if (providerName === "google") return GoogleAuthProvider.credentialFromError(firebaseError);
+    if (providerName === "microsoft") return OAuthProvider.credentialFromError(firebaseError);
+    return GithubAuthProvider.credentialFromError(firebaseError);
+};
+
+const resolveExistingProviderId = (
+    methods: string[],
+    requestedProvider: SocialAuthProvider
+): string => {
+    const requestedProviderId = FIREBASE_PROVIDER_BY_NAME[requestedProvider];
+    return (
+        methods.find((method) => method !== "password" && method !== requestedProviderId) ??
+        methods.find((method) => method !== "password") ??
+        "google.com"
+    );
 };
 
 const normalizeFirebaseUser = (
     user: User,
-    provider: SocialAuthProvider
+    providerName: SocialAuthProvider
 ): FirebaseUserInfo => {
     if (!user.email) {
         throw new Error("El proveedor no devolvio un correo valido.");
@@ -72,35 +111,65 @@ const normalizeFirebaseUser = (
         email: user.email,
         displayName: user.displayName,
         photoURL: user.photoURL,
-        provider,
+        provider: providerName,
     };
 };
 
 class FirebaseAuthService {
-    async signInWithProvider(
-        providerName: SocialAuthProvider
-    ): Promise<FirebaseUserInfo> {
-        const provider = createProvider(providerName);
-        const result = await signInWithPopup(auth, provider);
-        return normalizeFirebaseUser(result.user, providerName);
-    }
+    async signInWithProvider(providerName: SocialAuthProvider): Promise<FirebaseUserInfo> {
+        try {
+            const result = await signInWithPopup(auth, createProvider(providerName));
+            return normalizeFirebaseUser(result.user, providerName);
+        } catch (error) {
+            const authError = error as FirebaseAuthError;
+            if (authError.code !== "auth/account-exists-with-different-credential") {
+                throw error;
+            }
 
-    async waitForRedirectResult(): Promise<FirebaseUserInfo | null> {
-        const result = await getRedirectResult(auth);
-        if (!result) return null;
-
-        const providerId = result.providerId ?? result.user.providerData[0]?.providerId;
-        const provider = providerId ? firebaseProviderId[providerId] : undefined;
-
-        if (!provider) {
-            throw new Error("No fue posible identificar el proveedor de autenticacion.");
+            return this.signInAndLinkExistingEmail(providerName, error);
         }
-
-        return normalizeFirebaseUser(result.user, provider);
     }
 
     async signOut(): Promise<void> {
-        await signOutFirebase(auth);
+        await signOut(auth);
+    }
+
+    private async signInAndLinkExistingEmail(
+        requestedProvider: SocialAuthProvider,
+        error: unknown
+    ): Promise<FirebaseUserInfo> {
+        const authError = error as FirebaseAuthError;
+        const email = authError.customData?.email;
+        const pendingCredential = getCredentialFromError(requestedProvider, error);
+
+        if (!email || !pendingCredential) {
+            throw error;
+        }
+
+        const methods = await fetchSignInMethodsForEmail(auth, email);
+        const providerId = resolveExistingProviderId(methods, requestedProvider);
+        const existingProvider = createProviderByFirebaseId(providerId);
+
+        if (!existingProvider) {
+            throw error;
+        }
+
+        const existingUserCredential = await signInWithPopup(auth, existingProvider);
+
+        try {
+            await linkWithCredential(existingUserCredential.user, pendingCredential);
+        } catch (linkError) {
+            const code = (linkError as FirebaseAuthError).code;
+            if (code !== "auth/provider-already-linked" && code !== "auth/credential-already-in-use") {
+                throw linkError;
+            }
+        }
+
+        return normalizeFirebaseUser(
+            existingUserCredential.user,
+            SOCIAL_PROVIDER_BY_FIREBASE_ID[FIREBASE_PROVIDER_BY_NAME[requestedProvider]] ??
+            requestedProvider
+        );
     }
 }
 

@@ -25,43 +25,43 @@ export interface EmailSignUpData {
     password: string;
 }
 
+interface RegisterAdminPayload {
+    email: string;
+    password: string;
+    code: string;
+    first_name: string;
+    last_name: string;
+}
+
 const isUnauthorizedError = (error: unknown): boolean =>
     (error as { response?: { status?: number } }).response?.status === 401;
 
-// El backend Flask valida: mínimo 1 mayúscula + 1 número + 1 símbolo especial.
-// Confirmado con el seed: "Admin123*"  y el register de prueba: "Admin123*"
-// Patrón: Social@1-<localpart>
-//   ✓ Mayúscula : "S" en "Social"
-//   ✓ Número    : "1"
-//   ✓ Símbolo   : "@"
-const getSocialPassword = (email: string): string => {
-    const localPart = email.trim().toLowerCase().split("@")[0];
+const normalizeEmail = (email: string): string => email.trim().toLowerCase();
+
+const getStableHash = (value: string): string => {
+    let hash = 0;
+    for (const char of value) {
+        hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+    }
+    return hash.toString(36).toUpperCase();
+};
+
+const getSocialPassword = (email: string): string =>
+    `Social123*${getStableHash(normalizeEmail(email))}`;
+
+const getLegacySocialPassword = (email: string): string => {
+    const localPart = normalizeEmail(email).split("@")[0];
     return `Social@1-${localPart}`;
 };
+
+const getAdminCode = (email: string): string =>
+    `ADM-${getStableHash(normalizeEmail(email)).slice(0, 8)}`;
 
 class SecurityService {
     private storage: StorageProvider;
 
     constructor(storage: StorageProvider = new LocalStorageProvider()) {
         this.storage = storage;
-    }
-
-    private enrichUser(user: User, profile?: SessionProfile): User {
-        if (!profile) return user;
-        return {
-            ...user,
-            display_name: profile.displayName ?? user.display_name,
-            photo_url: profile.photoURL ?? user.photo_url,
-        };
-    }
-
-    private persistSession(authData: AuthData, profile?: SessionProfile): User {
-        const { user, access_token, token_type } = authData;
-        const sessionUser = this.enrichUser(user, profile);
-        this.storage.setItem("user", JSON.stringify(sessionUser));
-        this.storage.setItem("access_token", access_token);
-        this.storage.setItem("token_type", token_type);
-        return sessionUser;
     }
 
     async login(email: string, password: string, profile?: SessionProfile): Promise<User> {
@@ -73,20 +73,30 @@ class SecurityService {
     }
 
     async loginWithFirebase(firebaseUser: FirebaseUserInfo): Promise<User> {
-        const { email, displayName, photoURL } = firebaseUser;
+        const { uid, email, displayName, photoURL } = firebaseUser;
         const profile = { displayName, photoURL };
-        const password = getSocialPassword(email);
+        const [primaryPassword, ...fallbackPasswords] = this.getSocialPasswordCandidates({
+            email,
+            uid,
+        });
 
         try {
-            // Intento 1: usuario ya existe → login directo
-            return await this.login(email, password, profile);
+            return await this.loginWithPasswordCandidates({
+                email,
+                passwords: [primaryPassword, ...fallbackPasswords],
+                profile,
+            });
         } catch (error) {
-            // Solo reintentamos si es 401 (credenciales no encontradas = usuario nuevo)
-            if (!isUnauthorizedError(error)) throw error;
+            if (!isUnauthorizedError(error)) {
+                throw error;
+            }
 
-            // Usuario nuevo: registrar en backend y luego hacer login
-            await this.registerSocialUser({ email, password, displayName });
-            return await this.login(email, password, profile);
+            await this.registerSocialUser({
+                email,
+                password: primaryPassword,
+                displayName,
+            });
+            return await this.login(email, primaryPassword, profile);
         }
     }
 
@@ -97,60 +107,6 @@ class SecurityService {
     }: EmailSignUpData): Promise<User> {
         await this.registerBasicUser({ email, password, fullName });
         return await this.login(email, password, { displayName: fullName });
-    }
-
-    // Campos requeridos por el backend (confirmado):
-    // email, password, code, first_name, last_name
-    private async registerSocialUser({
-        email,
-        password,
-        displayName,
-    }: {
-        email: string;
-        password: string;
-        displayName: string | null;
-    }): Promise<void> {
-        const nameParts = (displayName ?? email.split("@")[0]).split(" ");
-        const firstName = nameParts[0] ?? "Usuario";
-        const lastName = nameParts.slice(1).join(" ") || "Social";
-        const code = `ADM-${email.split("@")[0].slice(0, 6).toUpperCase()}`;
-
-        await api.post("/auth/register-admin", {
-            email,
-            password,
-            code,
-            first_name: firstName,
-            last_name: lastName,
-        });
-    }
-
-    private async registerBasicUser({
-        email,
-        password,
-        fullName,
-    }: {
-        email: string;
-        password: string;
-        fullName: string;
-    }): Promise<void> {
-        const { firstName, lastName } = this.splitFullName(fullName);
-        const code = `ADM-${email.split("@")[0].slice(0, 6).toUpperCase()}`;
-
-        await api.post("/auth/register-admin", {
-            email,
-            password,
-            code,
-            first_name: firstName,
-            last_name: lastName,
-        });
-    }
-
-    private splitFullName(fullName: string): { firstName: string; lastName: string } {
-        const nameParts = fullName.trim().split(/\s+/);
-        return {
-            firstName: nameParts[0] ?? "Usuario",
-            lastName: nameParts.slice(1).join(" ") || "Nuevo",
-        };
     }
 
     logout(): void {
@@ -171,6 +127,133 @@ class SecurityService {
 
     isAuthenticated(): boolean {
         return !!this.storage.getItem("access_token");
+    }
+
+    private persistSession(authData: AuthData, profile?: SessionProfile): User {
+        const { user, access_token, token_type } = authData;
+        const sessionUser = this.enrichUser(user, profile);
+        this.storage.setItem("user", JSON.stringify(sessionUser));
+        this.storage.setItem("access_token", access_token);
+        this.storage.setItem("token_type", token_type);
+        return sessionUser;
+    }
+
+    private enrichUser(user: User, profile?: SessionProfile): User {
+        if (!profile) return user;
+        return {
+            ...user,
+            display_name: profile.displayName ?? user.display_name,
+            photo_url: profile.photoURL ?? user.photo_url,
+        };
+    }
+
+    private async registerSocialUser({
+        email,
+        password,
+        displayName,
+    }: {
+        email: string;
+        password: string;
+        displayName: string | null;
+    }): Promise<void> {
+        const { firstName, lastName } = this.splitFullName(
+            displayName ?? email.split("@")[0]
+        );
+        await this.registerAdmin({
+            email,
+            password,
+            firstName,
+            lastName,
+        });
+    }
+
+    private getSocialPasswordCandidates({
+        email,
+        uid,
+    }: {
+        email: string;
+        uid: string;
+    }): string[] {
+        return Array.from(
+            new Set([
+                getSocialPassword(email),
+                getLegacySocialPassword(email),
+                uid,
+            ])
+        );
+    }
+
+    private async loginWithPasswordCandidates({
+        email,
+        passwords,
+        profile,
+    }: {
+        email: string;
+        passwords: string[];
+        profile: SessionProfile;
+    }): Promise<User> {
+        let lastUnauthorizedError: unknown = null;
+
+        for (const password of passwords) {
+            try {
+                return await this.login(email, password, profile);
+            } catch (error) {
+                if (!isUnauthorizedError(error)) {
+                    throw error;
+                }
+                lastUnauthorizedError = error;
+            }
+        }
+
+        throw lastUnauthorizedError;
+    }
+
+    private async registerBasicUser({
+        email,
+        password,
+        fullName,
+    }: {
+        email: string;
+        password: string;
+        fullName: string;
+    }): Promise<void> {
+        const { firstName, lastName } = this.splitFullName(fullName);
+        await this.registerAdmin({
+            email,
+            password,
+            firstName,
+            lastName,
+        });
+    }
+
+    private async registerAdmin({
+        email,
+        password,
+        firstName,
+        lastName,
+    }: {
+        email: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+    }): Promise<void> {
+        const payload: RegisterAdminPayload = {
+            email,
+            password,
+            code: getAdminCode(email),
+            first_name: firstName,
+            last_name: lastName,
+        };
+
+        await api.post("/auth/register-admin", payload);
+    }
+
+    private splitFullName(fullName: string): { firstName: string; lastName: string } {
+        const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
+        return {
+            firstName: nameParts[0] ?? "Usuario",
+            lastName: nameParts.slice(1).join(" ") || "Social",
+        };
     }
 }
 
