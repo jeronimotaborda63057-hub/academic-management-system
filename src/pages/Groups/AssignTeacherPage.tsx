@@ -38,7 +38,7 @@ const AssignTeacherPage = () => {
   const [selectedTeacher, setSelectedTeacher] =
     useState<Teacher | null>(null);
 
-  const activeSemesters = semesters;
+  const activeSemesters = semesters.filter((s) => s.is_active);
 
   const filteredGroups = useMemo(() => {
     if (!selectedSemester) return [];
