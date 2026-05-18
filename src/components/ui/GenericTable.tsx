@@ -6,6 +6,8 @@ import { MoreVertical } from "lucide-react";
 
 import type { Action } from "../../models/Action";
 import type { Column } from "../../models/Column";
+import { useTablePagination } from "../../hooks/useTablePagination";
+import TablePaginationControls from "./TablePaginationControls";
 
 export type ActionVariant =
     | "default"
@@ -55,6 +57,10 @@ interface GenericTableProps<T> {
      * verse directamente.
      */
     hideMenuButton?: boolean;
+
+    enablePagination?: boolean;
+
+    initialItemsPerPage?: number;
 }
 
 function getColumnValue<T>(
@@ -97,8 +103,24 @@ function GenericTable<T>({
     selectedRowId,
     getRowId,
 
-    hideMenuButton = false
+    hideMenuButton = false,
+    enablePagination = true,
+    initialItemsPerPage = 10,
 }: GenericTableProps<T>) {
+    const {
+        currentPage,
+        itemsPerPage,
+        paginatedData,
+        totalItems,
+        totalPages,
+        changePage,
+        changeItemsPerPage,
+    } = useTablePagination({
+        data: data ?? [],
+        initialItemsPerPage,
+    });
+
+    const tableData = enablePagination ? paginatedData : data ?? [];
 
     /**
      * Menú abierto
@@ -184,15 +206,8 @@ function GenericTable<T>({
 
     return (
 
-        <div
-            className="
-                overflow-x-auto
-                overflow-y-visible
-                bg-white
-                rounded-xl
-                shadow
-            "
-        >
+        <div className="overflow-hidden rounded-xl bg-white shadow">
+            <div className="overflow-x-auto overflow-y-visible">
 
             <table className="min-w-full text-sm">
 
@@ -247,7 +262,7 @@ function GenericTable<T>({
                 <tbody>
 
                     {
-                        (data ?? []).map((
+                        tableData.map((
                             row,
                             rowIndex
                         ) => {
@@ -494,6 +509,18 @@ function GenericTable<T>({
                 </tbody>
 
             </table>
+            </div>
+
+            {enablePagination && (
+                <TablePaginationControls
+                    currentPage={currentPage}
+                    itemsPerPage={itemsPerPage}
+                    totalItems={totalItems}
+                    totalPages={totalPages}
+                    onItemsPerPageChange={changeItemsPerPage}
+                    onPageChange={changePage}
+                />
+            )}
 
         </div>
     );

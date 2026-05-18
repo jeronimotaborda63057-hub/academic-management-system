@@ -11,6 +11,7 @@ import {
     securityService,
     type EmailSignUpData,
 } from "../../services/auth/securityService";
+import { getAuthErrorMessage } from "../../services/auth/authErrorMessages";
 import { setUser } from "../../store/userSlice";
 
 interface LoginState {
@@ -18,19 +19,6 @@ interface LoginState {
     loading: boolean;
     loadingProvider: SocialAuthProvider | null;
 }
-
-const getAuthErrorMessage = (error: unknown): string => {
-    const code = (error as { code?: string }).code;
-    if (code === "auth/popup-closed-by-user")
-        return "El inicio de sesión fue cancelado.";
-    if (code === "auth/account-exists-with-different-credential")
-        return "Ya existe una cuenta con este correo usando otro proveedor.";
-    const status = (error as { response?: { status?: number } }).response?.status;
-    if (status === 401) return "No fue posible validar tus credenciales.";
-    if (status === 409) return "Ya existe una cuenta con este correo.";
-    return "Ocurrió un error. Intenta de nuevo.";
-};
-
 export function useLogin() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -92,3 +80,4 @@ export function useLogin() {
 
     return { ...state, login, loginWithProvider, signUpWithEmailPassword };
 }
+

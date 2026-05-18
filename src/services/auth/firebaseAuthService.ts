@@ -26,10 +26,31 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const providerByName: Record<SocialAuthProvider, AuthProvider> = {
-    google: new GoogleAuthProvider(),
-    microsoft: new OAuthProvider("microsoft.com"),
-    github: new GithubAuthProvider(),
+const createProvider = (providerName: SocialAuthProvider): AuthProvider => {
+    if (providerName === "google") {
+        const provider = new GoogleAuthProvider();
+        provider.addScope("email");
+        provider.addScope("profile");
+        provider.setCustomParameters({ prompt: "select_account" });
+        return provider;
+    }
+
+    if (providerName === "microsoft") {
+        const provider = new OAuthProvider("microsoft.com");
+        provider.addScope("openid");
+        provider.addScope("profile");
+        provider.addScope("email");
+        provider.setCustomParameters({
+            prompt: "select_account",
+            tenant: "common",
+        });
+        return provider;
+    }
+
+    const provider = new GithubAuthProvider();
+    provider.addScope("read:user");
+    provider.addScope("user:email");
+    return provider;
 };
 
 const firebaseProviderId: Record<string, SocialAuthProvider> = {
@@ -59,7 +80,7 @@ class FirebaseAuthService {
     async signInWithProvider(
         providerName: SocialAuthProvider
     ): Promise<FirebaseUserInfo> {
-        const provider = providerByName[providerName];
+        const provider = createProvider(providerName);
         const result = await signInWithPopup(auth, provider);
         return normalizeFirebaseUser(result.user, providerName);
     }

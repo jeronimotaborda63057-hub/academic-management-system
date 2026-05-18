@@ -29,6 +29,9 @@ export interface EmailSignUpData {
 const isUnauthorizedError = (error: unknown): boolean =>
     (error as { response?: { status?: number } }).response?.status === 401;
 
+const getSocialPassword = (email: string): string =>
+    `SOCIAL-${email.trim().toLowerCase()}`;
+
 class SecurityService {
     private storage: StorageProvider;
 
@@ -71,7 +74,7 @@ class SecurityService {
 
         // El uid de Firebase es único por usuario — lo usamos como contraseña
         // determinista sin necesidad de almacenarlo en ningún lado.
-        const password = uid;
+        const password = getSocialPassword(email);
 
         try {
             // Intento 1: el usuario ya existe, login directo
@@ -82,8 +85,16 @@ class SecurityService {
             }
 
             // El usuario no existe aún — lo registramos y reintentamos
-            await this.registerSocialUser({ email, password, displayName });
-            return await this.login(email, password, profile);
+            try {
+                await this.registerSocialUser({ email, password, displayName });
+                return await this.login(email, password, profile);
+            } catch (registerError) {
+                if (!isUnauthorizedError(registerError)) {
+                    return await this.login(email, uid, profile);
+                }
+
+                throw registerError;
+            }
         }
     }
 
