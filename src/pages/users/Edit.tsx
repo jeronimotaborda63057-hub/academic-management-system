@@ -5,7 +5,6 @@ import { userService } from "../../services/userService";
 import Swal from "sweetalert2";
 import type { TeacherProfile } from "../../models/TeacherProfile";
 import type { User, UserRole } from "../../models/User";
-import type { StudentProfile } from "../../models/StudentProfile";
 
 const getPrefix = (role: string) => role === "TEACHER" ? "TCH-" : "STD-";
 
