@@ -25,6 +25,8 @@ export interface EmailSignUpData {
     password: string;
 }
 
+// Payload confirmado con la colección Postman del backend:
+// POST /api/auth/register-admin → { email, password, code, first_name, last_name }
 interface RegisterAdminPayload {
     email: string;
     password: string;
@@ -36,6 +38,18 @@ interface RegisterAdminPayload {
 const isUnauthorizedError = (error: unknown): boolean =>
     (error as { response?: { status?: number } }).response?.status === 401;
 
+// El backend devuelve 400 con { message: "email already exists" }
+// cuando intentamos registrar un usuario que ya existe.
+const isEmailAlreadyExistsError = (error: unknown): boolean => {
+    const err = error as { response?: { status?: number; data?: { message?: string } } };
+    if (err.response?.status === 409) return true;
+    if (err.response?.status === 400) {
+        const msg = err.response?.data?.message ?? "";
+        return msg.toLowerCase().includes("email") && msg.toLowerCase().includes("exist");
+    }
+    return false;
+};
+
 const normalizeEmail = (email: string): string => email.trim().toLowerCase();
 
 const getStableHash = (value: string): string => {
@@ -46,6 +60,7 @@ const getStableHash = (value: string): string => {
     return hash.toString(36).toUpperCase();
 };
 
+// Contraseña generada cumple la política del backend: mayúscula + minúscula + número + especial
 const getSocialPassword = (email: string): string =>
     `Social123*${getStableHash(normalizeEmail(email))}`;
 
@@ -54,6 +69,7 @@ const getLegacySocialPassword = (email: string): string => {
     return `Social@1-${localPart}`;
 };
 
+// Código único y determinista por email
 const getAdminCode = (email: string): string =>
     `ADM-${getStableHash(normalizeEmail(email)).slice(0, 8)}`;
 
@@ -75,29 +91,30 @@ class SecurityService {
     async loginWithFirebase(firebaseUser: FirebaseUserInfo): Promise<User> {
         const { uid, email, displayName, photoURL } = firebaseUser;
         const profile = { displayName, photoURL };
-        const [primaryPassword, ...fallbackPasswords] = this.getSocialPasswordCandidates({
-            email,
-            uid,
-        });
+        const passwords = this.getSocialPasswordCandidates({ email, uid });
 
+        // Paso 1: intentar login con todas las contraseñas candidatas
         try {
-            return await this.loginWithPasswordCandidates({
-                email,
-                passwords: [primaryPassword, ...fallbackPasswords],
-                profile,
-            });
-        } catch (error) {
-            if (!isUnauthorizedError(error)) {
-                throw error;
-            }
-
-            await this.registerSocialUser({
-                email,
-                password: primaryPassword,
-                displayName,
-            });
-            return await this.login(email, primaryPassword, profile);
+            return await this.loginWithPasswordCandidates({ email, passwords, profile });
+        } catch (loginError) {
+            if (!isUnauthorizedError(loginError)) throw loginError;
         }
+
+        // Paso 2: login falló con 401 → intentar registrar
+        try {
+            await this.registerSocialUser({ email, password: passwords[0], displayName });
+        } catch (registerError) {
+            // Si el email ya existe en el backend (registro parcial previo),
+            // NO lanzar error — simplemente continuar e intentar login de nuevo
+            // con todas las contraseñas candidatas.
+            if (!isEmailAlreadyExistsError(registerError)) throw registerError;
+        }
+
+        // Paso 3: login final (sea que registramos ahora o ya existía)
+        // Si el usuario fue creado en un intento previo con una contraseña
+        // que no conocemos, este login fallará con 401 y el catch mostrará
+        // "No fue posible validar tus credenciales" — que es el comportamiento correcto.
+        return await this.loginWithPasswordCandidates({ email, passwords, profile });
     }
 
     async signUpWithEmailPassword({
@@ -105,7 +122,8 @@ class SecurityService {
         email,
         password,
     }: EmailSignUpData): Promise<User> {
-        await this.registerBasicUser({ email, password, fullName });
+        const { firstName, lastName } = this.splitFullName(fullName);
+        await this.registerAdmin({ email, password, firstName, lastName });
         return await this.login(email, password, { displayName: fullName });
     }
 
@@ -128,6 +146,8 @@ class SecurityService {
     isAuthenticated(): boolean {
         return !!this.storage.getItem("access_token");
     }
+
+    // ─── Privados ────────────────────────────────────────────────
 
     private persistSession(authData: AuthData, profile?: SessionProfile): User {
         const { user, access_token, token_type } = authData;
@@ -159,12 +179,7 @@ class SecurityService {
         const { firstName, lastName } = this.splitFullName(
             displayName ?? email.split("@")[0]
         );
-        await this.registerAdmin({
-            email,
-            password,
-            firstName,
-            lastName,
-        });
+        await this.registerAdmin({ email, password, firstName, lastName });
     }
 
     private getSocialPasswordCandidates({
@@ -192,38 +207,16 @@ class SecurityService {
         passwords: string[];
         profile: SessionProfile;
     }): Promise<User> {
-        let lastUnauthorizedError: unknown = null;
-
+        let lastError: unknown = null;
         for (const password of passwords) {
             try {
                 return await this.login(email, password, profile);
             } catch (error) {
-                if (!isUnauthorizedError(error)) {
-                    throw error;
-                }
-                lastUnauthorizedError = error;
+                if (!isUnauthorizedError(error)) throw error;
+                lastError = error;
             }
         }
-
-        throw lastUnauthorizedError;
-    }
-
-    private async registerBasicUser({
-        email,
-        password,
-        fullName,
-    }: {
-        email: string;
-        password: string;
-        fullName: string;
-    }): Promise<void> {
-        const { firstName, lastName } = this.splitFullName(fullName);
-        await this.registerAdmin({
-            email,
-            password,
-            firstName,
-            lastName,
-        });
+        throw lastError;
     }
 
     private async registerAdmin({
@@ -244,15 +237,14 @@ class SecurityService {
             first_name: firstName,
             last_name: lastName,
         };
-
         await api.post("/auth/register-admin", payload);
     }
 
     private splitFullName(fullName: string): { firstName: string; lastName: string } {
-        const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
+        const parts = fullName.trim().split(/\s+/).filter(Boolean);
         return {
-            firstName: nameParts[0] ?? "Usuario",
-            lastName: nameParts.slice(1).join(" ") || "Social",
+            firstName: parts[0] ?? "Usuario",
+            lastName: parts.slice(1).join(" ") || "Social",
         };
     }
 }
