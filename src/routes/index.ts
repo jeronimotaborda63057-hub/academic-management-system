@@ -49,8 +49,7 @@ const RubricsEdit = lazy(() => import('../pages/rubrics/Edit'));
 const RegisterFinalGradePage = lazy(() => import('../pages/grades/RegisterFinalGradePage'));
 const TeacherGroupsPage = lazy(() => import('../pages/groups/TeacherGroupsPage'));
 const TeacherMyGroups = lazy(() => import('../pages/teachers/MyGroups'));
-const AssociateRubricPage = lazy( () => import('../pages/evaluations/AssociateRubricPage')
-);
+const AssociateRubricPage = lazy(() => import('../pages/evaluations/AssociateRubricPage'));
 
 const coreRoutes: AppRoute[] = [
     // ── Rúbricas (HU-08) ──────────────────────────────────────────────────────

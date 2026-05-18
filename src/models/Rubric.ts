@@ -4,7 +4,7 @@ import type { Grade } from "./Grade";
 
 export interface Rubric {
     id?: string;
-    title: string;
+    title?: string;
     description?: string;
     subject_id?: string;
     is_public?: boolean;

@@ -5,12 +5,12 @@ export interface Evaluation{
     created_at?: string;
     description?: string;
     group_id?: string;
-    id?: string;
-    name?: string;
+    id: string;
+    name: string;
     rubric_id?: string;
     subject_id?: string;
     updated_at?: string;
-    weight?: number;
+    weight: number;
     subject?: Subject;
     rubric?: Rubric;
 }
