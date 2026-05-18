@@ -1,7 +1,7 @@
 import type { Evaluation } from "./Evaluation";
 import type { Grade } from "./Grade";
-import type { Registration } from "./Registration";
-import type { Student } from "./Student";
+import type { Registration } from "../uml/Registration";
+import type { Student } from "../uml/Student";
 
 export interface FinalGradeRow {
     completedEvaluations: number;

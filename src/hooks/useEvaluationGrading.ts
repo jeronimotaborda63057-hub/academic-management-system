@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 
-import type { Criteria } from "../models/Criteria";
-import type { Enrollment } from "../models/Enrollment";
-import type { Evaluation } from "../models/Evaluation";
-import type { Grade } from "../models/Grade";
-import type { Rubric } from "../models/Rubric";
-import type { Scale } from "../models/Scale";
-import type { Student } from "../models/Student";
-import type { GradeDraft, GradingStudent } from "../models/GradingStudent";
+import type { Criteria } from "../models/uml/Criteria";
+import type { Enrollment } from "../models/uml/Enrollment";
+import type { Evaluation } from "../models/uml/Evaluation";
+import type { Grade } from "../models/uml/Grade";
+import type { Rubric } from "../models/uml/Rubric";
+import type { Scale } from "../models/uml/Scale";
+import type { Student } from "../models/uml/Student";
+import type { GradeDraft, GradingStudent } from "../models/interfaces/GradingStudent";
 import { criteriaService } from "../services/criteriaService";
 import { enrollmentService } from "../services/enrollmentService";
 import { evaluationService } from "../services/evaluationService";

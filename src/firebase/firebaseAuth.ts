@@ -11,7 +11,7 @@ import {
 import type { FirebaseError } from "firebase/app";
 
 import { auth } from "./firebaseConfig";
-import type { FirebaseUserInfo } from "./securityService";
+import type { FirebaseUserInfo } from "../models/interfaces/FirebaseUserInfo";
 
 export type SocialAuthProvider = "google" | "microsoft" | "github";
 
@@ -148,7 +148,6 @@ class FirebaseAuthService {
         requestedProvider: SocialAuthProvider,
         error: unknown
     ): Promise<FirebaseUserInfo> {
-        const authError = error as FirebaseAuthError;
         const pendingCredential = getCredentialFromError(requestedProvider, error);
 
         if (!pendingCredential) {

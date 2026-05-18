@@ -1,4 +1,4 @@
-import type { Grade } from "../models/Grade";
+import type { Grade } from "../models/uml/Grade";
 import { api } from "../interceptors/authInterceptor";
 import { BaseService } from "./baseService";
 

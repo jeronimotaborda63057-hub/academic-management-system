@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import type { Career } from "../../models/Career";
-import type { CareerForm } from "../../models/CareerForm";
+import type { Career } from "../../models/uml/Career";
+import type { CareerForm } from "../../models/interfaces/CareerForm";
 interface CareerFormModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -29,8 +29,8 @@ const CareerFormModal: React.FC<CareerFormModalProps> = ({
     useEffect(() => {
         if (initialData) {
             setValues({
-                code:        initialData.code,
-                name:        initialData.name,
+                code: initialData.code,
+                name: initialData.name,
                 description: initialData.description ?? "",
             });
         } else {
@@ -48,10 +48,10 @@ const CareerFormModal: React.FC<CareerFormModalProps> = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit({
-            code:        values.code,
-            name:        values.name,
+            code: values.code,
+            name: values.name,
             description: values.description,
-            is_active:   initialData?.is_active ?? true,
+            is_active: initialData?.is_active ?? true,
         });
     };
 

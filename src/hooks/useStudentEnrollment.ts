@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { Career } from "../models/Career";
+import type { Career } from "../models/uml/Career";
 import type {
     AcademicRegistrationStatus,
     Registration,
-} from "../models/Registration";
-import type { StudentProfile } from "../models/StudentProfile";
-import type { User } from "../models/User";
+} from "../models/uml/Registration";
+import type { StudentProfile } from "../models/interfaces/StudentProfile";
+import type { User } from "../models/uml/User";
 import { careerService } from "../services/careerService";
 import { registrationService } from "../services/registrationService";
 import { userService } from "../services/userService";
@@ -37,27 +37,27 @@ export const ACADEMIC_STATUS_OPTIONS: {
     label: string;
     value: AcademicRegistrationStatus;
 }[] = [
-    {
-        value: "ACTIVE",
-        label: "Activo",
-        description: "Estudiante con matricula vigente y en condicion normal.",
-    },
-    {
-        value: "WITHDRAWN",
-        label: "Retirado",
-        description: "Estudiante que se retira voluntariamente.",
-    },
-    {
-        value: "SUSPENDED",
-        label: "Suspendido",
-        description: "Estudiante con matricula suspendida temporalmente.",
-    },
-    {
-        value: "GRADUATED",
-        label: "Egresado",
-        description: "Estudiante que ha finalizado su plan de estudios.",
-    },
-];
+        {
+            value: "ACTIVE",
+            label: "Activo",
+            description: "Estudiante con matricula vigente y en condicion normal.",
+        },
+        {
+            value: "WITHDRAWN",
+            label: "Retirado",
+            description: "Estudiante que se retira voluntariamente.",
+        },
+        {
+            value: "SUSPENDED",
+            label: "Suspendido",
+            description: "Estudiante con matricula suspendida temporalmente.",
+        },
+        {
+            value: "GRADUATED",
+            label: "Egresado",
+            description: "Estudiante que ha finalizado su plan de estudios.",
+        },
+    ];
 
 const ADMISSION_PERIOD_PATTERN = /^\d{4}-(1|2)$/;
 const DEFAULT_DRAFT: StudentEnrollmentDraft = {

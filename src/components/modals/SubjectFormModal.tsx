@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import type { Subject, SubjectForm } from "../../models/Subject";
+import type { Subject, SubjectForm } from "../../models/uml/Subject";
 
 interface SubjectFormModalProps {
     isOpen: boolean;
@@ -20,21 +20,21 @@ const SubjectFormModal: React.FC<SubjectFormModalProps> = ({
     const isEdit = Boolean(initialData);
 
     const [values, setValues] = useState({
-        code:        "",
-        name:        "",
+        code: "",
+        name: "",
         description: "",
-        credits:     "1",
-        is_active:   true,
+        credits: "1",
+        is_active: true,
     });
 
     useEffect(() => {
         if (initialData) {
             setValues({
-                code:        initialData.code ?? "",
-                name:        initialData.name ?? "",
+                code: initialData.code ?? "",
+                name: initialData.name ?? "",
                 description: initialData.description ?? "",
-                credits:     String(initialData.credits),
-                is_active:   initialData.is_active ?? true,
+                credits: String(initialData.credits),
+                is_active: initialData.is_active ?? true,
             });
         } else {
             setValues({ code: "", name: "", description: "", credits: "1", is_active: true });
@@ -51,11 +51,11 @@ const SubjectFormModal: React.FC<SubjectFormModalProps> = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSubmit({
-            code:        values.code,
-            name:        values.name,
+            code: values.code,
+            name: values.name,
             description: values.description,
-            credits:     Number(values.credits),
-            is_active:   values.is_active,
+            credits: Number(values.credits),
+            is_active: values.is_active,
         });
     };
 

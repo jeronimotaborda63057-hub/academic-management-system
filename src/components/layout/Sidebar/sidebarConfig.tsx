@@ -1,4 +1,4 @@
-import type { NavGroup } from "../../../models/nav/NavGroup";
+import type { NavGroup } from "../../../models/interfaces/NavGroup";
 
 // Iconos reutilizables
 const icons = {

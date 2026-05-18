@@ -1,4 +1,4 @@
-import type { Teacher } from "../models/Teacher";
+import type { Teacher } from "../models/uml/Teacher";
 import { api } from "../interceptors/authInterceptor";
 import { BaseService } from "./baseService";
 

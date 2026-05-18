@@ -6,11 +6,11 @@ import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
 import GenericTable from "../../components/ui/GenericTable";
 
-import type { Enrollment } from "../../models/Enrollment";
-import type { Student } from "../../models/Student";
-import type { Group } from "../../models/Group";
-import type { Column } from "../../models/Column";
-import type { Action } from "../../models/Action";
+import type { Enrollment } from "../../models/uml/Enrollment";
+import type { Student } from "../../models/uml/Student";
+import type { Group } from "../../models/uml/Group";
+import type { Column } from "../../models/interfaces/Column";
+import type { Action } from "../../models/interfaces/Action";
 
 import { enrollmentService } from "../../services/enrollmentService";
 import { studentService } from "../../services/studentService";
@@ -289,8 +289,8 @@ const MatriculasPage: React.FC = () => {
             <PageHeader
                 title="Matrículas"
                 subtitle={`${filtered.length} registro${filtered.length !== 1
-                        ? "s"
-                        : ""
+                    ? "s"
+                    : ""
                     }`}
                 breadcrumb={[
                     "Académico",

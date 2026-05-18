@@ -1,4 +1,4 @@
-import type { FinalGradeRow } from "../../models/FinalGradeRow";
+import type { FinalGradeRow } from "../../models/interfaces/FinalGradeRow";
 import {
     formatScore,
     getFinalGradeStudentIdentification,

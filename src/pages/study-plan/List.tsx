@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { DndContext } from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
-import type { Career } from "../../models/Career";
-import type { Subject } from "../../models/Subject";
-import type { Curriculum } from "../../models/Curriculum";
+import type { Career } from "../../models/uml/Career";
+import type { Subject } from "../../models/uml/Subject";
+import type { Curriculum } from "../../models/uml/Curriculum";
 import { careerService } from "../../services/careerService";
 import { subjectService } from "../../services/subjectService";
 import { curriculumService } from "../../services/curriculumService";
@@ -474,8 +474,8 @@ const List: React.FC = () => {
                             key={tab.key}
                             onClick={() => setActiveTab(tab.key)}
                             className={`pb-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key
-                                    ? "border-primary text-primary"
-                                    : "border-transparent text-gray-500 hover:text-black dark:hover:text-white"
+                                ? "border-primary text-primary"
+                                : "border-transparent text-gray-500 hover:text-black dark:hover:text-white"
                                 }`}
                         >
                             {tab.label}

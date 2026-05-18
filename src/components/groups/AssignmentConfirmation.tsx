@@ -1,7 +1,7 @@
-import type { Group } from "../../models/Group";
-import type { Teacher } from "../../models/Teacher";
-import type { Semester } from "../../models/Semester";
-import type { Subject } from "../../models/Subject";
+import type { Group } from "../../models/uml/Group";
+import type { Teacher } from "../../models/uml/Teacher";
+import type { Semester } from "../../models/uml/Semester";
+import type { Subject } from "../../models/uml/Subject";
 
 interface AssignmentConfirmationProps {
     semester: Semester | null;

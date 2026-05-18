@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 import Pagination from "../../components/common/Pagination";
 import PageHeader from "../../components/ui/PageHeader";
-import type { TeacherProfile } from "../../models/TeacherProfile";
-import type { User } from "../../models/User";
+import type { TeacherProfile } from "../../models/interfaces/TeacherProfile";
+import type { User } from "../../models/uml/User";
 import { userService } from "../../services/userService";
 
 const ITEMS_PER_PAGE = 10;

@@ -2,17 +2,17 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import type { User } from "../../models/User";
+import type { User } from "../../models/uml/User";
 import {
     firebaseAuthService,
     type SocialAuthProvider,
-} from "../../services/auth/firebaseAuthService";
+} from "../../firebase/firebaseAuth";
 import {
     securityService,
-    type EmailSignUpData,
 } from "../../services/auth/securityService";
-import { getAuthErrorMessage } from "../../services/auth/authErrorMessages";
+import { getAuthErrorMessage } from "../../firebase/authErrorMessages";
 import { setUser } from "../../store/userSlice";
+import type { EmailSignUpData } from "../../models/interfaces/EmailSignUpData";
 
 interface LoginState {
     error: string | null;

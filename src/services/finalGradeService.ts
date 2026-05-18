@@ -1,6 +1,6 @@
 // api viene del interceptor de autenticación (igual que en groupService, enrollmentService, etc.)
 import { api } from '../interceptors/authInterceptor';
-import type { FinalGradeConsolidated } from '../models/FinalGrade';
+import type { FinalGradeConsolidated } from '../models/interfaces/FinalGrade';
 
 // Servicio específico para CU-12: Registrar nota final
 // Maneja el consolidado, confirmación oficial y reporte

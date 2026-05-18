@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Building2, GitBranch, Mail } from "lucide-react";
 
-import type { SocialAuthProvider } from "../../services/auth/firebaseAuthService";
+import type { SocialAuthProvider } from "../../firebase/firebaseAuth";
 
 interface SocialProviderOption {
     icon: ReactNode;

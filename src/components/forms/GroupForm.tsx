@@ -1,8 +1,8 @@
 import { Loader2 } from "lucide-react";
 
-import type { Semester } from "../../models/Semester";
-import type { Subject } from "../../models/Subject";
-import type { Teacher } from "../../models/Teacher";
+import type { Semester } from "../../models/uml/Semester";
+import type { Subject } from "../../models/uml/Subject";
+import type { Teacher } from "../../models/uml/Teacher";
 
 type Mode = "create" | "edit";
 
@@ -143,11 +143,10 @@ const GroupForm = ({
                 <button
                     onClick={onSubmit}
                     type="button"
-                    className={`px-6 py-3 rounded-xl text-white transition-all inline-flex items-center gap-2 ${
-                        isSubmitting
-                            ? "bg-gray-300 cursor-not-allowed"
-                            : "bg-green-700 hover:bg-green-800"
-                    }`}
+                    className={`px-6 py-3 rounded-xl text-white transition-all inline-flex items-center gap-2 ${isSubmitting
+                        ? "bg-gray-300 cursor-not-allowed"
+                        : "bg-green-700 hover:bg-green-800"
+                        }`}
                     disabled={isSubmitting}
                 >
                     {isSubmitting ? (

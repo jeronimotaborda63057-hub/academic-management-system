@@ -1,4 +1,4 @@
-import type { Rubric } from "../models/Rubric";
+import type { Rubric } from "../models/uml/Rubric";
 import { api } from "../interceptors/authInterceptor";
 import { BaseService } from "./baseService";
 

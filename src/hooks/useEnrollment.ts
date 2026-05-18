@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import type { Enrollment } from "../models/Enrollment";
+import type { Enrollment } from "../models/uml/Enrollment";
 
 import { enrollmentService } from "../services/enrollmentService";
 

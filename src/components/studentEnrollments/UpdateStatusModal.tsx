@@ -1,7 +1,7 @@
 import type {
     AcademicRegistrationStatus,
     Registration,
-} from "../../models/Registration";
+} from "../../models/uml/Registration";
 import { ACADEMIC_STATUS_OPTIONS } from "../../hooks/useStudentEnrollment";
 import { fieldClassName, FormField, SelectShell } from "./FormControls";
 import { ModalShell } from "./ModalShell";

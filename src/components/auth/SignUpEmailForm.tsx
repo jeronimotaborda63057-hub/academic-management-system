@@ -1,7 +1,7 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-import type { EmailSignUpData } from "../../services/auth/securityService";
+import type { EmailSignUpData } from "../../models/interfaces/EmailSignUpData";
 
 interface SignUpEmailFormProps {
     loading: boolean;

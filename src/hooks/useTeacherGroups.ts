@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
-import type { Group } from "../models/Group";
+import type { Group } from "../models/uml/Group";
 import type { RootState } from "../store/store";
 import { groupService } from "../services/groupService";
 import { getTeacherProfile } from "./useTeacherDetail";

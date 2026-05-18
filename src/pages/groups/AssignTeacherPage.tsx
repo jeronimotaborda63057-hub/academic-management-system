@@ -8,10 +8,10 @@ import { teacherService } from "../../services/teacherService";
 import { semesterService } from "../../services/semesterService";
 import { subjectService } from "../../services/subjectService";
 
-import type { Group } from "../../models/Group";
-import type { Teacher } from "../../models/Teacher";
-import type { Semester } from "../../models/Semester";
-import type { Subject } from "../../models/Subject";
+import type { Group } from "../../models/uml/Group";
+import type { Teacher } from "../../models/uml/Teacher";
+import type { Semester } from "../../models/uml/Semester";
+import type { Subject } from "../../models/uml/Subject";
 
 import AssignTeacherStepper from "../../components/groups/AssignTeacherStepper";
 import GroupSelectionTable from "../../components/groups/GroupSelectionTable";
@@ -54,7 +54,7 @@ const AssignTeacherPage = () => {
   }, []);
 
   const loadInitialData = async (resetWizard = false) => {
-    
+
     try {
       setLoading(true);
 
@@ -75,7 +75,7 @@ const AssignTeacherPage = () => {
       setTeachers(teacherResponse || []);
       setSubjects(subjectResponse || []);
 
-      if(resetWizard){
+      if (resetWizard) {
         setCurrentStep(1)
 
         setSelectedSemester(null)
@@ -101,7 +101,7 @@ const AssignTeacherPage = () => {
       );
       return false;
     }
-    
+
     if (selectedGroup.teacher_id === selectedTeacher.id) {
       toast.error(
         "El docente seleccionado ya está asignado a este grupo"
@@ -128,31 +128,31 @@ const AssignTeacherPage = () => {
   };
 
   const handleNextStep = () => {
-  if (currentStep === 1 && !selectedSemester) {
-    toast.error("Selecciona un semestre");
-    return;
-  }
-
-  if (currentStep === 2 && !selectedGroup) {
-    toast.error("Selecciona un grupo");
-    return;
-  }
-
-  if (currentStep === 3) {
-    if (!selectedTeacher) {
-      toast.error("Selecciona un docente");
+    if (currentStep === 1 && !selectedSemester) {
+      toast.error("Selecciona un semestre");
       return;
     }
 
-    const isValid = validateAssignment();
-
-    if (!isValid) {
+    if (currentStep === 2 && !selectedGroup) {
+      toast.error("Selecciona un grupo");
       return;
     }
-  }
 
-  setCurrentStep((prev) => prev + 1);
-};
+    if (currentStep === 3) {
+      if (!selectedTeacher) {
+        toast.error("Selecciona un docente");
+        return;
+      }
+
+      const isValid = validateAssignment();
+
+      if (!isValid) {
+        return;
+      }
+    }
+
+    setCurrentStep((prev) => prev + 1);
+  };
 
   const handlePreviousStep = () => {
     setCurrentStep((prev) => prev - 1);

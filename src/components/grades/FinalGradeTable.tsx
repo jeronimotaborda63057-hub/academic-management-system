@@ -1,9 +1,9 @@
 import React from 'react';
 import { AlertTriangle, CheckCircle, Info } from 'lucide-react';
 // StudentFinalGradeRow y StudentEvalGrade son modelos propios del CU-12
-import type { StudentFinalGradeRow, StudentEvalGrade } from '../../models/FinalGrade';
+import type { StudentFinalGradeRow, StudentEvalGrade } from '../../models/interfaces/FinalGrade';
 // Evaluation viene del modelo original del proyecto
-import type { Evaluation } from '../../models/Evaluation';
+import type { Evaluation } from '../../models/uml/Evaluation';
 
 interface FinalGradeTableProps {
     evaluations: Evaluation[];   // Lista de evaluaciones del grupo (columnas dinámicas)
@@ -163,9 +163,8 @@ const FinalGradeTable: React.FC<FinalGradeTableProps> = ({
 
                                 {/* Nota final ponderada */}
                                 <td className="px-4 py-3 text-center">
-                                    <span className={`text-lg font-bold ${
-                                        row.is_complete ? 'text-primary' : 'text-warning'
-                                    }`}>
+                                    <span className={`text-lg font-bold ${row.is_complete ? 'text-primary' : 'text-warning'
+                                        }`}>
                                         {row.final_grade.toFixed(2)}
                                     </span>
                                 </td>

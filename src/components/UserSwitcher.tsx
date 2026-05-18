@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import type { User } from "../models/User";
 import { userService } from "../services/userService";
 import type { RootState } from "../store/store";
 import { setUser } from "../store/userSlice";
+import type { User } from "../models/uml/User";
 
 const ROLE_CONFIG = {
     ADMIN: {
@@ -45,7 +45,7 @@ const getUserLabel = (user: User) => {
 export function UserSwitcher() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const currentUser = useSelector((state: RootState) => state.user.user);
+    const currentUser = useSelector<RootState, User | null>((state) => state.user.user);
     const [open, setOpen] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);

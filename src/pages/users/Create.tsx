@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { userService } from "../../services/userService";
-import type { CreateUserPayload } from "../../models/User";
+import type { CreateUserPayload } from "../../models/uml/User";
 import Swal from "sweetalert2";
 import MultiStepForm, { type MultiStepFormValues } from "../../components/multi-step-form/MultiStepForm";
 

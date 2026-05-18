@@ -1,39 +1,16 @@
 import { api } from "../../interceptors/authInterceptor";
 import type { AuthData } from "../../models/auth/authData";
 import type { LoginResponse } from "../../models/auth/loginResponse";
-import type { User } from "../../models/User";
+import type { User } from "../../models/uml/User";
 import { LocalStorageProvider } from "../../storage/LocalStorageProvider";
 import type { StorageProvider } from "../../storage/StorageProvider";
-import type { SocialAuthProvider } from "./firebaseAuthService";
-
-export interface FirebaseUserInfo {
-    uid: string;
-    email: string;
-    displayName: string | null;
-    photoURL: string | null;
-    provider: SocialAuthProvider;
-}
-
-interface SessionProfile {
-    displayName?: string | null;
-    photoURL?: string | null;
-}
-
-export interface EmailSignUpData {
-    fullName: string;
-    email: string;
-    password: string;
-}
+import type { FirebaseUserInfo } from "../../models/interfaces/FirebaseUserInfo";
+import type { SessionProfile } from "../../models/interfaces/SessionProfile";
+import type { EmailSignUpData } from "../../models/interfaces/EmailSignUpData";
+import type { RegisterAdminPayload } from "../../models/interfaces/RegisterAdminPayload";
 
 // Payload confirmado con la colección Postman del backend:
 // POST /api/auth/register-admin → { email, password, code, first_name, last_name }
-interface RegisterAdminPayload {
-    email: string;
-    password: string;
-    code: string;
-    first_name: string;
-    last_name: string;
-}
 
 const isUnauthorizedError = (error: unknown): boolean =>
     (error as { response?: { status?: number } }).response?.status === 401;

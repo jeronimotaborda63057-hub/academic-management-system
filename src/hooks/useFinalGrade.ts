@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { finalGradeService } from '../services/finalGradeService';
-import type { FinalGradeConsolidated } from '../models/FinalGrade';
+import type { FinalGradeConsolidated } from '../models/interfaces/FinalGrade';
 
 interface UseFinalGradeProps {
     groupId: string;

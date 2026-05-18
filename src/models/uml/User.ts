@@ -1,8 +1,8 @@
-import type { CreateAdminPayload } from "./create/CreateAdminPayload";
-import type { CreateStudentPayload } from "./create/CreateStudentPayload";
-import type { CreateTeacherPayload } from "./create/CreateTeacherPayload";
-import type { StudentProfile } from "./StudentProfile";
-import type { TeacherProfile } from "./TeacherProfile";
+import type { CreateAdminPayload } from "../interfaces/CreateAdminPayload";
+import type { CreateStudentPayload } from "../interfaces/CreateStudentPayload";
+import type { CreateTeacherPayload } from "../interfaces/CreateTeacherPayload";
+import type { StudentProfile } from "../interfaces/StudentProfile";
+import type { TeacherProfile } from "../interfaces/TeacherProfile";
 
 export type UserRole = "ADMIN" | "TEACHER" | "STUDENT";
 

@@ -9,7 +9,7 @@ import type {
     CreateScaleDTO,
     Scale,
     UpdateScaleDTO,
-} from "../../models/Scale";
+} from "../../models/uml/Scale";
 
 interface ScaleLevelsTableContainerProps {
     criterionId: string;

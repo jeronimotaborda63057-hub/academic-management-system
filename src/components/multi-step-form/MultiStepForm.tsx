@@ -3,7 +3,7 @@ import FormField from "./FormField";
 import ProfileStep from "./ProfileStep";
 import StepIndicator from "./StepIndicator";
 import PageHeader from "../ui/PageHeader";
-import type { StepField } from "../../models/StepField";
+import type { StepField } from "../../models/interfaces/StepField";
 
 const STEPS = ["Datos de usuario", "Datos de perfil"];
 

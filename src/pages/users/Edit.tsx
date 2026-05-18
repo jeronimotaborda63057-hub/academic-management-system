@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import MultiStepForm, { type MultiStepFormValues } from "../../components/multi-step-form/MultiStepForm";
 import { userService } from "../../services/userService";
 import Swal from "sweetalert2";
-import type { TeacherProfile } from "../../models/TeacherProfile";
+import type { TeacherProfile } from "../../models/interfaces/TeacherProfile";
 
 // ✅ Sin contraseña en edición
 const STEP1_FIELDS_EDIT = [

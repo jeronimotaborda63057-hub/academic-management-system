@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-import type { Group } from "../models/Group";
-import type { TeacherProfile } from "../models/TeacherProfile";
-import type { User } from "../models/User";
+import type { Group } from "../models/uml/Group";
+import type { TeacherProfile } from "../models/interfaces/TeacherProfile";
+import type { User } from "../models/uml/User";
 import { groupService } from "../services/groupService";
 import { userService } from "../services/userService";
 

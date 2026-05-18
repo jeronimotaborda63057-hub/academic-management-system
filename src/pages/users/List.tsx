@@ -1,9 +1,9 @@
 import React from "react";
 import { Pencil, UserX } from "lucide-react";
-import type { FilterConfig } from "../../models/FilterConfig";
+import type { FilterConfig } from "../../models/interfaces/FilterConfig";
 import GenericTable from "../../components/ui/GenericTable";
-import type { Column } from "../../models/Column";
-import type { Action } from "../../models/Action";
+import type { Column } from "../../models/interfaces/Column";
+import type { Action } from "../../models/interfaces/Action";
 import TableToolbar from "../../components/TableToolBar";
 import PageHeader from "../../components/ui/PageHeader";
 import { userService } from "../../services/userService";
@@ -112,30 +112,30 @@ const List: React.FC = () => {
     ];
 
     const ACTIONS: Action[] = [
-    {
-        name: "edit",
-        label: "Editar usuario",
-        icon: (
-            <Pencil
-                size={16}
-                className="text-gray-700"
-            />
-        ),
-        primary: true,
-        variant: "default",
-    },
-    {
-        name: "deactivate",
-        label: "Desactivar usuario",
-        icon: (
-            <UserX
-                size={16}
-                className="text-red-600"
-            />
-        ),
-        variant: "danger",
-    },
-];
+        {
+            name: "edit",
+            label: "Editar usuario",
+            icon: (
+                <Pencil
+                    size={16}
+                    className="text-gray-700"
+                />
+            ),
+            primary: true,
+            variant: "default",
+        },
+        {
+            name: "deactivate",
+            label: "Desactivar usuario",
+            icon: (
+                <UserX
+                    size={16}
+                    className="text-red-600"
+                />
+            ),
+            variant: "danger",
+        },
+    ];
 
     const handleAction = (
         action: string,

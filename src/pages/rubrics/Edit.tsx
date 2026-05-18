@@ -9,7 +9,7 @@ import { useRubricForm } from "../../hooks/useRubricForm";
 import { rubricService } from "../../services/rubricService";
 import { criteriaService } from "../../services/criteriaService";
 import { useState } from "react";
-import type { Rubric } from "../../models/Rubric";
+import type { Rubric } from "../../models/uml/Rubric";
 
 function getErrorMessage(error: unknown): string {
     if (error instanceof Error) {
@@ -23,9 +23,9 @@ const Edit: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const [isLoading,  setIsLoading]  = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(true);
-    const [rubric,     setRubric]     = useState<Rubric | null>(null);
+    const [rubric, setRubric] = useState<Rubric | null>(null);
 
     const {
         form,
@@ -54,16 +54,16 @@ const Edit: React.FC = () => {
                 setRubric(r);
 
                 setForm({
-                    title:       r.title       ?? "",
+                    title: r.title ?? "",
                     description: r.description ?? "",
                 });
 
                 resetCriteria(
                     fetchedCriteria.map((c) => ({
-                        id:          c.id          ?? crypto.randomUUID(),
-                        name:        c.name        ?? "",
+                        id: c.id ?? crypto.randomUUID(),
+                        name: c.name ?? "",
                         description: c.description ?? "",
-                        weight:      c.weight      ?? 0,
+                        weight: c.weight ?? 0,
                     }))
                 );
             })
@@ -73,23 +73,23 @@ const Edit: React.FC = () => {
             .finally(() => {
                 setIsFetching(false);
             });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
-    const isArchived  = rubric?.is_archived === true;
-    const isPublished = rubric?.is_public   === true;
+    const isArchived = rubric?.is_archived === true;
+    const isPublished = rubric?.is_public === true;
 
     const handleSubmit = async (isPublic: boolean) => {
-        if (isArchived)             return;
-        if (isPublic && !formValid)  return;
+        if (isArchived) return;
+        if (isPublic && !formValid) return;
         if (!isPublic && !draftValid) return;
 
         setIsLoading(true);
         try {
             await rubricService.update(id!, {
-                title:       form.title,
+                title: form.title,
                 description: form.description,
-                is_public:   isPublic,
+                is_public: isPublic,
             });
 
             await criteriaService.deleteByRubric(id!);
@@ -98,10 +98,10 @@ const Edit: React.FC = () => {
                 await Promise.all(
                     criteriaRows.map((row) =>
                         criteriaService.create({
-                            rubric_id:   id,
-                            name:        row.name,
+                            rubric_id: id,
+                            name: row.name,
                             description: row.description,
-                            weight:      row.weight,
+                            weight: row.weight,
                         })
                     )
                 );
@@ -118,12 +118,12 @@ const Edit: React.FC = () => {
 
     const handleUnarchive = async () => {
         const { isConfirmed } = await Swal.fire({
-            title:             "¿Desarchivar rúbrica?",
-            text:              "Volverá a estar disponible como borrador.",
-            icon:              "question",
-            showCancelButton:  true,
+            title: "¿Desarchivar rúbrica?",
+            text: "Volverá a estar disponible como borrador.",
+            icon: "question",
+            showCancelButton: true,
             confirmButtonText: "Desarchivar",
-            cancelButtonText:  "Cancelar",
+            cancelButtonText: "Cancelar",
         });
         if (!isConfirmed) return;
 

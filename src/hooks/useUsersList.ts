@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { Career } from "../models/Career";
-import type { Registration } from "../models/Registration";
-import type { User } from "../models/User";
-import type { UserFilters } from "../models/UserFilters";
+import type { Career } from "../models/uml/Career";
+import type { Registration } from "../models/uml/Registration";
+import type { User } from "../models/uml/User";
+import type { UserFilters } from "../models/interfaces/UserFilters";
 import { careerService } from "../services/careerService";
 import { registrationService } from "../services/registrationService";
 import { userService } from "../services/userService";

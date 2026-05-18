@@ -1,8 +1,4 @@
-// Import the functions you need from the SDKs you need
 import { getApp, getApps, initializeApp } from "firebase/app";
-// BUG CORREGIDO: se importaba desde "firebase/auth/web-extension"
-// que es exclusivo para extensiones de Chrome, NO para apps web normales.
-// El import correcto es simplemente "firebase/auth".
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {

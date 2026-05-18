@@ -1,4 +1,4 @@
-import type { Criteria } from "../models/Criteria";
+import type { Criteria } from "../models/uml/Criteria";
 import { api } from "../interceptors/authInterceptor";
 import { BaseService } from "./baseService";
 

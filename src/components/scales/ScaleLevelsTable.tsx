@@ -3,21 +3,21 @@ import { Plus, Trash2, Copy } from "lucide-react";
 import GenericTable from "../ui/GenericTable";
 import { useScaleLevelsColumns } from "../hooks/useScaleLevelsColumn";
 
-import type { Action } from "../../models/Action";
+import type { Action } from "../../models/interfaces/Action";
 import type {
     CreateScaleDTO,
     Scale,
     UpdateScaleDTO,
-} from "../../models/Scale";
+} from "../../models/uml/Scale";
 
 interface ScaleLevelsTableProps {
-    scales:   Scale[];
+    scales: Scale[];
     loading?: boolean;
-    saving?:  boolean;
+    saving?: boolean;
     onCreate: (data: CreateScaleDTO) => Promise<Scale | null>;
     onUpdate: (id: string, data: UpdateScaleDTO) => Promise<Scale | null>;
     onDelete: (id: string) => Promise<void>;
-    onClone:  () => void;    // ← nuevo: solo abre el modal
+    onClone: () => void;    // ← nuevo: solo abre el modal
 }
 
 /**
@@ -27,8 +27,8 @@ interface ScaleLevelsTableProps {
  */
 export const ScaleLevelsTable = ({
     scales,
-    loading  = false,
-    saving   = false,
+    loading = false,
+    saving = false,
     onCreate,
     onUpdate,
     onDelete,
@@ -42,17 +42,17 @@ export const ScaleLevelsTable = ({
 
     const actions: Action[] = [
         {
-            name:    "delete",
-            label:   "Eliminar",
+            name: "delete",
+            label: "Eliminar",
             primary: true,
             variant: "danger",
-            icon:    <Trash2 size={18} className="text-red-600" />,
+            icon: <Trash2 size={18} className="text-red-600" />,
         },
     ];
 
     const handleTableAction = async (action: string, scale: Scale) => {
-        if (!scale.id)           return;
-        if (action === "edit")   return;
+        if (!scale.id) return;
+        if (action === "edit") return;
         if (action === "delete") await onDelete(scale.id);
     };
 
@@ -96,9 +96,9 @@ export const ScaleLevelsTable = ({
                     <button
                         onClick={() => onCreate({
                             criterion_id: scales[0]?.criterion_id ?? "",
-                            name:         "Nuevo nivel",
-                            description:  "",
-                            value:        0,
+                            name: "Nuevo nivel",
+                            description: "",
+                            value: 0,
                         })}
                         disabled={saving}
                         className="

@@ -1,5 +1,5 @@
 import { BaseService } from "./baseService";
-import type { Semester } from "../models/Semester";
+import type { Semester } from "../models/uml/Semester";
 import { api } from "../interceptors/authInterceptor";
 
 class SemesterService extends BaseService<Semester> {

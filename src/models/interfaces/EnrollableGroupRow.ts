@@ -1,5 +1,5 @@
 import type { Group } from "./Group";
-import type { Subject } from "./Subject";
+import type { Subject } from "../uml/Subject";
 
 export interface EnrollableGroupRow {
     activeEnrollmentCount: number;

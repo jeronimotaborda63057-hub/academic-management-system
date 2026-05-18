@@ -1,5 +1,5 @@
 import React from "react";
-import type { Career } from "../../models/Career";
+import type { Career } from "../../models/uml/Career";
 
 export interface PlanVersion {
     year: number;

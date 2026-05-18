@@ -1,5 +1,5 @@
 import type { Career } from "./Career";
-import type { Group } from "./Group";
+import type { Group } from "../Group";
 import type { Student } from "./Student";
 
 export type EnrollmentStatus = "ACTIVE" | "INACTIVE" | "WITHDRAWN";
