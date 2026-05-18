@@ -52,8 +52,7 @@ export const teacherMenu: NavGroup[] = [
             { label: "Grupos", path: "/teacher/my-groups", icon: icons.group },
             { label: "Estudiantes", path: "/students/list", icon: icons.users },
             { label: "Evaluaciones", path: "/evaluations", icon: icons.evaluation },
-            { label: "Calificaciones", path: "/grades/list", icon: icons.grade },
-            { label: "Notas finales", path: "/groups/list", icon: icons.report },
+            { label: "Notas finales", path: "/grades/list", icon: icons.report },
         ],
     },
     {

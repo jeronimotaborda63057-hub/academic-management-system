@@ -52,7 +52,6 @@ const TeacherMyGroups = lazy(() => import('../pages/teachers/MyGroups'));
 const AssociateRubricPage = lazy(() => import('../pages/evaluations/AssociateRubricPage'));
 
 const coreRoutes: AppRoute[] = [
-    // ── Rúbricas (HU-08) ──────────────────────────────────────────────────────
     {
         path: '/rubrics/list',
         title: 'Rúbricas',

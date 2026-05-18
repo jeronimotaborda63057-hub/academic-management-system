@@ -34,6 +34,7 @@ const buildGradingStudents = (
 ): GradingStudent[] => {
     return enrollments.map((enrollment) => {
         const student = students.find((item) => item.id === enrollment.student_id);
+
         const grade = enrollment.student_id
             ? findGradeForStudent(grades, enrollment.student_id, enrollment.id)
             : undefined;
@@ -93,6 +94,8 @@ export const useEvaluationGrading = () => {
             ),
         [grades, selectedEnrollmentId, selectedStudent]
     );
+
+    const isLocked = existingGrade?.is_locked === true;
 
     const scalesByCriterion = useMemo(() => {
         return criteria.reduce<Record<string, Scale[]>>((acc, criterion) => {
@@ -174,6 +177,7 @@ export const useEvaluationGrading = () => {
         try {
             setLoading(true);
             setError(null);
+
             setCriteria([]);
             setScales([]);
             setStudents([]);
@@ -213,9 +217,11 @@ export const useEvaluationGrading = () => {
             ]);
 
             const rubric = rubricData.find((item: Rubric) => item.id === currentRubricId);
+
             const rubricScales = await scaleService.getByCriteria(
                 rubricCriteria.map((criterion) => criterion.id)
             );
+
             const gradingStudents = buildGradingStudents(
                 activeEnrollments,
                 studentData,
@@ -240,6 +246,7 @@ export const useEvaluationGrading = () => {
 
         existingGrade?.details?.forEach((detail) => {
             const scale = scales.find((item) => item.id === detail.scale_id);
+
             if (!scale?.criterion_id || !detail.scale_id) return;
 
             nextDraft[scale.criterion_id] = {
@@ -252,6 +259,8 @@ export const useEvaluationGrading = () => {
     };
 
     const handleScaleChange = (criterionId: string, scaleId: string) => {
+        if (isLocked) return;
+
         setDraft((prev) => ({
             ...prev,
             [criterionId]: {
@@ -262,6 +271,8 @@ export const useEvaluationGrading = () => {
     };
 
     const handleCommentChange = (criterionId: string, comment: string) => {
+        if (isLocked) return;
+
         setDraft((prev) => ({
             ...prev,
             [criterionId]: {
@@ -287,7 +298,12 @@ export const useEvaluationGrading = () => {
     };
 
     const saveGrade = async (status: "DRAFT" | "SENT") => {
+        if (isLocked) {
+            throw new Error("La nota está bloqueada.");
+        }
+
         const payload = buildPayload(status);
+
         if (!payload) return null;
 
         setSaving(true);
@@ -306,9 +322,11 @@ export const useEvaluationGrading = () => {
                     is_locked: true,
                 });
             }
+
             if (!saved) throw new Error();
 
             const updatedGrades = await loadGrades(rubricId);
+
             const updatedStudents = students.map((student) => ({
                 ...student,
                 grade: findGradeForStudent(
@@ -320,6 +338,7 @@ export const useEvaluationGrading = () => {
 
             setGrades(updatedGrades);
             setStudents(updatedStudents);
+
             return saved;
         } finally {
             setSaving(false);
@@ -360,5 +379,6 @@ export const useEvaluationGrading = () => {
         students,
         updateComment: handleCommentChange,
         updateScale: handleScaleChange,
+        isLocked,
     };
 };

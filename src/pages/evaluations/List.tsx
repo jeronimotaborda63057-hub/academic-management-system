@@ -29,9 +29,20 @@ const EvaluationsPage = () => {
         students,
         updateComment,
         updateScale,
+        isLocked,
     } = useEvaluationGrading();
 
     const handleSaveGrade = async (status: "DRAFT" | "SENT") => {
+
+        if (isLocked) {
+            Swal.fire(
+                "Nota bloqueada",
+                "Esta nota ya fue confirmada oficialmente y no puede editarse.",
+                "warning"
+            );
+            return;
+        }
+
         if (!selectedStudent) {
             Swal.fire(
                 "Selecciona un estudiante",
@@ -52,26 +63,33 @@ const EvaluationsPage = () => {
 
         try {
             const saved = await saveGrade(status);
+
             if (!saved) throw new Error();
 
             Swal.fire({
-                title: status === "DRAFT" ? "Borrador guardado" : "Calificacion enviada",
+                title: status === "DRAFT"
+                    ? "Borrador guardado"
+                    : "Calificacion enviada",
                 icon: "success",
                 timer: 1600,
                 showConfirmButton: false,
             });
+
         } catch (error) {
+
             const message = axios.isAxiosError(error)
                 ? error.response?.data?.message ?? "No fue posible guardar la calificacion."
                 : "No fue posible guardar la calificacion.";
 
             console.error(error);
+
             Swal.fire("Error", message, "error");
         }
     };
 
     return (
         <div className="space-y-6">
+
             <PageHeader
                 title="Evaluaciones"
                 subtitle="Califica estudiantes con la rubrica asociada."
@@ -85,6 +103,7 @@ const EvaluationsPage = () => {
             )}
 
             <div className="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-6">
+
                 <EvaluationSidebar
                     evaluations={evaluations}
                     students={students}
@@ -110,8 +129,10 @@ const EvaluationsPage = () => {
                     onScaleChange={updateScale}
                     onCommentChange={updateComment}
                     onSaveDraft={() => handleSaveGrade("DRAFT")}
-                   onSubmitGrade={() => handleSaveGrade("SENT")}
+                    onSubmitGrade={() => handleSaveGrade("SENT")}
+                    isLocked={isLocked}
                 />
+
             </div>
         </div>
     );

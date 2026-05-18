@@ -57,10 +57,14 @@ export class GradeService extends BaseService<Grade> {
             this.apiURL,
             buildRubricGradeRequest(payload)
         );
+
         return response.data.data ?? null;
     }
 
-    async updateRubricGrade(id: string, payload: FinalizeGradePayload): Promise<Grade | null> {
+    async updateRubricGrade(
+        id: string,
+        payload: FinalizeGradePayload
+    ): Promise<Grade | null> {
         const response = await api.put<{ data: Grade }>(
             `${this.apiURL}/${id}`,
             payload
@@ -69,8 +73,15 @@ export class GradeService extends BaseService<Grade> {
         return response.data.data ?? null;
     }
 
-    async finalizeGrade(id: string, payload: FinalizeGradePayload): Promise<Grade | null> {
-        const response = await api.put<{ data: Grade }>(`${this.apiURL}/${id}`, payload);
+    async finalizeGrade(
+        id: string,
+        payload: FinalizeGradePayload
+    ): Promise<Grade | null> {
+        const response = await api.put<{ data: Grade }>(
+            `${this.apiURL}/${id}`,
+            payload
+        );
+
         return response.data.data ?? null;
     }
 }
