@@ -2,8 +2,6 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import { Loader } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 import { Route, Routes } from 'react-router-dom';
-import { Provider } from 'react-redux';
-import { store } from './store/store';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import routes from './routes';
 import RoleGuard from './components/RoleGuard';
@@ -13,6 +11,11 @@ const SignIn = lazy(() => import('./pages/authentication/SignIn'));
 const SignUp = lazy(() => import('./pages/authentication/SignUp'));
 const Home = lazy(() => import('./pages/home/Home'));
 
+// BUG 3 CORREGIDO: se eliminó el <Provider store={store}> duplicado.
+// main.tsx ya envuelve toda la app con <Provider store={store}>.
+// Tener dos Provider anidados crea dos instancias separadas del store de Redux:
+// useLogin despachaba setUser() al store "hijo" pero ProtectedRoute leía
+// del store "padre" — el usuario nunca aparecía autenticado tras el login social.
 function App() {
     const [loading, setLoading] = useState(true);
 
@@ -30,20 +33,23 @@ function App() {
     }
 
     return (
-        <Provider store={store}>
+        <>
             <Toaster position="top-right" reverseOrder={false} />
             <Routes>
-                {/* ✅ Ruta pública — signin sin layout */}
+                {/* Rutas públicas — sin layout */}
                 <Route path="/auth/signin" element={<SignIn />} />
                 <Route path="/auth/signup" element={<SignUp />} />
 
-                {/* ✅ Rutas protegidas — con layout */}
+                {/* Rutas protegidas — con layout */}
                 <Route element={<ProtectedRoute />}>
-                    <Route path="/" element={
-                        <Suspense fallback={<Loader />}>
-                            <DefaultLayout />
-                        </Suspense>
-                    }>
+                    <Route
+                        path="/"
+                        element={
+                            <Suspense fallback={<Loader />}>
+                                <DefaultLayout />
+                            </Suspense>
+                        }
+                    >
                         <Route
                             index
                             element={
@@ -77,7 +83,7 @@ function App() {
                     </Route>
                 </Route>
             </Routes>
-        </Provider>
+        </>
     );
 }
 

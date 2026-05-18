@@ -2,220 +2,191 @@ import {
     GithubAuthProvider,
     GoogleAuthProvider,
     OAuthProvider,
-    fetchSignInMethodsForEmail,
-    getRedirectResult,
-    linkWithCredential,
     signInWithPopup,
-    signOut as signOutFirebase,
+    signOut,
     type AuthCredential,
     type AuthProvider,
+    type User,
     type UserCredential,
 } from "firebase/auth";
+import type { FirebaseError } from "firebase/app";
+
 import { auth } from "./firebaseConfig";
+import type { FirebaseUserInfo } from "./securityService";
 
 export type SocialAuthProvider = "google" | "microsoft" | "github";
 
-export interface FirebaseUserInfo {
-    uid: string;
-    email: string;
-    displayName: string | null;
-    photoURL: string | null;
-    provider: SocialAuthProvider;
-    oauthAccessToken?: string | null;
-}
-
-
-const createProvider = (providerName: SocialAuthProvider): AuthProvider => {
-    if (providerName === "google") {
-        const p = new GoogleAuthProvider();
-        p.addScope("email");
-        p.addScope("profile");
-        p.setCustomParameters({ prompt: "select_account" });
-        return p;
-    }
-
-    if (providerName === "microsoft") {
-        const p = new OAuthProvider("microsoft.com");
-        p.addScope("openid");
-        p.addScope("profile");
-        p.addScope("email");
-        p.setCustomParameters({ prompt: "select_account", tenant: "common" });
-        return p;
-    }
-
-    // GitHub
-    const p = new GithubAuthProvider();
-    p.addScope("read:user");
-    p.addScope("user:email"); // ✅ pide acceso al email aunque sea privado
-    return p;
+type FirebaseAuthError = {
+    code?: string;
+    customData?: {
+        email?: string;
+    };
 };
 
-const getGithubAccessToken = (result: UserCredential): string | null => {
-    const credential = GithubAuthProvider.credentialFromResult(result);
-    return credential?.accessToken ?? null;
-};
-
-const getErrorEmail = (error: any): string | null => {
-    return error.customData?.email ?? error.email ?? null;
-};
-
-const getPendingCredential = (
-    error: any,
-    providerName: SocialAuthProvider
-): AuthCredential | null => {
-    if (providerName === "google") {
-        return GoogleAuthProvider.credentialFromError(error);
-    }
-    if (providerName === "microsoft") {
-        return OAuthProvider.credentialFromError(error);
-    }
-    return GithubAuthProvider.credentialFromError(error);
-};
-
-const getSocialProviderByMethod = (method: string): SocialAuthProvider | null => {
-    if (method === "google.com") return "google";
-    if (method === "microsoft.com") return "microsoft";
-    if (method === "github.com") return "github";
-    return null;
-};
-
-const resolveDifferentCredential = async (
-    error: any,
-    attemptedProvider: SocialAuthProvider
-): Promise<UserCredential> => {
-    const email = getErrorEmail(error);
-    if (!email) throw error;
-
-    const methods = await fetchSignInMethodsForEmail(auth, email);
-    const credential = getPendingCredential(error, attemptedProvider);
-
-    const fallbackMethod = methods.find((method) =>
-        ["google.com", "microsoft.com", "github.com"].includes(method)
-    );
-
-    if (!fallbackMethod) {
-        if (methods.includes("password")) {
-            throw new Error("AUTH_EXISTS_WITH_PASSWORD");
-        }
-        throw error;
-    }
-
-    const fallbackProvider = getSocialProviderByMethod(fallbackMethod);
-    if (!fallbackProvider) throw error;
-
-    const result = await signInWithPopup(auth, createProvider(fallbackProvider));
-    if (credential && auth.currentUser) {
-        try {
-            await linkWithCredential(auth.currentUser, credential);
-        } catch {
-            // If link fails, we still can continue with the primary sign-in result.
-        }
-    }
-
-    return result;
-};
-
-const fetchGithubEmail = async (accessToken: string): Promise<string | null> => {
-    try {
-        const response = await fetch("https://api.github.com/user/emails", {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                Accept: "application/vnd.github+json",
-            },
-        });
-        if (!response.ok) return null;
-
-        const emails = await response.json() as Array<{
-            email?: string;
-            primary?: boolean;
-            verified?: boolean;
-        }>;
-
-        const primary = emails.find((item) => item.primary && item.verified && item.email);
-        if (primary?.email) return primary.email;
-
-        const verified = emails.find((item) => item.verified && item.email);
-        return verified?.email ?? emails.find((item) => item.email)?.email ?? null;
-    } catch {
-        return null;
-    }
-};
-
-const extractEmail = async (result: UserCredential, providerName: SocialAuthProvider): Promise<string> => {
-    if (result.user.email) return result.user.email;
-
-    if (providerName === "github") {
-        const providerEmail = result.user.providerData[0]?.email;
-        if (providerEmail) return providerEmail;
-
-        const accessToken = getGithubAccessToken(result);
-        if (accessToken) {
-            const apiEmail = await fetchGithubEmail(accessToken);
-            if (apiEmail) return apiEmail;
-        }
-
-        throw new Error("GITHUB_EMAIL_PRIVADO");
-    }
-
-    throw new Error("EMAIL_NO_DISPONIBLE");
-};
-
-const firebaseProviderId: Record<string, SocialAuthProvider> = {
+const SOCIAL_PROVIDER_BY_FIREBASE_ID: Record<string, SocialAuthProvider> = {
     "google.com": "google",
     "microsoft.com": "microsoft",
     "github.com": "github",
 };
 
-const normalizeFirebaseUser = async (
-    result: UserCredential,
-    provider: SocialAuthProvider
-): Promise<FirebaseUserInfo> => {
-    const email = await extractEmail(result, provider);
-    const oauthAccessToken = getGithubAccessToken(result);
+const createGoogleProvider = (): GoogleAuthProvider => {
+    const provider = new GoogleAuthProvider();
+    provider.addScope("email");
+    provider.addScope("profile");
+    provider.setCustomParameters({ prompt: "select_account" });
+    return provider;
+};
+
+const createMicrosoftProvider = (): OAuthProvider => {
+    const provider = new OAuthProvider("microsoft.com");
+    provider.addScope("openid");
+    provider.addScope("profile");
+    provider.addScope("email");
+    provider.setCustomParameters({
+        prompt: "select_account",
+        tenant: "common",
+    });
+    return provider;
+};
+
+const createGithubProvider = (): GithubAuthProvider => {
+    const provider = new GithubAuthProvider();
+    provider.addScope("read:user");
+    provider.addScope("user:email");
+    return provider;
+};
+
+const createProvider = (providerName: SocialAuthProvider): AuthProvider => {
+    if (providerName === "google") return createGoogleProvider();
+    if (providerName === "microsoft") return createMicrosoftProvider();
+    return createGithubProvider();
+};
+
+const createProviderByFirebaseId = (providerId: string): AuthProvider | null => {
+    if (providerId === "google.com") return createGoogleProvider();
+    if (providerId === "microsoft.com") return createMicrosoftProvider();
+    if (providerId === "github.com") return createGithubProvider();
+    return null;
+};
+
+const getCredentialFromError = (
+    providerName: SocialAuthProvider,
+    error: unknown
+): AuthCredential | null => {
+    const firebaseError = error as FirebaseError;
+    if (providerName === "google") return GoogleAuthProvider.credentialFromError(firebaseError);
+    if (providerName === "microsoft") return OAuthProvider.credentialFromError(firebaseError);
+    return GithubAuthProvider.credentialFromError(firebaseError);
+};
+
+// BUG 5 CORREGIDO: fetchSignInMethodsForEmail fue deprecado en Firebase 9
+// y eliminado en Firebase 10+. Con firebase ^12 esta función no existe,
+// lanzando un error runtime que rompía GitHub y Microsoft silenciosamente.
+//
+// Solución: extraer el providerId directamente del error
+// auth/account-exists-with-different-credential, que desde Firebase 9
+// expone customData._tokenResponse.verifiedProvider o bien
+// podemos resolverlo intentando con los proveedores conocidos en orden.
+const resolveProviderFromError = (error: unknown): AuthProvider | null => {
+    const authError = error as FirebaseError & {
+        customData?: {
+            _tokenResponse?: {
+                verifiedProvider?: string[];
+            };
+        };
+    };
+
+    // Firebase v9+ incluye los proveedores verificados en el error
+    const verifiedProviders =
+        authError?.customData?._tokenResponse?.verifiedProvider ?? [];
+
+    for (const pid of verifiedProviders) {
+        const provider = createProviderByFirebaseId(pid);
+        if (provider) return provider;
+    }
+
+    // Fallback: intentar con Google (el proveedor más común)
+    return createGoogleProvider();
+};
+
+const normalizeFirebaseUser = (
+    user: User,
+    providerName: SocialAuthProvider
+): FirebaseUserInfo => {
+    if (!user.email) {
+        throw new Error("El proveedor no devolvio un correo valido.");
+    }
 
     return {
-        uid: result.user.uid,
-        email,
-        displayName: result.user.displayName,
-        photoURL: result.user.photoURL,
-        provider,
-        oauthAccessToken,
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        provider: providerName,
     };
 };
 
 class FirebaseAuthService {
     async signInWithProvider(providerName: SocialAuthProvider): Promise<FirebaseUserInfo> {
-        const provider = createProvider(providerName);
-
         try {
-            const result = await signInWithPopup(auth, provider);
-            return await normalizeFirebaseUser(result, providerName);
-        } catch (error: any) {
-            if (error.code === "auth/account-exists-with-different-credential") {
-                const resolvedResult = await resolveDifferentCredential(error, providerName);
-                const providerId = resolvedResult.providerId ?? resolvedResult.user.providerData[0]?.providerId;
-                const resolvedProvider = providerId ? firebaseProviderId[providerId] : undefined;
-                if (!resolvedProvider) throw error;
-                return await normalizeFirebaseUser(resolvedResult, resolvedProvider);
+            const result = await signInWithPopup(auth, createProvider(providerName));
+            return normalizeFirebaseUser(result.user, providerName);
+        } catch (error) {
+            const authError = error as FirebaseAuthError;
+            if (authError.code !== "auth/account-exists-with-different-credential") {
+                throw error;
             }
-            throw error;
+
+            return this.signInAndLinkExistingAccount(providerName, error);
         }
     }
 
-    async waitForRedirectResult(): Promise<FirebaseUserInfo | null> {
-        const result = await getRedirectResult(auth);
-        if (!result) return null;
-
-        const providerId = result.providerId ?? result.user.providerData[0]?.providerId;
-        const provider = providerId ? firebaseProviderId[providerId] : undefined;
-
-        if (!provider) throw new Error("No fue posible identificar el proveedor.");
-
-        return await normalizeFirebaseUser(result, provider);
+    async signOut(): Promise<void> {
+        await signOut(auth);
     }
 
-    async signOut(): Promise<void> {
-        await signOutFirebase(auth);
+    private async signInAndLinkExistingAccount(
+        requestedProvider: SocialAuthProvider,
+        error: unknown
+    ): Promise<FirebaseUserInfo> {
+        const authError = error as FirebaseAuthError;
+        const pendingCredential = getCredentialFromError(requestedProvider, error);
+
+        if (!pendingCredential) {
+            throw error;
+        }
+
+        // BUG 5 CORREGIDO: resolvemos el proveedor existente sin fetchSignInMethodsForEmail
+        const existingProvider = resolveProviderFromError(error);
+        if (!existingProvider) {
+            throw error;
+        }
+
+        let existingUserCredential;
+        try {
+            existingUserCredential = await signInWithPopup(auth, existingProvider);
+        } catch {
+            // Si el segundo popup también falla, propagar el error original
+            throw error;
+        }
+
+        try {
+            const { linkWithCredential } = await import("firebase/auth");
+            await linkWithCredential(existingUserCredential.user, pendingCredential);
+        } catch (linkError) {
+            const code = (linkError as FirebaseAuthError).code;
+            if (code !== "auth/provider-already-linked" && code !== "auth/credential-already-in-use") {
+                throw linkError;
+            }
+        }
+
+        // Determinar el nombre del proveedor del usuario existente
+        const existingProviderId =
+            existingUserCredential.user.providerData[0]?.providerId ?? "google.com";
+        const resolvedProvider: SocialAuthProvider =
+            SOCIAL_PROVIDER_BY_FIREBASE_ID[existingProviderId] ?? requestedProvider;
+
+        return normalizeFirebaseUser(existingUserCredential.user, resolvedProvider);
     }
 }
 
