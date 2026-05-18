@@ -16,7 +16,7 @@ export const StudentGradeSidePanel = ({
 }: StudentGradeSidePanelProps) => (
     <aside className="space-y-4">
         <section className="rounded-lg border border-gray-200 bg-white p-5">
-            <h3 className="text-sm font-semibold text-gray-900">Informacion general</h3>
+            <h3 className="text-sm font-semibold text-gray-900">Información general</h3>
             <dl className="mt-5 space-y-4 text-sm">
                 <div className="grid grid-cols-[92px_1fr] gap-3">
                     <dt className="text-gray-500">Asignatura:</dt>
@@ -31,7 +31,7 @@ export const StudentGradeSidePanel = ({
                     </dd>
                 </div>
                 <div className="grid grid-cols-[92px_1fr] gap-3">
-                    <dt className="text-gray-500">Evaluacion:</dt>
+                    <dt className="text-gray-500">Evaluación:</dt>
                     <dd className="font-medium text-gray-800">
                         {context.evaluation?.name ?? "No disponible"}
                     </dd>
@@ -54,12 +54,17 @@ export const StudentGradeSidePanel = ({
         </section>
 
         <section className="rounded-lg border border-gray-200 bg-white p-5">
-            <h3 className="text-sm font-semibold text-gray-900">Rubrica utilizada</h3>
+            <h3 className="text-sm font-semibold text-gray-900">Rúbrica utilizada</h3>
             <p className="mt-4 text-sm font-medium text-gray-800">
                 {context.rubric?.title ?? "Rubrica sin titulo"}
             </p>
-            <span className="mt-2 inline-flex rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                Publica
+            <span className={`mt-2 inline-flex rounded-full px-2 py-1 text-xs font-medium 
+            ${context.rubric?.is_public
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+            >
+                {context.rubric?.is_public ? "Pública" : "Privada"}
             </span>
             <button
                 type="button"
