@@ -31,7 +31,7 @@ const EvaluationsPage = () => {
         updateScale,
     } = useEvaluationGrading();
 
-    const handleSaveGrade = async (status: "DRAFT" | "SUBMITTED") => {
+    const handleSaveGrade = async (status: "DRAFT" | "SENT") => {
         if (!selectedStudent) {
             Swal.fire(
                 "Selecciona un estudiante",
@@ -41,7 +41,7 @@ const EvaluationsPage = () => {
             return;
         }
 
-        if (status === "SUBMITTED" && pendingCriteria.length > 0) {
+        if (status === "SENT" && pendingCriteria.length > 0) {
             Swal.fire(
                 "Criterios pendientes",
                 "Selecciona un nivel de escala para todos los criterios antes de enviar.",
@@ -110,7 +110,7 @@ const EvaluationsPage = () => {
                     onScaleChange={updateScale}
                     onCommentChange={updateComment}
                     onSaveDraft={() => handleSaveGrade("DRAFT")}
-                    onSubmitGrade={() => handleSaveGrade("SUBMITTED")}
+                   onSubmitGrade={() => handleSaveGrade("SENT")}
                 />
             </div>
         </div>

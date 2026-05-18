@@ -271,7 +271,7 @@ export const useEvaluationGrading = () => {
         }));
     };
 
-    const buildPayload = (status: "DRAFT" | "SUBMITTED"): SaveRubricGradePayload | null => {
+    const buildPayload = (status: "DRAFT" | "SENT"): SaveRubricGradePayload | null => {
         if (!rubricId || !selectedStudent) return null;
 
         return {
@@ -286,17 +286,26 @@ export const useEvaluationGrading = () => {
         };
     };
 
-    const saveGrade = async (status: "DRAFT" | "SUBMITTED") => {
+    const saveGrade = async (status: "DRAFT" | "SENT") => {
         const payload = buildPayload(status);
         if (!payload) return null;
 
         setSaving(true);
 
         try {
-            const saved = existingGrade?.id
-                ? await gradeService.updateRubricGrade(existingGrade.id, payload)
-                : await gradeService.saveRubricGrade(payload);
+            let saved: Grade | null = null;
 
+            if (!existingGrade?.id) {
+                saved = await gradeService.saveRubricGrade(payload);
+            } else if (status === "DRAFT") {
+                saved = await gradeService.saveRubricGrade(payload);
+            } else {
+                saved = await gradeService.updateRubricGrade(existingGrade.id, {
+                    status: "SENT",
+                    observations: payload.observations,
+                    is_locked: true,
+                });
+            }
             if (!saved) throw new Error();
 
             const updatedGrades = await loadGrades(rubricId);

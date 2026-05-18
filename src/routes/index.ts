@@ -232,11 +232,6 @@ const coreRoutes: AppRoute[] = [
         component: EvaluationsList
     },
     {
-        path: '/evaluations/list',
-        title: 'Evaluaciones',
-        component: EvaluationsList
-    },
-    {
         path: '/grades/list',
         title: 'Notas finales',
         component: GradesList
