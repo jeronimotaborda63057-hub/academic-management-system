@@ -1,12 +1,11 @@
 import { api } from "../../interceptors/authInterceptor";
-import type { AuthData } from "../../models/auth/authData";
-import type { LoginResponse } from "../../models/auth/loginResponse";
+import type { AuthData } from "../../models/Auth/authData";
+import type { LoginResponse } from "../../models/Auth/loginResponse";
 import type { User } from "../../models/User";
 import { LocalStorageProvider } from "../../storage/LocalStorageProvider";
 import type { StorageProvider } from "../../storage/StorageProvider";
 import type { SocialAuthProvider } from "./firebaseAuthService";
 
-// Información mínima que Firebase nos da del usuario autenticado
 export interface FirebaseUserInfo {
     uid: string;
     email: string;
@@ -29,8 +28,16 @@ export interface EmailSignUpData {
 const isUnauthorizedError = (error: unknown): boolean =>
     (error as { response?: { status?: number } }).response?.status === 401;
 
-const getSocialPassword = (email: string): string =>
-    `SOCIAL-${email.trim().toLowerCase()}`;
+// El backend Flask valida: mínimo 1 mayúscula + 1 número + 1 símbolo especial.
+// Confirmado con el seed: "Admin123*"  y el register de prueba: "Admin123*"
+// Patrón: Social@1-<localpart>
+//   ✓ Mayúscula : "S" en "Social"
+//   ✓ Número    : "1"
+//   ✓ Símbolo   : "@"
+const getSocialPassword = (email: string): string => {
+    const localPart = email.trim().toLowerCase().split("@")[0];
+    return `Social@1-${localPart}`;
+};
 
 class SecurityService {
     private storage: StorageProvider;
@@ -41,7 +48,6 @@ class SecurityService {
 
     private enrichUser(user: User, profile?: SessionProfile): User {
         if (!profile) return user;
-
         return {
             ...user,
             display_name: profile.displayName ?? user.display_name,
@@ -66,35 +72,21 @@ class SecurityService {
         return this.persistSession(response.data.data, profile);
     }
 
-    // Flujo social: usa el uid de Firebase como contraseña.
-    // Si el usuario no existe en el backend, lo registra automáticamente y reintenta.
     async loginWithFirebase(firebaseUser: FirebaseUserInfo): Promise<User> {
-        const { uid, email, displayName, photoURL } = firebaseUser;
+        const { email, displayName, photoURL } = firebaseUser;
         const profile = { displayName, photoURL };
-
-        // El uid de Firebase es único por usuario — lo usamos como contraseña
-        // determinista sin necesidad de almacenarlo en ningún lado.
         const password = getSocialPassword(email);
 
         try {
-            // Intento 1: el usuario ya existe, login directo
+            // Intento 1: usuario ya existe → login directo
             return await this.login(email, password, profile);
         } catch (error) {
-            if (!isUnauthorizedError(error)) {
-                throw error;
-            }
+            // Solo reintentamos si es 401 (credenciales no encontradas = usuario nuevo)
+            if (!isUnauthorizedError(error)) throw error;
 
-            // El usuario no existe aún — lo registramos y reintentamos
-            try {
-                await this.registerSocialUser({ email, password, displayName });
-                return await this.login(email, password, profile);
-            } catch (registerError) {
-                if (!isUnauthorizedError(registerError)) {
-                    return await this.login(email, uid, profile);
-                }
-
-                throw registerError;
-            }
+            // Usuario nuevo: registrar en backend y luego hacer login
+            await this.registerSocialUser({ email, password, displayName });
+            return await this.login(email, password, profile);
         }
     }
 
@@ -107,8 +99,8 @@ class SecurityService {
         return await this.login(email, password, { displayName: fullName });
     }
 
-    // Registra el usuario via /auth/register-admin (endpoint público del backend).
-    // Body requerido: email, password, code, first_name, last_name
+    // Campos requeridos por el backend (confirmado):
+    // email, password, code, first_name, last_name
     private async registerSocialUser({
         email,
         password,
