@@ -64,21 +64,6 @@ export function useLogin() {
         }
     };
 
-    const registerWithProvider = async (provider: SocialAuthProvider) => {
-        setState({ error: null, loading: true, loadingProvider: provider });
-        try {
-            const firebaseUser = await firebaseAuthService.signInWithProvider(provider);
-            const user = await securityService.registerWithFirebase(firebaseUser);
-            completeLogin(user);
-        } catch (error) {
-            setState({
-                error: getAuthErrorMessage(error),
-                loading: false,
-                loadingProvider: null,
-            });
-        }
-    };
-
     const signUpWithEmailPassword = async (data: EmailSignUpData) => {
         setState({ error: null, loading: true, loadingProvider: null });
         try {
@@ -93,6 +78,5 @@ export function useLogin() {
         }
     };
 
-    return { ...state, login, loginWithProvider, registerWithProvider, signUpWithEmailPassword };
+    return { ...state, login, loginWithProvider, signUpWithEmailPassword };
 }
-

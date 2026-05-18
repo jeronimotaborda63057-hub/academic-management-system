@@ -7,7 +7,6 @@ import {
     type AuthCredential,
     type AuthProvider,
     type User,
-    type UserCredential,
 } from "firebase/auth";
 import type { FirebaseError } from "firebase/app";
 

@@ -10,7 +10,7 @@ const SignUp = () => {
         error,
         loading,
         loadingProvider,
-        registerWithProvider,
+        loginWithProvider,
         signUpWithEmailPassword,
     } = useLogin();
 
@@ -29,7 +29,7 @@ const SignUp = () => {
                 loadingProvider={loadingProvider}
                 actionLabel="Registrarse con"
                 loadingLabel="Registrando con"
-                onProviderSelect={registerWithProvider}
+                onProviderSelect={loginWithProvider}
             />
 
             <AuthDivider />
