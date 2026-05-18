@@ -1,77 +1,163 @@
-import { ArrowLeft, Download, FileText } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+// RubricConsultationPage.tsx
+
+import {
+    ArrowLeft,
+    Download,
+    FileText,
+} from "lucide-react";
+
+import {
+    useNavigate,
+    useParams,
+} from "react-router-dom";
+
 import { RubricEvaluationCard } from "../../components/rubrics/RubricEvaluationCard";
 import { RubricHelpCards } from "../../components/rubrics/RubricHelpCards";
 import { RubricInfoPanel } from "../../components/rubrics/RubricInfoPanel";
 import { RubricReadOnlyTable } from "../../components/rubrics/RubricReadOnlyTable";
-import PageHeader from "../../components/ui/PageHeader";
-import type { RubricConsultationRecord } from "../../hooks/useRubricConsultation";
-import { useRubricConsultation } from "../../hooks/useRubricConsultation";
 
-const buildRubricText = (record: RubricConsultationRecord) => {
+import PageHeader from "../../components/ui/PageHeader";
+
+import type {
+    RubricConsultationRecord,
+} from "../../hooks/useRubricConsultation";
+
+import {
+    useRubricConsultation,
+} from "../../hooks/useRubricConsultation";
+
+const buildRubricText = (
+    record: RubricConsultationRecord
+) => {
     const lines = [
         record.rubric.title ?? "Rubrica",
         "",
-        record.rubric.description ?? "Sin descripcion.",
+        record.rubric.description ??
+            "Sin descripcion.",
         "",
         "Criterios:",
     ];
 
     record.criteria.forEach((criterion) => {
-        lines.push(`- ${criterion.name} (${criterion.weight ?? 0}%)`);
-        if (criterion.description) lines.push(`  ${criterion.description}`);
+        lines.push(
+            `- ${criterion.name} (${criterion.weight ?? 0}%)`
+        );
+
+        if (criterion.description) {
+            lines.push(
+                `  ${criterion.description}`
+            );
+        }
 
         record.scales
-            .filter((scale) => scale.criterion_id === criterion.id)
+            .filter(
+                (scale) =>
+                    scale.criterion_id === criterion.id
+            )
             .forEach((scale) => {
-                lines.push(`  * ${scale.name} (${scale.value ?? 0}): ${scale.description ?? ""}`);
+                lines.push(
+                    `  * ${scale.name} (${scale.value ?? 0}): ${scale.description ?? ""}`
+                );
             });
     });
 
     return lines.join("\n");
 };
 
-const downloadRubric = (record: RubricConsultationRecord) => {
-    const blob = new Blob([buildRubricText(record)], {
-        type: "text/plain;charset=utf-8",
-    });
+const downloadRubric = (
+    record: RubricConsultationRecord
+) => {
+    const blob = new Blob(
+        [buildRubricText(record)],
+        {
+            type: "text/plain;charset=utf-8",
+        }
+    );
+
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    const fileName = (record.rubric.title ?? "rubrica")
+
+    const link =
+        document.createElement("a");
+
+    const fileName = (
+        record.rubric.title ?? "rubrica"
+    )
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
 
     link.href = url;
-    link.download = `${fileName || "rubrica"}.txt`;
+
+    link.download = `${
+        fileName || "rubrica"
+    }.txt`;
+
     link.click();
+
     URL.revokeObjectURL(url);
 };
 
 const RubricConsultationPage = () => {
     const navigate = useNavigate();
-    const { evaluationId } = useParams();
-    const { error, loading, selectedRecord } = useRubricConsultation(evaluationId);
 
+    const { evaluationId } = useParams();
+
+    const {
+        error,
+        loading,
+        selectedRecord,
+        evaluationWithoutRubric,
+    } = useRubricConsultation(
+        evaluationId
+    );
+
+    // LOADING
     if (loading) {
         return (
             <div className="rounded-2xl border border-gray-200 bg-white p-8 text-sm text-gray-500">
-                Cargando rubrica...
+                Cargando rúbrica...
             </div>
         );
     }
 
+    // ✅ EXCEPCIÓN E1
+    if (evaluationWithoutRubric) {
+        return (
+            <div className="space-y-5">
+                <PageHeader
+                    title="Consultar rúbrica de evaluación"
+                    subtitle="Visualiza la rúbrica asociada a la evaluación en modo lectura."
+                    breadcrumb={[
+                        "Inicio",
+                        "Mis evaluaciones",
+                        "Rúbrica",
+                    ]}
+                />
+
+                <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-8 text-sm text-yellow-700">
+                    Esta evaluación aún no tiene una rúbrica asociada.
+                </div>
+            </div>
+        );
+    }
+
+    // ERROR GENERAL
     if (error || !selectedRecord) {
         return (
             <div className="space-y-5">
                 <PageHeader
-                    title="Consultar rubrica de evaluacion"
-                    subtitle="Visualiza la rubrica asociada a la evaluacion en modo lectura."
-                    breadcrumb={["Inicio", "Mis evaluaciones", "Rubrica"]}
+                    title="Consultar rúbrica de evaluación"
+                    subtitle="Visualiza la rúbrica asociada a la evaluación en modo lectura."
+                    breadcrumb={[
+                        "Inicio",
+                        "Mis evaluaciones",
+                        "Rúbrica",
+                    ]}
                 />
 
-                <div className="rounded-2xl border border-gray-200 bg-white p-8 text-sm text-gray-500">
-                    {error ?? "No se encontro una rubrica publicada para esta evaluacion."}
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-sm text-red-600">
+                    {error ??
+                        "No se encontró una rúbrica publicada para esta evaluación."}
                 </div>
             </div>
         );
@@ -80,19 +166,22 @@ const RubricConsultationPage = () => {
     return (
         <div className="space-y-5">
             <PageHeader
-                title="Consultar rubrica de evaluacion"
-                subtitle="Visualiza la rubrica asociada a la evaluacion en modo lectura."
+                title="Consultar rúbrica de evaluación"
+                subtitle="Visualiza la rúbrica asociada a la evaluación en modo lectura."
                 breadcrumb={[
                     "Inicio",
                     "Mis evaluaciones",
-                    selectedRecord.evaluation.name ?? "Evaluacion",
-                    "Rubrica",
+                    selectedRecord.evaluation.name ??
+                        "Evaluación",
+                    "Rúbrica",
                 ]}
             />
 
             <button
                 type="button"
-                onClick={() => navigate("/rubrics/list")}
+                onClick={() =>
+                    navigate("/rubrics/list")
+                }
                 className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
             >
                 <ArrowLeft size={16} />
@@ -101,7 +190,9 @@ const RubricConsultationPage = () => {
 
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
                 <div className="min-w-0 space-y-5">
-                    <RubricEvaluationCard record={selectedRecord} />
+                    <RubricEvaluationCard
+                        record={selectedRecord}
+                    />
 
                     <section className="min-w-0 rounded-2xl border border-gray-200 bg-white p-5">
                         <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
@@ -111,33 +202,52 @@ const RubricConsultationPage = () => {
                                 </div>
 
                                 <div>
-                                    <p className="text-sm text-gray-500">Rúbrica</p>
+                                    <p className="text-sm text-gray-500">
+                                        Rúbrica
+                                    </p>
+
                                     <h2 className="mt-1 text-lg font-semibold text-gray-900">
-                                        {selectedRecord.rubric.title ?? "Rubrica sin titulo"}
+                                        {selectedRecord
+                                            .rubric.title ??
+                                            "Rúbrica sin título"}
                                     </h2>
                                 </div>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-4">
                                 <div className="flex items-center gap-2 text-sm text-gray-700">
-                                    <span>Estado:</span>
+                                    <span>
+                                        Estado:
+                                    </span>
+
                                     <span
-                                        className={`rounded-full px-3 py-1 text-xs font-medium ${selectedRecord.rubric.is_public
+                                        className={`rounded-full px-3 py-1 text-xs font-medium ${
+                                            selectedRecord
+                                                .rubric
+                                                .is_public
                                                 ? "bg-green-100 text-green-700"
                                                 : "bg-red-100 text-red-700"
-                                            }`}
+                                        }`}
                                     >
-                                        {selectedRecord.rubric.is_public ? "Pública" : "Privada"}
+                                        {selectedRecord
+                                            .rubric
+                                            .is_public
+                                            ? "Pública"
+                                            : "Privada"}
                                     </span>
                                 </div>
 
                                 <button
                                     type="button"
-                                    onClick={() => downloadRubric(selectedRecord)}
+                                    onClick={() =>
+                                        downloadRubric(
+                                            selectedRecord
+                                        )
+                                    }
                                     className="inline-flex h-10 items-center gap-2 rounded-xl border border-primary px-4 text-sm font-semibold text-primary transition hover:bg-primary hover:text-white"
                                 >
                                     <Download size={16} />
-                                    Descargar rubrica
+                                    Descargar rúbrica
                                 </button>
                             </div>
                         </div>
@@ -146,20 +256,31 @@ const RubricConsultationPage = () => {
                             <h3 className="text-sm font-semibold text-gray-900">
                                 Descripción
                             </h3>
+
                             <p className="mt-2 text-sm leading-6 text-gray-600">
-                                {selectedRecord.rubric.description ?? "Sin descripcion."}
+                                {selectedRecord
+                                    .rubric
+                                    .description ??
+                                    "Sin descripción."}
                             </p>
                         </div>
 
                         <RubricReadOnlyTable
-                            criteria={selectedRecord.criteria}
-                            scales={selectedRecord.scales}
+                            criteria={
+                                selectedRecord.criteria
+                            }
+                            scales={
+                                selectedRecord.scales
+                            }
                         />
                     </section>
                 </div>
 
                 <div className="space-y-5">
-                    <RubricInfoPanel record={selectedRecord} />
+                    <RubricInfoPanel
+                        record={selectedRecord}
+                    />
+
                     <RubricHelpCards />
                 </div>
             </div>
