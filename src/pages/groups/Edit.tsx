@@ -3,10 +3,10 @@ import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 
 import GroupForm, { type GroupFormValues } from "../../components/forms/GroupForm";
-import type { Group } from "../../models/Group";
-import type { Semester } from "../../models/Semester";
-import type { Subject } from "../../models/Subject";
-import type { Teacher } from "../../models/Teacher";
+import type { Group } from "../../models/uml/Group";
+import type { Semester } from "../../models/uml/Semester";
+import type { Subject } from "../../models/uml/Subject";
+import type { Teacher } from "../../models/uml/Teacher";
 import { groupService } from "../../services/groupService";
 import { semesterService } from "../../services/semesterService";
 import { subjectService } from "../../services/subjectService";

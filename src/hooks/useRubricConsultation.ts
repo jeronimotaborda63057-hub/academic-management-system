@@ -1,3 +1,5 @@
+// useRubricConsultation.ts
+
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -17,20 +19,12 @@ import { rubricService } from "../services/rubricService";
 import { scaleService } from "../services/scaleService";
 import { subjectService } from "../services/subjectService";
 import { teacherService } from "../services/teacherService";
-
-export interface RubricConsultationRecord {
-    evaluation: Evaluation;
-    rubric: Rubric;
-    subject?: Subject;
-    group?: Group;
-    teacher?: Teacher;
-    criteria: Criteria[];
-    scales: Scale[];
-}
+import type { RubricConsultationRecord } from "../models/interfaces/RubricConsultationRecord";
 
 const getProfileId = (profile?: { id?: string }) => profile?.id ?? "";
 
-const normalizeId = (value?: string | String) => String(value ?? "");
+const normalizeId = (value?: string | String) =>
+    String(value ?? "");
 
 const buildRecords = (
     evaluations: Evaluation[],
@@ -45,27 +39,43 @@ const buildRecords = (
 
     evaluations.forEach((evaluation) => {
         const rubric = rubrics.find(
-            (item) => item.id === evaluation.rubric_id && item.is_public
+            (item) =>
+                item.id === evaluation.rubric_id &&
+                item.is_public
         );
 
         if (!rubric?.id) return;
 
         const rubricCriteria = criteria.filter(
-            (criterion) => normalizeId(criterion.rubric_id) === rubric.id
+            (criterion) =>
+                normalizeId(criterion.rubric_id) === rubric.id
         );
 
-        const criterionIds = rubricCriteria.map((criterion) => criterion.id);
+        const criterionIds = rubricCriteria.map(
+            (criterion) => criterion.id
+        );
+
         const rubricScales = scales.filter(
             (scale) =>
                 scale.criterion_id &&
                 criterionIds.includes(scale.criterion_id)
         );
 
-        const group = groups.find((item) => item.id === evaluation.group_id);
-        const subject = subjects.find(
-            (item) => item.id === (evaluation.subject_id ?? group?.subject_id)
+        const group = groups.find(
+            (item) => item.id === evaluation.group_id
         );
-        const teacher = teachers.find((item) => item.id === group?.teacher_id);
+
+        const subject = subjects.find(
+            (item) =>
+                item.id === (
+                    evaluation.subject_id ??
+                    group?.subject_id
+                )
+        );
+
+        const teacher = teachers.find(
+            (item) => item.id === group?.teacher_id
+        );
 
         records.push({
             evaluation,
@@ -98,30 +108,54 @@ const getVisibleEvaluations = (
 
     if (role === "TEACHER") {
         const teacherGroupIds = groups
-            .filter((group) => group.teacher_id === profileId)
+            .filter(
+                (group) => group.teacher_id === profileId
+            )
             .map((group) => group.id ?? "");
 
         return evaluations.filter(
             (evaluation) =>
                 evaluation.group_id &&
-                teacherGroupIds.includes(evaluation.group_id)
+                teacherGroupIds.includes(
+                    evaluation.group_id
+                )
         );
     }
 
     return evaluations;
 };
 
-export const useRubricConsultation = (evaluationId?: string) => {
-    const user = useSelector((state: RootState) => state.user.user);
-    const [records, setRecords] = useState<RubricConsultationRecord[]>([]);
+export const useRubricConsultation = (
+    evaluationId?: string
+) => {
+    const user = useSelector(
+        (state: RootState) => state.user.user
+    );
+
+    const [records, setRecords] = useState<
+        RubricConsultationRecord[]
+    >([]);
+
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+
+    const [error, setError] = useState<string | null>(
+        null
+    );
+
+    // ✅ NUEVO ESTADO
+    const [evaluationWithoutRubric, setEvaluationWithoutRubric] =
+        useState(false);
 
     const profileId = getProfileId(user?.profile);
 
     const selectedRecord = useMemo(() => {
         if (evaluationId) {
-            return records.find((record) => record.evaluation.id === evaluationId) ?? null;
+            return (
+                records.find(
+                    (record) =>
+                        record.evaluation.id === evaluationId
+                ) ?? null
+            );
         }
 
         return records[0] ?? null;
@@ -131,6 +165,9 @@ export const useRubricConsultation = (evaluationId?: string) => {
         try {
             setLoading(true);
             setError(null);
+
+            // ✅ resetear
+            setEvaluationWithoutRubric(false);
 
             const [
                 evaluationData,
@@ -150,25 +187,47 @@ export const useRubricConsultation = (evaluationId?: string) => {
                 teacherService.getAll(),
             ]);
 
+            // ✅ EXCEPCIÓN E1
+            if (evaluationId) {
+                const selectedEvaluation =
+                    evaluationData.find(
+                        (evaluation) =>
+                            evaluation.id === evaluationId
+                    );
+
+                if (
+                    selectedEvaluation &&
+                    !selectedEvaluation.rubric_id
+                ) {
+                    setEvaluationWithoutRubric(true);
+                    setRecords([]);
+                    return;
+                }
+            }
+
             const activeEnrollments =
                 user?.role === "STUDENT" && profileId
                     ? await enrollmentService.search({
-                        student_id: profileId,
-                        status: "ACTIVE",
-                    })
+                          student_id: profileId,
+                          status: "ACTIVE",
+                      })
                     : [];
 
             const activeGroupIds = activeEnrollments
-                .map((enrollment) => enrollment.group_id ?? "")
+                .map(
+                    (enrollment) =>
+                        enrollment.group_id ?? ""
+                )
                 .filter(Boolean);
 
-            const visibleEvaluations = getVisibleEvaluations(
-                evaluationData,
-                groupData,
-                user?.role,
-                profileId,
-                activeGroupIds
-            );
+            const visibleEvaluations =
+                getVisibleEvaluations(
+                    evaluationData,
+                    groupData,
+                    user?.role,
+                    profileId,
+                    activeGroupIds
+                );
 
             const nextRecords = buildRecords(
                 visibleEvaluations,
@@ -182,7 +241,9 @@ export const useRubricConsultation = (evaluationId?: string) => {
 
             setRecords(nextRecords);
         } catch {
-            setError("No fue posible cargar las rubricas de tus evaluaciones.");
+            setError(
+                "No fue posible cargar las rúbricas de tus evaluaciones."
+            );
         } finally {
             setLoading(false);
         }
@@ -197,6 +258,7 @@ export const useRubricConsultation = (evaluationId?: string) => {
         loading,
         records,
         selectedRecord,
+        evaluationWithoutRubric,
         reload: loadRubrics,
     };
 };

@@ -8,10 +8,10 @@ import { teacherService } from "../../services/teacherService";
 import { semesterService } from "../../services/semesterService";
 import { subjectService } from "../../services/subjectService";
 
-import type { Group } from "../../models/Group";
-import type { Teacher } from "../../models/Teacher";
-import type { Semester } from "../../models/Semester";
-import type { Subject } from "../../models/Subject";
+import type { Group } from "../../models/uml/Group";
+import type { Teacher } from "../../models/uml/Teacher";
+import type { Semester } from "../../models/uml/Semester";
+import type { Subject } from "../../models/uml/Subject";
 
 import AssignTeacherStepper from "../../components/groups/AssignTeacherStepper";
 import GroupSelectionTable from "../../components/groups/GroupSelectionTable";
@@ -20,271 +20,271 @@ import GroupDetailsCard from "../../components/groups/GroupDetailCard";
 import AssignmentConfirmation from "../../components/groups/AssignmentConfirmation";
 
 const AssignTeacherPage = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+    const [currentStep, setCurrentStep] = useState(1);
 
-  const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-  const [semesters, setSemesters] = useState<Semester[]>([]);
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+    const [semesters, setSemesters] = useState<Semester[]>([]);
+    const [groups, setGroups] = useState<Group[]>([]);
+    const [teachers, setTeachers] = useState<Teacher[]>([]);
+    const [subjects, setSubjects] = useState<Subject[]>([]);
 
-  const [selectedSemester, setSelectedSemester] =
-    useState<Semester | null>(null);
+    const [selectedSemester, setSelectedSemester] =
+        useState<Semester | null>(null);
 
-  const [selectedGroup, setSelectedGroup] =
-    useState<Group | null>(null);
+    const [selectedGroup, setSelectedGroup] =
+        useState<Group | null>(null);
 
-  const [selectedTeacher, setSelectedTeacher] =
-    useState<Teacher | null>(null);
+    const [selectedTeacher, setSelectedTeacher] =
+        useState<Teacher | null>(null);
 
-  const activeSemesters = semesters;
+    const activeSemesters = semesters.filter((s) => s.is_active);
 
-  const filteredGroups = useMemo(() => {
-    if (!selectedSemester) return [];
+    const filteredGroups = useMemo(() => {
+        if (!selectedSemester) return [];
 
-    return groups.filter(
-      (group: Group) =>
-        group.semester_id === selectedSemester.id
-    );
-  }, [groups, selectedSemester]);
+        return groups.filter(
+            (group: Group) =>
+                group.semester_id === selectedSemester.id
+        );
+    }, [groups, selectedSemester]);
 
-  useEffect(() => {
-    loadInitialData();
-  }, []);
+    useEffect(() => {
+        loadInitialData();
+    }, []);
 
-  const loadInitialData = async (resetWizard = false) => {
-    
-    try {
-      setLoading(true);
+    const loadInitialData = async (resetWizard = false) => {
 
-      const [
-        semesterResponse,
-        groupResponse,
-        teacherResponse,
-        subjectResponse,
-      ] = await Promise.all([
-        semesterService.getAll(),
-        groupService.getAll(),
-        teacherService.getAll(),
-        subjectService.getAll(),
-      ]);
+        try {
+            setLoading(true);
 
-      setSemesters(semesterResponse || []);
-      setGroups(groupResponse || []);
-      setTeachers(teacherResponse || []);
-      setSubjects(subjectResponse || []);
+            const [
+                semesterResponse,
+                groupResponse,
+                teacherResponse,
+                subjectResponse,
+            ] = await Promise.all([
+                semesterService.getAll(),
+                groupService.getAll(),
+                teacherService.getAll(),
+                subjectService.getAll(),
+            ]);
 
-      if(resetWizard){
-        setCurrentStep(1)
+            setSemesters(semesterResponse || []);
+            setGroups(groupResponse || []);
+            setTeachers(teacherResponse || []);
+            setSubjects(subjectResponse || []);
 
-        setSelectedSemester(null)
-        setSelectedGroup(null)
-        setSelectedTeacher(null)
-      }
-    } catch (error) {
-      toast.error("Error cargando la información");
-    } finally {
-      setLoading(false);
-    }
-  };
+            if (resetWizard) {
+                setCurrentStep(1)
 
-  const validateAssignment = () => {
-    if (!selectedGroup || !selectedTeacher) {
-      toast.error("Debes seleccionar un grupo y un docente");
-      return false;
-    }
+                setSelectedSemester(null)
+                setSelectedGroup(null)
+                setSelectedTeacher(null)
+            }
+        } catch (error) {
+            toast.error("Error cargando la información");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    if (!selectedGroup.subject_id) {
-      toast.error(
-        "El grupo seleccionado no tiene asignatura definida"
-      );
-      return false;
-    }
-    
-    if (selectedGroup.teacher_id === selectedTeacher.id) {
-      toast.error(
-        "El docente seleccionado ya está asignado a este grupo"
-      );
-      return false;
-    }
+    const validateAssignment = () => {
+        if (!selectedGroup || !selectedTeacher) {
+            toast.error("Debes seleccionar un grupo y un docente");
+            return false;
+        }
 
-    const duplicatedAssignment = groups.find(
-      (group: Group) =>
-        group.id !== selectedGroup.id &&
-        group.teacher_id === selectedTeacher.id &&
-        group.subject_id === selectedGroup.subject_id &&
-        group.semester_id === selectedGroup.semester_id
-    );
+        if (!selectedGroup.subject_id) {
+            toast.error(
+                "El grupo seleccionado no tiene asignatura definida"
+            );
+            return false;
+        }
 
-    if (duplicatedAssignment) {
-      toast.error(
-        "El docente ya tiene otro grupo con esta asignatura en el semestre activo"
-      );
-      return false;
-    }
+        if (selectedGroup.teacher_id === selectedTeacher.id) {
+            toast.error(
+                "El docente seleccionado ya está asignado a este grupo"
+            );
+            return false;
+        }
 
-    return true;
-  };
+        const duplicatedAssignment = groups.find(
+            (group: Group) =>
+                group.id !== selectedGroup.id &&
+                group.teacher_id === selectedTeacher.id &&
+                group.subject_id === selectedGroup.subject_id &&
+                group.semester_id === selectedGroup.semester_id
+        );
 
-  const handleNextStep = () => {
-  if (currentStep === 1 && !selectedSemester) {
-    toast.error("Selecciona un semestre");
-    return;
-  }
+        if (duplicatedAssignment) {
+            toast.error(
+                "El docente ya tiene otro grupo con esta asignatura en el semestre activo"
+            );
+            return false;
+        }
 
-  if (currentStep === 2 && !selectedGroup) {
-    toast.error("Selecciona un grupo");
-    return;
-  }
+        return true;
+    };
 
-  if (currentStep === 3) {
-    if (!selectedTeacher) {
-      toast.error("Selecciona un docente");
-      return;
-    }
+    const handleNextStep = () => {
+        if (currentStep === 1 && !selectedSemester) {
+            toast.error("Selecciona un semestre");
+            return;
+        }
 
-    const isValid = validateAssignment();
+        if (currentStep === 2 && !selectedGroup) {
+            toast.error("Selecciona un grupo");
+            return;
+        }
 
-    if (!isValid) {
-      return;
-    }
-  }
+        if (currentStep === 3) {
+            if (!selectedTeacher) {
+                toast.error("Selecciona un docente");
+                return;
+            }
 
-  setCurrentStep((prev) => prev + 1);
-};
+            const isValid = validateAssignment();
 
-  const handlePreviousStep = () => {
-    setCurrentStep((prev) => prev - 1);
-  };
+            if (!isValid) {
+                return;
+            }
+        }
 
-  const handleConfirmAssignment = async () => {
-    if (!validateAssignment()) return;
+        setCurrentStep((prev) => prev + 1);
+    };
 
-    try {
-      setLoading(true);
+    const handlePreviousStep = () => {
+        setCurrentStep((prev) => prev - 1);
+    };
 
-      await groupService.assignTeacherToGroup(
-        selectedGroup!.id!,
-        selectedTeacher!.id!
-      );
+    const handleConfirmAssignment = async () => {
+        if (!validateAssignment()) return;
 
-      toast.success("Docente asignado correctamente");
+        try {
+            setLoading(true);
 
-      await loadInitialData(true);
+            await groupService.assignTeacherToGroup(
+                selectedGroup!.id!,
+                selectedTeacher!.id!
+            );
 
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Error asignando docente";
+            toast.success("Docente asignado correctamente");
 
-      toast.error(
-        message
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+            await loadInitialData(true);
 
-  return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Asignar docente a grupo"
-        subtitle="Vincula un docente a un grupo del semestre activo."
-      />
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Error asignando docente";
 
-      <AssignTeacherStepper currentStep={currentStep} />
+            toast.error(
+                message
+            );
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        <div className="xl:col-span-3 flex flex-col gap-6">
-          {currentStep === 1 && (
-            <div className="bg-white rounded-2xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold mb-4">
-                Seleccionar semestre
-              </h2>
+    return (
+        <div className="flex flex-col gap-6">
+            <PageHeader
+                title="Asignar docente a grupo"
+                subtitle="Vincula un docente a un grupo del semestre activo."
+            />
 
-              <select
-                value={selectedSemester?.id || ""}
-                onChange={(e) => {
-                  const semester = activeSemesters.find(
-                    (semester: Semester) =>
-                      semester.id === e.target.value
-                  );
+            <AssignTeacherStepper currentStep={currentStep} />
 
-                  setSelectedSemester(semester || null);
-                }}
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-green-600"
-              >
-                <option value="">
-                  Selecciona un semestre
-                </option>
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                <div className="xl:col-span-3 flex flex-col gap-6">
+                    {currentStep === 1 && (
+                        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+                            <h2 className="text-lg font-semibold mb-4">
+                                Seleccionar semestre
+                            </h2>
 
-                {activeSemesters.map((semester) => (
-                  <option
-                    key={semester.id}
-                    value={semester.id}
-                  >
-                    {semester.name}
-                  </option>
-                ))}
-              </select>
+                            <select
+                                value={selectedSemester?.id || ""}
+                                onChange={(e) => {
+                                    const semester = activeSemesters.find(
+                                        (semester: Semester) =>
+                                            semester.id === e.target.value
+                                    );
 
-              <div className="flex justify-end mt-6">
-                <button
-                  onClick={handleNextStep}
-                  className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl transition-all"
-                >
-                  Siguiente
-                </button>
-              </div>
+                                    setSelectedSemester(semester || null);
+                                }}
+                                className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-green-600"
+                            >
+                                <option value="">
+                                    Selecciona un semestre
+                                </option>
+
+                                {activeSemesters.map((semester) => (
+                                    <option
+                                        key={semester.id}
+                                        value={semester.id}
+                                    >
+                                        {semester.name}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <div className="flex justify-end mt-6">
+                                <button
+                                    onClick={handleNextStep}
+                                    className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl transition-all"
+                                >
+                                    Siguiente
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {currentStep === 2 && (
+                        <GroupSelectionTable
+                            groups={filteredGroups}
+                            selectedGroup={selectedGroup}
+                            onSelectGroup={setSelectedGroup}
+                            onNext={handleNextStep}
+                            onBack={handlePreviousStep}
+                        />
+                    )}
+
+                    {currentStep === 3 && (
+                        <TeacherSelectionPanel
+                            teachers={teachers}
+                            selectedTeacher={selectedTeacher}
+                            onSelectTeacher={setSelectedTeacher}
+                            onNext={handleNextStep}
+                            onBack={handlePreviousStep}
+                        />
+                    )}
+
+                    {currentStep === 4 && (
+                        <AssignmentConfirmation
+                            semester={selectedSemester}
+                            group={selectedGroup}
+                            teacher={selectedTeacher}
+                            subjects={subjects}
+                            loading={loading}
+                            onBack={handlePreviousStep}
+                            onConfirm={handleConfirmAssignment}
+                        />
+                    )}
+                </div>
+
+                <div className="xl:col-span-1">
+                    <GroupDetailsCard
+                        group={selectedGroup}
+                        semester={selectedSemester}
+                        teachers={teachers}
+                        subjects={subjects}
+                    />
+                </div>
             </div>
-          )}
-
-          {currentStep === 2 && (
-            <GroupSelectionTable
-              groups={filteredGroups}
-              selectedGroup={selectedGroup}
-              onSelectGroup={setSelectedGroup}
-              onNext={handleNextStep}
-              onBack={handlePreviousStep}
-            />
-          )}
-
-          {currentStep === 3 && (
-            <TeacherSelectionPanel
-              teachers={teachers}
-              selectedTeacher={selectedTeacher}
-              onSelectTeacher={setSelectedTeacher}
-              onNext={handleNextStep}
-              onBack={handlePreviousStep}
-            />
-          )}
-
-          {currentStep === 4 && (
-            <AssignmentConfirmation
-              semester={selectedSemester}
-              group={selectedGroup}
-              teacher={selectedTeacher}
-              subjects={subjects}
-              loading={loading}
-              onBack={handlePreviousStep}
-              onConfirm={handleConfirmAssignment}
-            />
-          )}
         </div>
-
-        <div className="xl:col-span-1">
-          <GroupDetailsCard
-            group={selectedGroup}
-            semester={selectedSemester}
-            teachers={teachers}
-            subjects={subjects}
-          />
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default AssignTeacherPage;

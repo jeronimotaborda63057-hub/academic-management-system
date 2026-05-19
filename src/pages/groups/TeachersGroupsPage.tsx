@@ -7,16 +7,16 @@ import TableToolbar from '../../components/TableToolBar';
 import GenericTable from '../../components/ui/GenericTable';
 
 import { groupService } from '../../services/groupService';
-import type { Group } from '../../models/Group';
-import type { Action } from '../../models/Action';
-import type { Column } from '../../models/Column';
+import type { Group } from '../../models/uml/Group';
+import type { Action } from '../../models/interfaces/Action';
+import type { Column } from '../../models/interfaces/Column';
 
 // Página de grupos del docente — punto de entrada al CU-12 (Registrar nota final)
 const TeacherGroupsPage: React.FC = () => {
     const navigate = useNavigate();
 
-    const [groups, setGroups]   = useState<Group[]>([]);
-    const [search, setSearch]   = useState('');
+    const [groups, setGroups] = useState<Group[]>([]);
+    const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -28,7 +28,7 @@ const TeacherGroupsPage: React.FC = () => {
     // ── Columnas de la tabla ────────────────────────────────────────────────
     const columns: Column<Group>[] = [
         { key: 'group_code', label: 'Código' },
-        { key: 'name',       label: 'Nombre' },
+        { key: 'name', label: 'Nombre' },
         {
             key: 'subject',
             label: 'Asignatura',
@@ -59,9 +59,9 @@ const TeacherGroupsPage: React.FC = () => {
     // ── Acción: ir a registrar nota final ───────────────────────────────────
     const actions: Action[] = [
         {
-            name:    'register',
-            label:   'Registrar nota final',
-            icon:    <ClipboardList size={16} />,
+            name: 'register',
+            label: 'Registrar nota final',
+            icon: <ClipboardList size={16} />,
             primary: true,
             variant: 'default',
         },

@@ -20,6 +20,19 @@ export class CurriculumService extends BaseService<Curriculum> {
         }
     }
 
+    async searchBySubject(subjectId: string): Promise<Curriculum[]> {
+        try {
+            const response = await api.get<{ data: Curriculum[] }>(
+                `${this.apiURL}/search`,
+                { params: { subject_id: subjectId } }
+            );
+            return response.data.data ?? [];
+        } catch (error) {
+            console.error("Error al buscar planes por asignatura:", error);
+            return [];
+        }
+    }
+
     async getAllWithAuth(): Promise<Curriculum[]> {
         const response = await api.get<{ data: Curriculum[] }>(this.apiURL);
         return response.data.data ?? [];

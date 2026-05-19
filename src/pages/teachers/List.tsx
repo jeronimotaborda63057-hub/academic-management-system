@@ -8,7 +8,6 @@ import { teacherService } from "../../services/teacherService";
 import type { Teacher } from "../../models/uml/Teacher";
 import type { Column } from "../../models/interfaces/Column";
 
-// S: única responsabilidad — listar y gestionar acciones sobre estudiantes
 const List: React.FC = () => {
     const [data, setData] = useState<Teacher[]>([]);
     const [search, setSearch] = useState("");
@@ -93,8 +92,6 @@ const List: React.FC = () => {
 };
 
 export default List;
-
-// ── Utilidad interna ───────────────────────────────────────────────
 
 const formatDate = (iso?: string): string => {
     if (!iso) return "—";

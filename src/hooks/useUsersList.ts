@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { Career } from "../models/uml/Career";
 import type { Registration } from "../models/uml/Registration";
 import type { User } from "../models/uml/User";
-import type { UserFilters } from "../models/interfaces/UserFilters";
 import { careerService } from "../services/careerService";
 import { registrationService } from "../services/registrationService";
 import { userService } from "../services/userService";
@@ -15,141 +14,208 @@ export interface UserListRow extends User {
     nombre: string;
 }
 
-const isVisibleUser = (user: User): boolean =>
-    user.role === "TEACHER" || user.role === "STUDENT";
+/* ---------------- NORMALIZADORES ---------------- */
 
-const isActiveRegistration = (registration: Registration): boolean =>
-    registration.is_active === true || registration.academic_status === "ACTIVE";
+const normalizeRole = (role: any) => {
+    const r = String(role ?? "").toUpperCase();
 
-const getUserProfileId = (user: User): string | undefined => user.profile?.id;
+    if (r === "TEACHER" || r === "DOCENTE") return "TEACHER";
+    if (r === "STUDENT" || r === "ESTUDIANTE") return "STUDENT";
 
-const getUserFullName = (user: User): string => {
-    const profile = user.profile;
-    const fullName = [profile?.first_name, profile?.last_name]
-        .filter(Boolean)
-        .join(" ");
-
-    return fullName || "Sin información";
+    return "STUDENT";
 };
 
-const uniqueValues = (values: string[]): string[] =>
-    Array.from(new Set(values.filter(Boolean)));
+const normalizeBool = (value: any) =>
+    value === true || value === "true" || value === 1 || value === "1";
 
-const getRegistrationCareerName = (
-    registration: Registration,
-    careerById: Map<string, Career>
-): string | undefined =>
-    registration.career?.name ?? careerById.get(registration.career_id ?? "")?.name;
+/* ---------------- HELPERS ---------------- */
 
-const resolveCareerNames = (
+const isVisibleUser = (user: User) =>
+    normalizeRole(user.role) === "TEACHER" ||
+    normalizeRole(user.role) === "STUDENT";
+
+const getFullName = (user: User) =>
+    [user.profile?.first_name, user.profile?.last_name]
+        .filter(Boolean)
+        .join(" ") || "Sin información";
+
+const unique = (arr: string[]) =>
+    Array.from(new Set(arr.filter(Boolean)));
+
+const isActiveReg = (r: Registration) =>
+    r.is_active === true || r.academic_status === "ACTIVE";
+
+const getCareerName = (
+    reg: Registration,
+    careerMap: Map<string, Career>
+) =>
+    reg.career?.name ??
+    careerMap.get(reg.career_id ?? "")?.name;
+
+const resolveCareers = (
     user: User,
-    registrationsByStudentId: Map<string, Registration[]>,
-    careerById: Map<string, Career>
-): string[] => {
-    const profileId = getUserProfileId(user);
-    if (!profileId) return [];
+    regMap: Map<string, Registration[]>,
+    careerMap: Map<string, Career>
+) => {
+    const id = user.profile?.id;
+    if (!id) return [];
 
-    const registrations = registrationsByStudentId.get(profileId) ?? [];
-    const activeRegistrations = registrations.filter(isActiveRegistration);
-    const sourceRegistrations = activeRegistrations.length > 0
-        ? activeRegistrations
-        : registrations;
+    const regs = regMap.get(id) ?? [];
+    const active = regs.filter(isActiveReg);
 
-    return uniqueValues(
-        sourceRegistrations
-            .map((registration) => getRegistrationCareerName(registration, careerById))
-            .filter((name): name is string => Boolean(name))
+    const source = active.length ? active : regs;
+
+    return unique(
+        source
+            .map((r) => getCareerName(r, careerMap))
+            .filter((x): x is string => Boolean(x))
     );
 };
 
-const buildUserRow = (
+/* ---------------- ROW BUILDER ---------------- */
+
+const buildRow = (
     user: User,
-    registrationsByStudentId: Map<string, Registration[]>,
-    careerById: Map<string, Career>
+    regMap: Map<string, Registration[]>,
+    careerMap: Map<string, Career>
 ): UserListRow => {
-    const careerNames = resolveCareerNames(user, registrationsByStudentId, careerById);
+    const careers = resolveCareers(user, regMap, careerMap);
 
     return {
         ...user,
-        careerLabel: careerNames.length > 0 ? careerNames.join(", ") : "-",
-        careerNames,
-        estado: user.is_active ? "Activo" : "Inactivo",
-        nombre: getUserFullName(user),
+        role: normalizeRole(user.role),
+        careerLabel: careers.length ? careers.join(", ") : "-",
+        careerNames: careers,
+        estado: normalizeBool(user.is_active)
+            ? "Activo"
+            : "Inactivo",
+        nombre: getFullName(user),
     };
 };
 
+/* ---------------- HOOK ---------------- */
+
 export const useUsersList = () => {
-    const [users, setUsers] = useState<User[]>([]);
+    const [allUsers, setAllUsers] = useState<User[]>([]);
     const [careers, setCareers] = useState<Career[]>([]);
-    const [registrations, setRegistrations] = useState<Registration[]>([]);
+    const [registrations, setRegistrations] =
+        useState<Registration[]>([]);
+
     const [search, setSearch] = useState("");
-    const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+    const [filterValues, setFilterValues] = useState<
+        Record<string, string>
+    >({});
+
+    /* ---------------- LOAD REFERENCES ---------------- */
 
     useEffect(() => {
-        const loadReferences = async () => {
-            const [careersData, registrationsData] = await Promise.all([
+        const load = async () => {
+            const [c, r] = await Promise.all([
                 careerService.getAll(),
                 registrationService.getAll(),
             ]);
 
-            setCareers(careersData);
-            setRegistrations(registrationsData);
+            setCareers(c);
+            setRegistrations(r);
         };
 
-        loadReferences();
+        load();
     }, []);
 
-    const fetchData = useCallback(async () => {
-        const filters: UserFilters = {
-            ...(filterValues.role ? { role: filterValues.role as UserFilters["role"] } : {}),
-            ...(filterValues.is_active !== undefined && filterValues.is_active !== ""
-                ? { is_active: filterValues.is_active === "true" }
-                : {}),
-            ...(filterValues.career_id ? { career_id: filterValues.career_id } : {}),
-            ...(search ? { first_name: search } : {}),
-        };
-
-        const hasFilters = Object.keys(filters).length > 0;
-        const userData = hasFilters
-            ? await userService.search(filters)
-            : await userService.getAll();
-
-        setUsers(userData);
-    }, [filterValues, search]);
+    /* ---------------- LOAD USERS (UNA VEZ) ---------------- */
 
     useEffect(() => {
-        const timeout = setTimeout(() => fetchData(), 400);
-        return () => clearTimeout(timeout);
-    }, [fetchData]);
+        const loadUsers = async () => {
+            const data = await userService.getAll();
+            setAllUsers(data);
+        };
 
-    const careerById = useMemo(
-        () => new Map(careers.map((career) => [career.id, career])),
+        loadUsers();
+    }, []);
+
+    /* ---------------- MAPS ---------------- */
+
+    const careerMap = useMemo(
+        () => new Map(careers.map((c) => [c.id, c])),
         [careers]
     );
 
-    const registrationsByStudentId = useMemo(() => {
-        const groupedRegistrations = new Map<string, Registration[]>();
+    const regMap = useMemo(() => {
+        const map = new Map<string, Registration[]>();
 
-        registrations.forEach((registration) => {
-            if (!registration.student_id) return;
+        registrations.forEach((r) => {
+            if (!r.student_id) return;
 
-            const current = groupedRegistrations.get(registration.student_id) ?? [];
-            groupedRegistrations.set(registration.student_id, [...current, registration]);
+            map.set(r.student_id, [
+                ...(map.get(r.student_id) ?? []),
+                r,
+            ]);
         });
 
-        return groupedRegistrations;
+        return map;
     }, [registrations]);
+
+    /* ---------------- FILTER LOGIC (FRONTEND REAL) ---------------- */
+
+    const filteredUsers = useMemo(() => {
+        return allUsers.filter((user) => {
+            const roleOk =
+                !filterValues.role ||
+                normalizeRole(user.role) ===
+                    filterValues.role;
+
+            const activeOk =
+                filterValues.is_active === undefined ||
+                filterValues.is_active === "" ||
+                String(user.is_active) ===
+                    filterValues.is_active;
+
+            const careerOk =
+                !filterValues.career_id ||
+                resolveCareers(user, regMap, careerMap).some(
+                    (c) =>
+                        careerMap.get(filterValues.career_id)
+                            ?.name === c
+                );
+
+            const searchOk =
+                !search ||
+                getFullName(user)
+                    .toLowerCase()
+                    .includes(search.toLowerCase());
+
+            return roleOk && activeOk && careerOk && searchOk;
+        });
+    }, [
+        allUsers,
+        filterValues,
+        search,
+        regMap,
+        careerMap,
+    ]);
+
+    /* ---------------- TABLE DATA ---------------- */
 
     const tableData = useMemo(
         () =>
-            users
+            filteredUsers
                 .filter(isVisibleUser)
-                .map((user) => buildUserRow(user, registrationsByStudentId, careerById)),
-        [careerById, registrationsByStudentId, users]
+                .map((u) =>
+                    buildRow(u, regMap, careerMap)
+                ),
+        [filteredUsers, regMap, careerMap]
     );
 
-    const handleFilterChange = (key: string, value: string) => {
-        setFilterValues((prev) => ({ ...prev, [key]: value }));
+    /* ---------------- HANDLERS ---------------- */
+
+    const handleFilterChange = (
+        key: string,
+        value: string
+    ) => {
+        setFilterValues((prev) => ({
+            ...prev,
+            [key]: value,
+        }));
     };
 
     const handleClear = () => {
@@ -159,10 +225,9 @@ export const useUsersList = () => {
 
     return {
         careers,
-        fetchData,
         filterValues,
-        handleClear,
         handleFilterChange,
+        handleClear,
         setSearch,
         tableData,
     };

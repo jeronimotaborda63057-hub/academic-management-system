@@ -10,7 +10,7 @@ export interface GradeDetailPayload {
 export interface SaveRubricGradePayload {
     enrollment_id: string;
     rubric_id: string;
-    status: "DRAFT" | "SUBMITTED";
+    status: "DRAFT" | "SENT";
     observations?: string;
     details: GradeDetailPayload[];
 }
@@ -18,7 +18,7 @@ export interface SaveRubricGradePayload {
 export interface FinalizeGradePayload {
     is_locked: boolean;
     observations?: string;
-    status?: "DRAFT" | "SUBMITTED";
+    status?: "DRAFT" | "SENT";
 }
 
 const buildRubricGradeRequest = (
@@ -57,19 +57,31 @@ export class GradeService extends BaseService<Grade> {
             this.apiURL,
             buildRubricGradeRequest(payload)
         );
+
         return response.data.data ?? null;
     }
 
-    async updateRubricGrade(_id: string, payload: SaveRubricGradePayload): Promise<Grade | null> {
-        const response = await api.post<{ data: Grade }>(
-            this.apiURL,
-            buildRubricGradeRequest(payload)
+    async updateRubricGrade(
+        id: string,
+        payload: FinalizeGradePayload
+    ): Promise<Grade | null> {
+        const response = await api.put<{ data: Grade }>(
+            `${this.apiURL}/${id}`,
+            payload
         );
+
         return response.data.data ?? null;
     }
 
-    async finalizeGrade(id: string, payload: FinalizeGradePayload): Promise<Grade | null> {
-        const response = await api.put<{ data: Grade }>(`${this.apiURL}/${id}`, payload);
+    async finalizeGrade(
+        id: string,
+        payload: FinalizeGradePayload
+    ): Promise<Grade | null> {
+        const response = await api.put<{ data: Grade }>(
+            `${this.apiURL}/${id}`,
+            payload
+        );
+
         return response.data.data ?? null;
     }
 }

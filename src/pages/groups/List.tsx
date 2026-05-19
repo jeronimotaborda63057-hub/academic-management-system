@@ -4,9 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 import PageHeader from "../../components/ui/PageHeader";
 import GenericTable from "../../components/ui/GenericTable";
-import type { Column } from "../../models/Column";
-import type { Group } from "../../models/Group";
+import type { Column } from "../../models/interfaces/Column";
+import type { Group } from "../../models/uml/Group";
+
 import { groupService } from "../../services/groupService";
+import { semesterService } from "../../services/semesterService";
+import { teacherService } from "../../services/teacherService";
 
 type GroupRow = Group;
 
@@ -18,46 +21,78 @@ const List: React.FC = () => {
 
     useEffect(() => {
         let mounted = true;
+
         const load = async () => {
             setLoading(true);
+
             try {
-                const data = await groupService.getAllWithAuth();
-                if (mounted) setGroups(data ?? []);
+                const [groupsRes, semestersRes, teachersRes] = await Promise.all([
+                    groupService.getAllWithAuth(),
+                    semesterService.getAll(),
+                    teacherService.getAll(),
+                ]);
+
+                const groups = groupsRes ?? [];
+                const semesters = semestersRes ?? [];
+                const teachers = teachersRes ?? [];
+
+                // Optimización tipo "map lookup" (más pro que find)
+                const semesterMap = new Map(
+                    semesters.map((s: any) => [s.id, s])
+                );
+
+                const teacherMap = new Map(
+                    teachers.map((t: any) => [t.id, t])
+                );
+
+                const enrichedGroups = groups.map((group: any) => {
+                    const semester = semesterMap.get(group.semester_id);
+                    const teacher = teacherMap.get(group.teacher_id);
+
+                    return {
+                        ...group,
+                        semester,
+                        teacher,
+                    };
+                });
+
+                if (mounted) setGroups(enrichedGroups);
             } finally {
                 if (mounted) setLoading(false);
             }
         };
+
         load();
+
         return () => {
             mounted = false;
         };
     }, []);
 
     const columns = useMemo<Column<GroupRow>[]>(
-        () =>
-            [
-                {
-                    key: "group_code",
-                    label: "Código",
-                },
-                {
-                    key: "name",
-                    label: "Nombre",
-                },
-                {
-                    key: "semester",
-                    label: "Semestre",
-                    render: (_value, row) => row.semester?.name ?? "-",
-                },
-                {
-                    key: "teacher",
-                    label: "Docente",
-                    render: (_value, row) =>
-                        row.teacher
-                            ? `${row.teacher.first_name} ${row.teacher.last_name}`.trim()
-                            : "-",
-                },
-            ],
+        () => [
+            {
+                key: "group_code",
+                label: "Código",
+            },
+            {
+                key: "name",
+                label: "Nombre",
+            },
+            {
+                key: "semester",
+                label: "Semestre",
+                render: (_value, row) => row.semester?.name ?? "-",
+            },
+            {
+                key: "teacher",
+                label: "Docente",
+                render: (_value, row) =>
+                    row.teacher
+                        ? `${row.teacher.first_name} ${row.teacher.last_name}`.trim()
+                        : "-",
+            },
+        ],
         []
     );
 
@@ -113,4 +148,3 @@ const List: React.FC = () => {
 };
 
 export default List;
-

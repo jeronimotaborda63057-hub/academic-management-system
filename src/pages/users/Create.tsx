@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { userService } from "../../services/userService";
-import type { CreateUserPayload } from "../../models/User";
+import type { CreateUserPayload } from "../../models/uml/User";
 import Swal from "sweetalert2";
 import MultiStepForm, { type MultiStepFormValues } from "../../components/multi-step-form/MultiStepForm";
+
+const getPrefix = (role: string) => role === "TEACHER" ? "TCH-" : "STD-";
 
 const STEP1_FIELDS_CREATE = [
     {
@@ -17,6 +19,7 @@ const STEP1_FIELDS_CREATE = [
         name: "code",
         type: "text" as const,
         required: true,
+        prefix: (values: Record<string, string>) => getPrefix(values.role),
     },
     {
         label: "Contraseña",
@@ -32,7 +35,6 @@ const STEP1_FIELDS_CREATE = [
         options: [
             { label: "Estudiante", value: "STUDENT" },
             { label: "Docente",    value: "TEACHER" },
-            { label: "Admin",      value: "ADMIN"   },
         ],
     },
 ];
@@ -41,21 +43,41 @@ const Create: React.FC = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
+    const handleBeforeNext = async (
+        values: MultiStepFormValues
+    ): Promise<Record<string, string>> => {
+        const errors: Record<string, string> = {};
+        const prefix = getPrefix(values.role);
+
+        const [emailTaken, codeTaken] = await Promise.all([
+            userService.emailExists(String(values.email)),
+            userService.codeExists(`${prefix}${values.code}`),
+        ]);
+
+        if (emailTaken) errors.email = "Este correo ya está registrado.";
+        if (codeTaken)  errors.code  = "Este código ya está en uso.";
+
+        return errors;
+    };
+
     const buildPayload = (values: MultiStepFormValues): CreateUserPayload => {
-        const base = { email: values.email, password: values.password, code: values.code };
+        const prefix = getPrefix(values.role);
+        const code   = `${prefix}${values.code}`;
+        const base   = { email: values.email, password: values.password, code };
+
         if (values.role === "ADMIN") return { ...base, role: "ADMIN" };
         if (values.role === "TEACHER") return {
             ...base, role: "TEACHER",
-            first_name: values.first_name,
-            last_name: values.last_name,
+            first_name:     values.first_name,
+            last_name:      values.last_name,
             identification: values.identification,
-            phone: values.phone || undefined,
-            specialty: values.specialty || undefined,
+            phone:          values.phone     || undefined,
+            specialty:      values.specialty || undefined,
         };
         return {
             ...base, role: "STUDENT",
-            first_name: values.first_name,
-            last_name: values.last_name,
+            first_name:     values.first_name,
+            last_name:      values.last_name,
             identification: values.identification,
         };
     };
@@ -67,12 +89,8 @@ const Create: React.FC = () => {
             if (!result) throw new Error();
             Swal.fire("Éxito", "Usuario creado correctamente.", "success");
             navigate("/users/list");
-        } catch (error) {
-            if (error instanceof Error && error.message === "EMAIL_DUPLICADO") {
-                Swal.fire("Error", "El correo institucional ya está registrado.", "error");
-            } else {
-                Swal.fire("Error", "Ocurrió un error al crear el usuario.", "error");
-            }
+        } catch {
+            Swal.fire("Error", "Ocurrió un error al crear el usuario.", "error");
         } finally {
             setIsLoading(false);
         }
@@ -84,6 +102,7 @@ const Create: React.FC = () => {
             subtitle="Completa los datos para registrar un nuevo usuario."
             breadcrumb={["Inicio", "Usuarios", "Crear"]}
             step1Fields={STEP1_FIELDS_CREATE}
+            onBeforeNext={handleBeforeNext}
             onSubmit={handleSubmit}
             isLoading={isLoading}
         />

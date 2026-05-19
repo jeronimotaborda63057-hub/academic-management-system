@@ -14,12 +14,14 @@ import TableToolbar from "../../components/TableToolBar";
 import GenericTable from "../../components/ui/GenericTable";
 
 // ── Helpers de formato ────────────────────────────────────────────────────────
-const fmt = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString("es-CO", {
+const fmt = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-");
+    return new Intl.DateTimeFormat("es-CO", {
         year: "numeric",
         month: "short",
         day: "numeric",
-    });
+    }).format(new Date(Number(year), Number(month) - 1, Number(day)));
+};
 
 // ── Columnas declarativas ─────────────────────────────────────────────────────
 const COLUMNS: Column<Semester>[] = [
@@ -96,22 +98,24 @@ const SemesterList: React.FC = () => {
         return matchSearch && matchActive;
     });
 
-    // ── Activar semestre (HU-02 criterio 4) ──────────────────────────────────
+    // ── Activar semestre ──────────────────────────────────────────────────────
     const activateSemester = async (id: string) => {
         const result = await Swal.fire({
             title: "¿Activar este semestre?",
-            text: "El semestre activo actual será cerrado automáticamente.",
-            icon: "question",
-            showCancelButton: true,
+            text:  "El semestre activo actual será cerrado automáticamente.",
+            icon:  "question",
+            showCancelButton:  true,
             confirmButtonText: "Activar",
             cancelButtonText: "Cancelar",
         });
         if (!result.isConfirmed) return;
 
         const updated = await semesterService.setActive(id);
+
         if (updated) {
+            // Desactiva todos y marca solo el nuevo como activo
+            setData(prev => prev.map(s => ({ ...s, is_active: s.id === id })));
             Swal.fire("Activado", "El semestre fue activado.", "success");
-            fetchData();
         } else {
             Swal.fire("Error", "No se pudo activar el semestre.", "error");
         }
@@ -121,9 +125,9 @@ const SemesterList: React.FC = () => {
     const closeSemester = async (id: string) => {
         const result = await Swal.fire({
             title: "¿Cerrar semestre?",
-            text: "No se podrán registrar más notas ni inscripciones en este semestre.",
-            icon: "warning",
-            showCancelButton: true,
+            text:  "No se podrán registrar más notas ni inscripciones en este semestre.",
+            icon:  "warning",
+            showCancelButton:  true,
             confirmButtonText: "Cerrar",
             cancelButtonText: "Cancelar",
             confirmButtonColor: "#d33",
@@ -131,9 +135,12 @@ const SemesterList: React.FC = () => {
         if (!result.isConfirmed) return;
 
         const updated = await semesterService.close(id);
+
         if (updated) {
+            setData(prev =>
+                prev.map(s => s.id === id ? { ...s, is_active: false } : s)
+            );
             Swal.fire("Cerrado", "El semestre fue cerrado.", "success");
-            fetchData();
         } else {
             Swal.fire("Error", "No se pudo cerrar el semestre.", "error");
         }

@@ -1,19 +1,3 @@
-/**
- * Careers/List.tsx — HU-02 (Gestionar carreras)
- *
- * SOLID aplicado:
- * - SRP  : este componente solo orquesta la vista de lista; la lógica de
- *          negocio vive en careerService.
- * - OCP  : los filtros y columnas son configuraciones declarativas (arrays),
- *          no condicionales en el JSX. Agregar una columna no cambia la lógica.
- * - DIP  : dependemos de careerService (abstracción BaseService), no de axios
- *          directamente.
- *
- * Criterios HU-02 cubiertos:
- *   ✅ 1 — Crear, editar y archivar carreras
- *   ✅ 3 — Filtrar por estado (activa/archivada)
- */
-
 import React, { useEffect, useState, useCallback } from "react";
 import { Pencil, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -39,9 +23,10 @@ const COLUMNS: Column<Career>[] = [
         key: "is_active",
         label: "Estado",
         render: (value) => (
-            <span className={`rounded-full px-3 py-1 text-xs font-medium ${value ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
-                }`}>
-                {value ? "Activa" : "Archivada"}
+            <span className={`rounded-full px-3 py-1 text-xs font-medium ${
+                value ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+            }`}>
+                {value ? "Activa" : "Inactiva"}
             </span>
         ),
     },
@@ -76,8 +61,8 @@ const FILTERS: FilterConfig[] = [
         key: "is_active",
         label: "Estado",
         options: [
-            { label: "Activa", value: "true" },
-            { label: "Archivada", value: "false" },
+            { label: "Activa",    value: "true"  },
+            { label: "Inactiva", value: "false" },
         ],
     },
 ];
@@ -142,7 +127,7 @@ const CareerList: React.FC = () => {
         // Aquí reflejamos el error con un mensaje claro.
         const archived = await careerService.archive(id);
         if (archived) {
-            Swal.fire("Archivada", "La carrera fue archivada.", "success");
+            Swal.fire("Inactiva", "La carrera fue desactivada.", "success");
             fetchData();
         } else {
             Swal.fire(

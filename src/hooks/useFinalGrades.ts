@@ -196,7 +196,7 @@ export const useFinalGrades = () => {
                         gradeService.finalizeGrade(grade.id!, {
                             is_locked: true,
                             observations,
-                            status: "SUBMITTED",
+                            status: "SENT",
                         })
                     );
             });

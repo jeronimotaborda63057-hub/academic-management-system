@@ -49,9 +49,9 @@ const RubricsEdit = lazy(() => import('../pages/rubrics/Edit'));
 const RegisterFinalGradePage = lazy(() => import('../pages/grades/RegisterFinalGradePage'));
 const TeacherGroupsPage = lazy(() => import('../pages/groups/TeacherGroupsPage'));
 const TeacherMyGroups = lazy(() => import('../pages/teachers/MyGroups'));
+const AssociateRubricPage = lazy(() => import('../pages/evaluations/AssociateRubricPage'));
 
 const coreRoutes: AppRoute[] = [
-    // ── Rúbricas (HU-08) ──────────────────────────────────────────────────────
     {
         path: '/rubrics/list',
         title: 'Rúbricas',
@@ -66,6 +66,12 @@ const coreRoutes: AppRoute[] = [
         path: '/rubrics/edit/:id',
         title: 'Editar rúbrica',
         component: RubricsEdit
+    },
+    {
+        path: '/rubrics/associate',
+        title: 'Asociar rúbrica a evaluación',
+        component: AssociateRubricPage,
+        roles: ["TEACHER"]
     },
     {
         path: '/rubrics/scales',
@@ -221,11 +227,6 @@ const coreRoutes: AppRoute[] = [
     },
     {
         path: '/evaluations',
-        title: 'Evaluaciones',
-        component: EvaluationsList
-    },
-    {
-        path: '/evaluations/list',
         title: 'Evaluaciones',
         component: EvaluationsList
     },

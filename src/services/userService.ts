@@ -39,6 +39,16 @@ export class UserService extends BaseService<User> {
             return [];
         }
     }
+
+    async emailExists(email: string, excludeId?: string): Promise<boolean> {
+        const all = await this.getAll();
+        return all.some(u => u.email === email && u.id !== excludeId);
+    }
+
+    async codeExists(code: string, excludeId?: string): Promise<boolean> {
+        const all = await this.getAll();
+        return all.some(u => u.code === code && u.id !== excludeId);
+    }
 }
 
 export const userService = new UserService();

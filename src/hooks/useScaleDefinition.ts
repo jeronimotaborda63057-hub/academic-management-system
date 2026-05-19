@@ -16,7 +16,7 @@ export const useScaleDefinition = ({
     criterionId
 }: UseScaleDefinitionProps) => {
 
-    const [allScales, setAllScales] =        // ← nuevo
+    const [allScales, setAllScales] =
         useState<Scale[]>([]);
 
     const [scales, setScales] =
@@ -32,7 +32,6 @@ export const useScaleDefinition = ({
         useState<string | null>(null);
 
     const loadScales = async () => {
-
         if (!criterionId) return;
 
         try {
@@ -41,7 +40,7 @@ export const useScaleDefinition = ({
 
             const response = await scaleService.getAll();
 
-            setAllScales(response);              // ← guardar todas
+            setAllScales(response);
 
             const filteredScales = response.filter(
                 (scale: Scale) =>
@@ -57,53 +56,60 @@ export const useScaleDefinition = ({
         }
     };
 
+    // ── Validación de valor único dentro del criterio ──────
+
+    const isDuplicateValue = (value: number, excludeId?: string): boolean =>
+        scales.some(
+            (scale) => scale.value === value && scale.id !== excludeId
+        );
+
     const createScale = async (data: CreateScaleDTO) => {
+        if (isDuplicateValue(data.value)) {
+            setError(`Ya existe un nivel con el valor "${data.value}" en este criterio.`);
+            return null;
+        }
+
         try {
             setSaving(true);
             setError(null);
 
             const response = await scaleService.create(data);
-
             if (!response) return null;
 
-            setScales([...scales, response]);
-            setAllScales([...allScales, response]); // ← sincronizar
+            setScales((prev) => [...prev, response]);
+            setAllScales((prev) => [...prev, response]);
 
             return response;
 
         } catch {
             setError("No fue posible crear el nivel.");
-            throw error;
+            return null;
         } finally {
             setSaving(false);
         }
     };
 
     const updateScale = async (id: string, data: UpdateScaleDTO) => {
+        if (data.value !== undefined && isDuplicateValue(data.value, id)) {
+            setError(`Ya existe un nivel con el valor "${data.value}" en este criterio.`);
+            return null;
+        }
+
         try {
             setSaving(true);
             setError(null);
 
             const response = await scaleService.update(id, data);
-
             if (!response) return null;
 
-            const updatedScales = scales.map(
-                (scale) => scale.id === id ? response : scale
-            );
-
-            const updatedAllScales = allScales.map(  // ← sincronizar
-                (scale) => scale.id === id ? response : scale
-            );
-
-            setScales(updatedScales);
-            setAllScales(updatedAllScales);
+            setScales((prev) => prev.map((s) => s.id === id ? response : s));
+            setAllScales((prev) => prev.map((s) => s.id === id ? response : s));
 
             return response;
 
         } catch {
             setError("No fue posible actualizar el nivel.");
-            throw error;
+            return null;
         } finally {
             setSaving(false);
         }
@@ -116,12 +122,11 @@ export const useScaleDefinition = ({
 
             await scaleService.delete(id);
 
-            setScales(scales.filter((s) => s.id !== id));
-            setAllScales(allScales.filter((s) => s.id !== id)); // ← sincronizar
+            setScales((prev) => prev.filter((s) => s.id !== id));
+            setAllScales((prev) => prev.filter((s) => s.id !== id));
 
         } catch {
             setError("No fue posible eliminar el nivel.");
-            throw error;
         } finally {
             setSaving(false);
         }
@@ -129,8 +134,9 @@ export const useScaleDefinition = ({
 
     const isValid = useMemo(() => {
         if (scales.length < 2) return false;
-        const hasEmptyNames = scales.some((s) => !s.name?.trim());
-        if (hasEmptyNames) return false;
+        if (scales.some((s) => !s.name?.trim())) return false;
+        const values = scales.map((s) => s.value);
+        if (new Set(values).size !== values.length) return false;
         return true;
     }, [scales]);
 
@@ -139,7 +145,7 @@ export const useScaleDefinition = ({
     }, [criterionId]);
 
     return {
-        allScales,      // ← expuesto
+        allScales,
         scales,
         loading,
         saving,

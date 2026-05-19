@@ -12,4 +12,5 @@ export interface StudentGradeSummaryRow {
     status: string;
     teacherName: string;
     updatedAt?: string;
+    subjectId: string;
 }

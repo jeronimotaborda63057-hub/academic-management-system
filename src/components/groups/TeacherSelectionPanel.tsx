@@ -21,10 +21,7 @@ const TeacherSelectionPanel = ({
 
   const filteredTeachers = useMemo(() => {
     return teachers.filter((teacher) => {
-      const fullName = `
-        ${teacher.first_name || ""}
-        ${teacher.last_name || ""}
-      `.toLowerCase();
+      const fullName = `${teacher.first_name || ""} ${teacher.last_name || ""}`.toLowerCase();
 
       const searchText = search.toLowerCase();
 

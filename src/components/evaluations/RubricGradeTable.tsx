@@ -16,10 +16,13 @@ interface RubricGradeTableProps {
     scalesByCriterion: Record<string, Scale[]>;
     selectedStudent?: GradingStudent;
     selectedEnrollmentId: string;
+
     onScaleChange: (criterionId: string, scaleId: string) => void;
     onCommentChange: (criterionId: string, comment: string) => void;
     onSaveDraft: () => void;
     onSubmitGrade: () => void;
+
+    isLocked: boolean;
 }
 
 export const RubricGradeTable = ({

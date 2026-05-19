@@ -18,7 +18,6 @@ const List: React.FC = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  // ✅ FIX: fetchData solo hace el fetch y el setData, nada más
   const fetchData = useCallback(async () => {
     const [rubrics, allCriteria] = await Promise.all([
       rubricService.getAll(),
@@ -241,7 +240,6 @@ const List: React.FC = () => {
             options: [
               { value: "draft", label: "Borrador" },
               { value: "published", label: "Publicada" },
-              { value: "archived", label: "Archivada" },
             ],
           },
         ]}
