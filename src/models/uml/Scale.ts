@@ -12,16 +12,3 @@ export interface Scale {
     criteria?: Criteria;
     gradeDetails?: GradeDetail[];
 }
-
-export interface CreateScaleDTO {
-    criterion_id: string;
-    name: string;
-    description: string;
-    value: number;
-}
-
-export interface UpdateScaleDTO {
-    name?: string;
-    description?: string;
-    value?: number;
-}

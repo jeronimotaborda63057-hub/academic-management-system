@@ -1,8 +1,8 @@
-import type { StudentEnrollmentOption } from "../../hooks/useStudentEnrollment";
+import type { StudentEnrollmentOption } from "./useStudentEnrollment";
 import {
     getStudentDisplayName,
     isRegistrationActive,
-} from "../../hooks/useStudentEnrollment";
+} from "./useStudentEnrollment";
 
 export const formatActiveCareer = (option: StudentEnrollmentOption): string => {
     const activeRegistrations = option.registrations.filter(isRegistrationActive);

@@ -1,10 +1,10 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 
-import type { Registration } from "../../models/Registration";
+import type { Registration } from "../../models/uml/Registration";
 import { getAcademicStatusLabel } from "../../hooks/useStudentEnrollment";
-import type { ResultModalState } from "./types";
+import type { ResultModalState } from "../../models/interfaces/States";
 import { DetailRow } from "./DetailRow";
-import { formatDateTime } from "./enrollmentFormatters";
+import { formatDateTime } from "../../hooks/enrollmentFormatters";
 import { ModalShell } from "./ModalShell";
 
 interface ResultModalProps {
@@ -36,11 +36,10 @@ export const ResultModal = ({
         >
             <div className="flex flex-col items-center text-center">
                 <div
-                    className={`mb-4 flex h-14 w-14 items-center justify-center rounded-full border-4 ${
-                        isSuccess
-                            ? "border-green-700 text-green-700"
-                            : "border-red-700 text-red-700"
-                    }`}
+                    className={`mb-4 flex h-14 w-14 items-center justify-center rounded-full border-4 ${isSuccess
+                        ? "border-green-700 text-green-700"
+                        : "border-red-700 text-red-700"
+                        }`}
                 >
                     {isSuccess ? <CheckCircle2 size={34} /> : <XCircle size={34} />}
                 </div>
@@ -58,11 +57,10 @@ export const ResultModal = ({
             </div>
 
             <div
-                className={`mt-5 rounded-lg border p-4 ${
-                    isSuccess
-                        ? "border-green-100 bg-green-50"
-                        : "border-red-100 bg-red-50"
-                }`}
+                className={`mt-5 rounded-lg border p-4 ${isSuccess
+                    ? "border-green-100 bg-green-50"
+                    : "border-red-100 bg-red-50"
+                    }`}
             >
                 <p className="mb-3 text-sm font-semibold text-gray-900">
                     {isSuccess ? "Datos de la matricula" : "Matricula activa encontrada"}

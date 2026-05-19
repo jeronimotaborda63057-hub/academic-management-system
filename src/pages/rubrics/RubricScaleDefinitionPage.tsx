@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 
-import type { Criteria } from "../../models/Criteria";
-import type { Rubric } from "../../models/Rubric";
+import type { Criteria } from "../../models/uml/Criteria";
+import type { Rubric } from "../../models/uml/Rubric";
 
 import { rubricService } from "../../services/rubricService";
 import { criteriaService } from "../../services/criteriaService";

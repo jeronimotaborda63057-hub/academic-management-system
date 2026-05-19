@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
-import type { Registration } from "../models/Registration";
-import type { Subject } from "../models/Subject";
+import type { Registration } from "../models/uml/Registration";
+import type { Subject } from "../models/uml/Subject";
 import type { RootState } from "../store/store";
 import { registrationService } from "../services/registrationService";
 

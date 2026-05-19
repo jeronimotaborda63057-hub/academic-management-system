@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 
-import type { Career } from "../../models/Career";
-import type { AcademicRegistrationStatus } from "../../models/Registration";
+import type { Career } from "../../models/uml/Career";
+import type { AcademicRegistrationStatus } from "../../models/uml/Registration";
 import {
     ACADEMIC_STATUS_OPTIONS,
     type StudentEnrollmentDraft,

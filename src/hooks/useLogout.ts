@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import { firebaseAuthService } from "../services/auth/firebaseAuthService";
+import { firebaseAuthService } from "../firebase/firebaseAuth";
 import { securityService } from "../services/auth/securityService";
 import { clearUser } from "../store/userSlice";
 

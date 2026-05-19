@@ -1,6 +1,5 @@
-import type { Group } from './Group';
-// Evaluation ya existe en el proyecto; se importa desde su modelo original
-import type { Evaluation } from './Evaluation';
+import type { Evaluation } from '../uml/Evaluation';
+import type { Group } from '../uml/Group';
 
 // Detalle de calificación por evaluación para un estudiante
 export interface StudentEvalGrade {

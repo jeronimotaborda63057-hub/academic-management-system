@@ -1,4 +1,4 @@
-import type { AcademicRegistrationStatus } from "../../models/Registration";
+import type { AcademicRegistrationStatus } from "../../models/uml/Registration";
 import { getAcademicStatusLabel } from "../../hooks/useStudentEnrollment";
 import { InfoBanner } from "./InfoBanner";
 import { ModalShell } from "./ModalShell";

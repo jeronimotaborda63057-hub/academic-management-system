@@ -11,10 +11,10 @@ import {
 
 import * as Yup from "yup";
 
-import type { Enrollment } from "../../models/Enrollment";
-import type { EnrollmentStatus } from "../../models/Enrollment";
-import type { Student } from "../../models/Student";
-import type { Group } from "../../models/Group";
+import type { Enrollment } from "../../models/uml/Enrollment";
+import type { EnrollmentStatus } from "../../models/uml/Enrollment";
+import type { Student } from "../../models/uml/Student";
+import type { Group } from "../../models/uml/Group";
 
 import {
     enrollmentService,

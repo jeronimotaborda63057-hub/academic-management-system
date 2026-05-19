@@ -22,7 +22,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import type { CareerForm } from "../../models/Career";
+import type { CareerForm } from "../../models/uml/Career";
 import { careerService } from "../../services/careerService";
 import PageHeader from "../../components/ui/PageHeader";
 

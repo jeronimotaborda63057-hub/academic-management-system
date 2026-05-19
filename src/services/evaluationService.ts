@@ -1,4 +1,4 @@
-import type { Evaluation } from "../models/Evaluation";
+import type { Evaluation } from "../models/uml/Evaluation";
 import { api } from "../interceptors/authInterceptor";
 import { BaseService } from "./baseService";
 

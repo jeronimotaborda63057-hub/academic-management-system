@@ -1,5 +1,5 @@
 import React from "react";
-import type { FilterConfig } from "../models/FilterConfig";
+import type { FilterConfig } from "../models/interfaces/FilterConfig";
 
 interface TableToolbarProps {
     searchPlaceholder?: string;

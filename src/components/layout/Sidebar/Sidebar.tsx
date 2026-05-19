@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
-import type { NavGroup } from "../../../models/nav/NavGroup";
+import type { NavGroup } from "../../../models/interfaces/NavGroup";
 import { adminMenu, studentMenu, teacherMenu } from "./sidebarConfig";
 import SidebarNavGroup from "./SidebarNavGroup";
 import SidebarLogoutButton from "./SidebarLogoutButton";

@@ -1,4 +1,4 @@
-import type { EnrollableStudent } from "../../models/EnrollableStudent";
+import type { EnrollableStudent } from "../../models/interfaces/EnrollableStudent";
 import { getStudentName } from "../../hooks/groupEnrollmentDisplay";
 
 interface StudentEnrollmentSummaryProps {

@@ -1,5 +1,5 @@
 import { api } from "../interceptors/authInterceptor";
-import type { Group } from "../models/Group";
+import type { Group } from "../models/uml/Group";
 import { BaseService } from "./baseService";
 
 type SearchFilters = Record<string, string | number | boolean | undefined>;

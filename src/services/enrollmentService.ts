@@ -1,5 +1,5 @@
 import { api } from "../interceptors/authInterceptor";
-import type { Enrollment } from "../models/Enrollment";
+import type { Enrollment } from "../models/uml/Enrollment";
 import { BaseService } from "./baseService";
 
 type SearchFilters = Record<string, string | number | boolean | undefined>;
@@ -46,8 +46,8 @@ export class EnrollmentService extends BaseService<Enrollment> {
         );
         return response.data.data ?? null;
     }
-    
-    
+
+
 }
 
 export const enrollmentService = new EnrollmentService();

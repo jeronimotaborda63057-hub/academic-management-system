@@ -1,6 +1,6 @@
 import React from 'react';
 import { BookOpen } from 'lucide-react';
-import type { Group } from '../../models/Group';
+import type { Group } from '../../models/uml/Group';
 
 interface FinalGradeGroupCardProps {
     group: Group;

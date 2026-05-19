@@ -2,12 +2,12 @@ import type {
     AcademicRegistrationStatus,
     CreateCareerRegistrationPayload,
     Registration,
-} from "../models/Registration";
+} from "../models/uml/Registration";
 import { api } from "../interceptors/authInterceptor";
 import { BaseService } from "./baseService";
 
-export class RegistrationService extends BaseService<Registration>{
-    constructor (){
+export class RegistrationService extends BaseService<Registration> {
+    constructor() {
         super("academic/registrations");
     }
 
@@ -45,6 +45,6 @@ export class RegistrationService extends BaseService<Registration>{
 
         return response.data.data;
     }
-}   
+}
 
 export const registrationService = new RegistrationService();

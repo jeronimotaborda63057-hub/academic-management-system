@@ -1,4 +1,4 @@
-import type { User } from "../../models/User";
+import type { User } from "../../models/uml/User";
 import { getUserDisplayName, getUserInitial } from "../../utils/userDisplay";
 
 interface UserIdentityProps {

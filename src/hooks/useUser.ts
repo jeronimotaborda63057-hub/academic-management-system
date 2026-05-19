@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { userService } from "../services/userService";
-import type { User, CreateUserPayload } from "../models/User";
-import type { UserFilters } from "../models/UserFilters";
+import type { User, CreateUserPayload } from "../models/uml/User";
+import type { UserFilters } from "../models/interfaces/UserFilters";
 
 export const useUser = (autoLoad = true) => {
     const [users, setUsers] = useState<User[]>([]);

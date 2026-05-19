@@ -3,9 +3,9 @@ import { Pencil, CheckCircle, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import type { Semester } from "../../models/Semester";
-import type { Column } from "../../models/Column";
-import type { Action } from "../../models/Action";
+import type { Semester } from "../../models/uml/Semester";
+import type { Column } from "../../models/interfaces/Column";
+import type { Action } from "../../models/interfaces/Action";
 
 import { semesterService } from "../../services/semesterService";
 
@@ -41,9 +41,8 @@ const COLUMNS: Column<Semester>[] = [
         key: "is_active",
         label: "Estado",
         render: (value) => (
-            <span className={`rounded-full px-3 py-1 text-xs font-medium ${
-                value ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
-            }`}>
+            <span className={`rounded-full px-3 py-1 text-xs font-medium ${value ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                }`}>
                 {value ? "Activo" : "Cerrado"}
             </span>
         ),
@@ -53,20 +52,20 @@ const COLUMNS: Column<Semester>[] = [
 // ── Acciones ──────────────────────────────────────────────────────────────────
 const ACTIONS: Action[] = [
     {
-        name:    "edit",
-        label:   "Editar semestre",
-        icon:    <Pencil size={16} className="text-gray-700" />,
+        name: "edit",
+        label: "Editar semestre",
+        icon: <Pencil size={16} className="text-gray-700" />,
         primary: true,
     },
     {
-        name:  "activate",
+        name: "activate",
         label: "Activar semestre",
-        icon:  <CheckCircle size={16} className="text-green-600" />,
+        icon: <CheckCircle size={16} className="text-green-600" />,
     },
     {
-        name:    "close",
-        label:   "Cerrar semestre",
-        icon:    <XCircle size={16} className="text-red-600" />,
+        name: "close",
+        label: "Cerrar semestre",
+        icon: <XCircle size={16} className="text-red-600" />,
         variant: "danger",
     },
 ];
@@ -74,8 +73,8 @@ const ACTIONS: Action[] = [
 // ── Componente ────────────────────────────────────────────────────────────────
 const SemesterList: React.FC = () => {
     const navigate = useNavigate();
-    const [data,         setData]         = useState<Semester[]>([]);
-    const [search,       setSearch]       = useState("");
+    const [data, setData] = useState<Semester[]>([]);
+    const [search, setSearch] = useState("");
     const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
     const fetchData = useCallback(async () => {
@@ -107,7 +106,7 @@ const SemesterList: React.FC = () => {
             icon:  "question",
             showCancelButton:  true,
             confirmButtonText: "Activar",
-            cancelButtonText:  "Cancelar",
+            cancelButtonText: "Cancelar",
         });
         if (!result.isConfirmed) return;
 
@@ -130,7 +129,7 @@ const SemesterList: React.FC = () => {
             icon:  "warning",
             showCancelButton:  true,
             confirmButtonText: "Cerrar",
-            cancelButtonText:  "Cancelar",
+            cancelButtonText: "Cancelar",
             confirmButtonColor: "#d33",
         });
         if (!result.isConfirmed) return;
@@ -148,9 +147,9 @@ const SemesterList: React.FC = () => {
     };
 
     const handleAction = (action: string, item: Semester) => {
-        if (action === "edit")     navigate(`/semesters/edit/${item.id}`);
+        if (action === "edit") navigate(`/semesters/edit/${item.id}`);
         if (action === "activate") activateSemester(item.id);
-        if (action === "close")    closeSemester(item.id);
+        if (action === "close") closeSemester(item.id);
     };
 
     return (
@@ -167,7 +166,7 @@ const SemesterList: React.FC = () => {
                     key: "is_active",
                     label: "Estado",
                     options: [
-                        { label: "Activo",  value: "true"  },
+                        { label: "Activo", value: "true" },
                         { label: "Cerrado", value: "false" },
                     ],
                 }]}

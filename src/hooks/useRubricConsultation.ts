@@ -3,15 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
-import type { Criteria } from "../models/Criteria";
-import type { Evaluation } from "../models/Evaluation";
-import type { Group } from "../models/Group";
+import type { Criteria } from "../models/uml/Criteria";
+import type { Evaluation } from "../models/uml/Evaluation";
+import type { Group } from "../models/uml/Group";
 import type { RootState } from "../store/store";
-import type { Rubric } from "../models/Rubric";
-import type { Scale } from "../models/Scale";
-import type { Subject } from "../models/Subject";
-import type { Teacher } from "../models/Teacher";
-
+import type { Rubric } from "../models/uml/Rubric";
+import type { Scale } from "../models/uml/Scale";
+import type { Subject } from "../models/uml/Subject";
+import type { Teacher } from "../models/uml/Teacher";
 import { criteriaService } from "../services/criteriaService";
 import { enrollmentService } from "../services/enrollmentService";
 import { evaluationService } from "../services/evaluationService";
@@ -20,16 +19,7 @@ import { rubricService } from "../services/rubricService";
 import { scaleService } from "../services/scaleService";
 import { subjectService } from "../services/subjectService";
 import { teacherService } from "../services/teacherService";
-
-export interface RubricConsultationRecord {
-    evaluation: Evaluation;
-    rubric: Rubric;
-    subject?: Subject;
-    group?: Group;
-    teacher?: Teacher;
-    criteria: Criteria[];
-    scales: Scale[];
-}
+import type { RubricConsultationRecord } from "../models/interfaces/RubricConsultationRecord";
 
 const getProfileId = (profile?: { id?: string }) => profile?.id ?? "";
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { AlertTriangle, X } from "lucide-react";
-import type { Semester } from "../../models/Semester";
+import type { Semester } from "../../models/uml/Semester";
 import { formatDateOnly } from "../../utils/dateUtils";
 
 interface ArchiveCareerModalProps {

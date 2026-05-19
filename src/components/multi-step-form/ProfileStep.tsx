@@ -1,6 +1,6 @@
 import React from "react";
 import FormField from "./FormField";
-import type { StepField } from "../../models/StepField";
+import type { StepField } from "../../models/interfaces/StepField";
 import type { MultiStepFormValues } from "./MultiStepForm";
 
 const PROFILE_FIELDS_BY_ROLE: Record<string, StepField[]> = {

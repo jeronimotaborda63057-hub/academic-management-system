@@ -1,5 +1,5 @@
 import { BaseService } from "./baseService";
-import type { Subject } from "../models/Subject";
+import type { Subject } from "../models/uml/Subject";
 import { api } from "../interceptors/authInterceptor";
 
 class SubjectService extends BaseService<Subject> {

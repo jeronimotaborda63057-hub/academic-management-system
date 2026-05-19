@@ -3,8 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import MultiStepForm, { type MultiStepFormValues } from "../../components/multi-step-form/MultiStepForm";
 import { userService } from "../../services/userService";
 import Swal from "sweetalert2";
-import type { TeacherProfile } from "../../models/TeacherProfile";
-import type { User, UserRole } from "../../models/User";
+import type { TeacherProfile } from "../../models/interfaces/TeacherProfile";
+import type { User, UserRole } from "../../models/uml/User";
 
 const getPrefix = (role: string) => role === "TEACHER" ? "TCH-" : "STD-";
 

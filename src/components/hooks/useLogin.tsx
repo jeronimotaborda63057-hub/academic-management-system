@@ -2,35 +2,23 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import type { User } from "../../models/User";
+import type { User } from "../../models/uml/User";
 import {
     firebaseAuthService,
     type SocialAuthProvider,
-} from "../../services/auth/firebaseAuthService";
+} from "../../firebase/firebaseAuth";
 import {
     securityService,
-    type EmailSignUpData,
 } from "../../services/auth/securityService";
+import { getAuthErrorMessage } from "../../firebase/authErrorMessages";
 import { setUser } from "../../store/userSlice";
+import type { EmailSignUpData } from "../../models/interfaces/EmailSignUpData";
 
 interface LoginState {
     error: string | null;
     loading: boolean;
     loadingProvider: SocialAuthProvider | null;
 }
-
-const getAuthErrorMessage = (error: unknown): string => {
-    const code = (error as { code?: string }).code;
-    if (code === "auth/popup-closed-by-user")
-        return "El inicio de sesión fue cancelado.";
-    if (code === "auth/account-exists-with-different-credential")
-        return "Ya existe una cuenta con este correo usando otro proveedor.";
-    const status = (error as { response?: { status?: number } }).response?.status;
-    if (status === 401) return "No fue posible validar tus credenciales.";
-    if (status === 409) return "Ya existe una cuenta con este correo.";
-    return "Ocurrió un error. Intenta de nuevo.";
-};
-
 export function useLogin() {
     const dispatch = useDispatch();
     const navigate = useNavigate();

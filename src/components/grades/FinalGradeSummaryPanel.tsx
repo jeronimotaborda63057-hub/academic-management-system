@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertTriangle, CheckCircle, Info, Lock } from 'lucide-react';
-import type { GroupSummary } from '../../models/FinalGrade';
+import type { GroupSummary } from '../../models/interfaces/FinalGrade';
 
 interface FinalGradeSummaryPanelProps {
     summary: GroupSummary;

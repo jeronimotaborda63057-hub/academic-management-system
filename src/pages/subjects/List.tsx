@@ -8,8 +8,8 @@ import ArchiveSubjectModal from "../../components/modals/ArchiveSubjectModal";
 import { subjectService }  from "../../services/subjectService";
 import { groupService }    from "../../services/groupService";
 import { curriculumService } from "../../services/curriculumService";
-import type { Subject }    from "../../models/Subject";
-import type { Action }     from "../../models/Action";
+import type { Subject } from "../../models/uml/Subject";
+import type { Action }     from "../../models//interfaces/Action";
 import Swal                from "sweetalert2";
 
 const List: React.FC = () => {
@@ -18,7 +18,7 @@ const List: React.FC = () => {
     const [search, setSearch]           = useState("");
     const [filterValues, setFilterValues] = useState<Record<string, string>>({});
     const [archiveOpen, setArchiveOpen] = useState(false);
-    const [selected, setSelected]       = useState<Subject | null>(null);
+    const [selected, setSelected] = useState<Subject | null>(null);
 
     const fetchData = async () => {
         const subjects = await subjectService.getAll();
@@ -140,19 +140,18 @@ const List: React.FC = () => {
         });
 
     const columns = [
-        { key: "code",        label: "Código"      },
-        { key: "name",        label: "Nombre"      },
-        { key: "credits",     label: "Créditos"    },
+        { key: "code", label: "Código" },
+        { key: "name", label: "Nombre" },
+        { key: "credits", label: "Créditos" },
         { key: "description", label: "Descripción" },
         {
             key: "is_active",
             label: "Estado",
             render: (value: boolean) => (
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    value
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-200 text-gray-600"
-                }`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${value
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-200 text-gray-600"
+                    }`}>
                     {value ? "Activa" : "Archivada"}
                 </span>
             ),

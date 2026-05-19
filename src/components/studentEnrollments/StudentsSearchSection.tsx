@@ -3,10 +3,10 @@ import { Filter, Search } from "lucide-react";
 
 import Pagination from "../common/Pagination";
 import GenericTable from "../ui/GenericTable";
-import type { Column } from "../../models/Column";
+import type { Column } from "../../models/interfaces/Column";
 import type { StudentEnrollmentOption } from "../../hooks/useStudentEnrollment";
 import { getStudentDisplayName } from "../../hooks/useStudentEnrollment";
-import { formatActiveCareer } from "./enrollmentFormatters";
+import { formatActiveCareer } from "../../hooks/enrollmentFormatters";
 import { SectionCard } from "./SectionCard";
 import { StatusBadge } from "./StatusBadge";
 

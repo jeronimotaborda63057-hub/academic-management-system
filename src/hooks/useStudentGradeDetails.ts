@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
-import type { StudentGradeContext } from "../models/StudenGradeContext";
-import type { StudentGradeSummaryRow } from "../models/StudenGradeSummaryRow";
+import type {
+    StudentGradeContext,
+} from "../models/interfaces/StudenGradeContext";
+
+import type {
+    StudentGradeSummaryRow,
+} from "../models/interfaces/StudenGradeSummaryRow";
 
 import { useAcademicData } from "./useAcademicData";
 import { downloadGradeReportCsv } from "../utils/csvExporter";

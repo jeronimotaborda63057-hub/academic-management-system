@@ -1,5 +1,5 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
-import type { UserRole } from '../models/User';
+import type { UserRole } from '../models/uml/User';
 
 interface AppRoute {
     path: string;

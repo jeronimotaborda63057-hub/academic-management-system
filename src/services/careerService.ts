@@ -1,5 +1,5 @@
 import { BaseService } from "./baseService";
-import type { Career } from "../models/Career";
+import type { Career } from "../models/uml/Career";
 
 class CareerService extends BaseService<Career> {
     constructor() {

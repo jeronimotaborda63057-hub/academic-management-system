@@ -4,7 +4,7 @@ import type {
     CreateScaleDTO,
     Scale,
     UpdateScaleDTO
-} from "../models/Scale";
+} from "../models/uml/Scale";
 
 import { scaleService } from "../services/scaleService";
 

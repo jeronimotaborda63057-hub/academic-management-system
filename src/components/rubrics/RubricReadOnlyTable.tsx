@@ -1,5 +1,5 @@
-import type { Criteria } from "../../models/Criteria";
-import type { Scale } from "../../models/Scale";
+import type { Criteria } from "../../models/uml/Criteria";
+import type { Scale } from "../../models/uml/Scale";
 
 interface RubricReadOnlyTableProps {
     criteria: Criteria[];
@@ -102,7 +102,7 @@ export const RubricReadOnlyTable = ({
 
                     <tbody>
                         {criteria.map((criterion, index) => (
-                                <tr key={criterion.id} className="border-t border-gray-200">
+                            <tr key={criterion.id} className="border-t border-gray-200">
                                 <td className="border-r border-gray-200 px-4 py-5 align-top">
                                     <p className="font-semibold text-gray-900">
                                         {index + 1}. {criterion.name}

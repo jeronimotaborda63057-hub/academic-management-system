@@ -1,4 +1,4 @@
-import type { StudentGradeSummaryRow } from "../../models/StudenGradeSummaryRow";
+import type { StudentGradeSummaryRow } from "../../models/interfaces/StudenGradeSummaryRow";
 
 interface SubjectOption {
     id: string;

@@ -1,4 +1,4 @@
-import type { StudentGradeDetailRow } from "../../models/StudentGradeDetailRow";
+import type { StudentGradeDetailRow } from "../../models/interfaces/StudentGradeDetailRow";
 import { formatGradeScore } from "../../hooks/studentGradeDisplay";
 
 interface StudentGradeDetailPanelProps {

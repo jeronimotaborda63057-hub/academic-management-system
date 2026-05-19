@@ -3,12 +3,12 @@
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import type { CareerForm } from "../../models/CareerForm";
-import { careerService }   from "../../services/careerService";
-import { useCareerForm }   from "../../hooks/useCareerForm";
+import type { CareerForm } from "../../models/interfaces/CareerForm";
+import { careerService } from "../../services/careerService";
+import { useCareerForm } from "../../hooks/useCareerForm";
 
 import FormLayout from "../../components/ui/FormLayout";
-import FormField  from "../../components/ui/FormField";
+import FormField from "../../components/ui/FormField";
 
 // ─────────────────────────────────────────────────────────────
 //  Create
@@ -20,10 +20,10 @@ import FormField  from "../../components/ui/FormField";
 // ─────────────────────────────────────────────────────────────
 
 const INITIAL: CareerForm = {
-    code:        "",
-    name:        "",
+    code: "",
+    name: "",
     description: "",
-    is_active:   true,
+    is_active: true,
 };
 
 export default function Create() {
@@ -36,9 +36,9 @@ export default function Create() {
             await careerService.create(data);
 
             await Swal.fire({
-                icon:  "success",
+                icon: "success",
                 title: "Carrera creada",
-                text:  "Se guardó correctamente.",
+                text: "Se guardó correctamente.",
             });
 
             navigate("/careers/list");
@@ -46,16 +46,16 @@ export default function Create() {
         } catch {
 
             Swal.fire({
-                icon:  "error",
+                icon: "error",
                 title: "Error",
-                text:  "No se pudo crear la carrera.",
+                text: "No se pudo crear la carrera.",
             });
         }
     };
 
     const formik = useCareerForm({
         initialValues: INITIAL,
-        onSubmit:      handleSubmit,
+        onSubmit: handleSubmit,
     });
 
     const handleFormSubmit = (e: React.FormEvent) => {

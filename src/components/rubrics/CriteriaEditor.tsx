@@ -1,7 +1,7 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 import type { CriteriaRow } from "../../hooks/useRubricForm";
-import type { Column } from "../../models/Column";
+import type { Column } from "../../models/interfaces/Column";
 
 /**
  * CriteriaEditor — tabla inline de criterios ponderados.
@@ -31,9 +31,9 @@ const inputClass =
     "h-9 px-3 rounded-lg border border-stroke dark:border-strokedark bg-white dark:bg-boxdark text-sm text-black dark:text-white outline-none focus:border-primary transition-colors w-full";
 
 const columns: Column<CriteriaRow>[] = [
-    { key: "name",        label: "Nombre *"    },
+    { key: "name", label: "Nombre *" },
     { key: "description", label: "Descripción" },
-    { key: "weight",      label: "Peso %"      },
+    { key: "weight", label: "Peso %" },
 ];
 
 const CriteriaEditor: React.FC<CriteriaEditorProps> = ({
@@ -86,11 +86,10 @@ const CriteriaEditor: React.FC<CriteriaEditorProps> = ({
                             {rows.map((row, idx) => (
                                 <tr
                                     key={row.id}
-                                    className={`border-t border-stroke dark:border-strokedark ${
-                                        idx % 2 === 0
+                                    className={`border-t border-stroke dark:border-strokedark ${idx % 2 === 0
                                             ? "bg-white dark:bg-boxdark"
                                             : "bg-gray-50 dark:bg-meta-4"
-                                    }`}
+                                        }`}
                                 >
                                     {/* Nombre */}
                                     <td className="px-4 py-2" style={{ minWidth: 160 }}>
@@ -169,14 +168,12 @@ const CriteriaEditor: React.FC<CriteriaEditorProps> = ({
             {/* ── Indicador suma de pesos ── */}
             {rows.length > 0 && (
                 <div
-                    className={`flex items-center gap-2 text-sm font-medium ${
-                        weightsValid ? "text-green-600" : "text-red-500"
-                    }`}
+                    className={`flex items-center gap-2 text-sm font-medium ${weightsValid ? "text-green-600" : "text-red-500"
+                        }`}
                 >
                     <span
-                        className={`inline-block w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                            weightsValid ? "bg-green-500" : "bg-red-500"
-                        }`}
+                        className={`inline-block w-2.5 h-2.5 rounded-full flex-shrink-0 ${weightsValid ? "bg-green-500" : "bg-red-500"
+                            }`}
                     />
                     Total de pesos: {totalWeight}%
                     {!weightsValid && (

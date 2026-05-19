@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import type { Teacher } from "../../models/Teacher";
+import type { Teacher } from "../../models/uml/Teacher";
 
 interface TeacherSelectionPanelProps {
   teachers: Teacher[];

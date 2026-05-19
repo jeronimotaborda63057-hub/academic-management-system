@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import type { SemesterForm } from "../../models/SemesterForm";
+import type { SemesterForm } from "../../models/interfaces/SemesterForm";
 import { semesterService } from "../../services/semesterService";
 import PageHeader from "../../components/ui/PageHeader";
 
@@ -62,17 +62,17 @@ const validateDates = (start: string, end: string): string | null => {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 const SemesterFormPage: React.FC = () => {
-    const { id }   = useParams<{ id: string }>();
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const isEdit   = Boolean(id);
+    const isEdit = Boolean(id);
     const [loading, setLoading] = useState(false);
 
     const [form, setForm] = useState<SemesterForm>({
-        name:       "",
-        code:       "",
+        name: "",
+        code: "",
         start_date: "",
-        end_date:   "",
-        is_active:  false,
+        end_date: "",
+        is_active: false,
     });
 
     // Precarga en edición
@@ -81,12 +81,12 @@ const SemesterFormPage: React.FC = () => {
         semesterService.getById(id).then((s) => {
             if (!s) return;
             setForm({
-                name:       s.name,
-                code:       s.code,
+                name: s.name,
+                code: s.code,
                 // ISO → YYYY-MM-DD para que los inputs date lo muestren bien
                 start_date: s.start_date.slice(0, 10),
-                end_date:   s.end_date.slice(0, 10),
-                is_active:  s.is_active,
+                end_date: s.end_date.slice(0, 10),
+                is_active: s.is_active,
             });
         });
     }, [id]);
@@ -152,11 +152,11 @@ const SemesterFormPage: React.FC = () => {
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Field
-                        label="Nombre"   name="name"
+                        label="Nombre" name="name"
                         value={form.name} onChange={handleChange} required
                     />
                     <Field
-                        label="Código"   name="code"
+                        label="Código" name="code"
                         value={form.code} onChange={handleChange} required
                         disabled={isEdit}
                         hint={isEdit ? "El código no puede modificarse." : undefined}

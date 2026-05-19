@@ -3,7 +3,7 @@ import type { Evaluation } from "./Evaluation";
 import type { Group } from "./Group";
 import type { SubjectCurriculum } from "./SubjectCurriculum";
 
-export interface Subject{
+export interface Subject {
     code: string;
     created_at?: string;
     credits: number;

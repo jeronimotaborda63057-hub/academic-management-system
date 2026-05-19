@@ -1,6 +1,6 @@
 import { api } from "../interceptors/authInterceptor";
-import type { Curriculum } from "../models/Curriculum";
-import type { Subject } from "../models/Subject";
+import type { Curriculum } from "../models/uml/Curriculum";
+import type { Subject } from "../models/uml/Subject";
 import { BaseService } from "./baseService";
 
 export class CurriculumService extends BaseService<Curriculum> {

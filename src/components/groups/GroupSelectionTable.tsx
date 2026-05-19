@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-
-import type { Group } from "../../models/Group";
+import type { Group } from "../../models/uml/Group";
 
 interface GroupSelectionTableProps {
   groups: Group[];

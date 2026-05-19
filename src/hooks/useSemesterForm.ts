@@ -1,7 +1,7 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import type{ SemesterForm as SemesterType} from "../models/SemesterForm";
-import type { Semester } from "../models/Semester";
+import type { SemesterForm as SemesterType } from "../models/interfaces/SemesterForm";
+import type { Semester } from "../models/uml/Semester";
 
 interface Props {
     initialValues?: SemesterType;

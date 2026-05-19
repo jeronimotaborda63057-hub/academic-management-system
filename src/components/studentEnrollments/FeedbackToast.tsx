@@ -1,6 +1,6 @@
 import { CheckCircle2, X, XCircle } from "lucide-react";
 
-import type { ToastState } from "./types";
+import type { ToastState } from "../../models/interfaces/States";
 
 interface FeedbackToastProps {
     onClose: () => void;
@@ -15,9 +15,8 @@ export const FeedbackToast = ({ onClose, toast }: FeedbackToastProps) => {
 
     return (
         <div
-            className={`fixed bottom-6 left-1/2 z-[10000] flex w-[min(520px,calc(100vw-2rem))] -translate-x-1/2 items-start gap-4 rounded-lg border bg-white p-4 shadow-xl ${
-                isSuccess ? "border-green-100" : "border-red-100"
-            }`}
+            className={`fixed bottom-6 left-1/2 z-[10000] flex w-[min(520px,calc(100vw-2rem))] -translate-x-1/2 items-start gap-4 rounded-lg border bg-white p-4 shadow-xl ${isSuccess ? "border-green-100" : "border-red-100"
+                }`}
         >
             <Icon
                 size={22}

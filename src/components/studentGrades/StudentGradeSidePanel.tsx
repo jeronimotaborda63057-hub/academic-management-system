@@ -1,6 +1,6 @@
 import { Download, ExternalLink, MessageCircle } from "lucide-react";
 
-import type { StudentGradeContext } from "../../models/StudenGradeContext";
+import type { StudentGradeContext } from "../../models/interfaces/StudenGradeContext";
 import { formatGradeDate } from "../../hooks/studentGradeDisplay";
 
 interface StudentGradeSidePanelProps {

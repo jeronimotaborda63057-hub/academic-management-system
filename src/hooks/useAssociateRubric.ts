@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import type { Evaluation } from "../models/Evaluation";
-import type { Rubric } from "../models/Rubric";
-import type { Subject } from "../models/Subject";
+import type { Evaluation } from "../models/uml/Evaluation";
+import type { Rubric } from "../models/uml/Rubric";
+import type { Subject } from "../models/uml/Subject";
 
 import { evaluationService } from "../services/evaluationService";
 import { rubricService } from "../services/rubricService";

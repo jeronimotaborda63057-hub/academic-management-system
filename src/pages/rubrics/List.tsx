@@ -8,9 +8,9 @@ import GenericTable from "../../components/ui/GenericTable";
 import RubricStatusBadge from "../../components/rubrics/RubricStatusBadge";
 import { rubricService } from "../../services/rubricService";
 import { criteriaService } from "../../services/criteriaService";
-import type { Rubric } from "../../models/Rubric";
-import type { Action } from "../../models/Action";
-import type { Column } from "../../models/Column";
+import type { Rubric } from "../../models/uml/Rubric";
+import type { Action } from "../../models/interfaces/Action";
+import type { Column } from "../../models/interfaces/Column";
 
 const List: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +18,6 @@ const List: React.FC = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  // ✅ FIX: fetchData solo hace el fetch y el setData, nada más
   const fetchData = useCallback(async () => {
     const [rubrics, allCriteria] = await Promise.all([
       rubricService.getAll(),
@@ -241,7 +240,6 @@ const List: React.FC = () => {
             options: [
               { value: "draft", label: "Borrador" },
               { value: "published", label: "Publicada" },
-              { value: "archived", label: "Archivada" },
             ],
           },
         ]}

@@ -1,7 +1,7 @@
 import type { Rubric } from "./Rubric";
 import type { Subject } from "./Subject";
 
-export interface Evaluation{
+export interface Evaluation {
     created_at?: string;
     description?: string;
     group_id?: string;

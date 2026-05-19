@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 
 import type { RootState } from "../../store/store";
-import type { User } from "../../models/User";
+import type { User } from "../../models/uml/User";
 import { UserSwitcher } from "../../components/UserSwitcher";
 
 const getDisplayName = (user: User | null) => {

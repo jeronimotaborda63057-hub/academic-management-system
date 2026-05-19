@@ -1,5 +1,5 @@
 import type { FormikProps } from "formik";
-import type { SemesterForm as SemesterType} from "../../models/SemesterForm";
+import type { SemesterForm as SemesterType } from "../../models/interfaces/SemesterForm";
 
 interface Props {
     formik: FormikProps<SemesterType>;

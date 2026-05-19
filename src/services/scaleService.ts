@@ -1,4 +1,4 @@
-import type { Scale } from "../models/Scale";
+import type { Scale } from "../models/uml/Scale";
 import { api } from "../interceptors/authInterceptor";
 import { BaseService } from "./baseService";
 

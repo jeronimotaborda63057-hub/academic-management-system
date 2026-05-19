@@ -1,6 +1,6 @@
-import type { Criteria } from "../../models/Criteria";
-import type { Scale } from "../../models/Scale";
-import type { GradeDraft, GradingStudent } from "../../models/GradingStudent";
+import type { Criteria } from "../../models/uml/Criteria";
+import type { Scale } from "../../models/uml/Scale";
+import type { GradeDraft, GradingStudent } from "../../models/interfaces/GradingStudent";
 import {
     getStudentDisplayName,
     getStudentIdentification,

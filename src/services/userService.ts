@@ -1,6 +1,6 @@
 import { api } from "../interceptors/authInterceptor";
-import type { CreateUserPayload, User } from "../models/User";
-import type { UserFilters } from "../models/UserFilters";
+import type { CreateUserPayload, User } from "../models/uml/User";
+import type { UserFilters } from "../models/interfaces/UserFilters";
 import { BaseService } from "./baseService";
 
 export class UserService extends BaseService<User> {

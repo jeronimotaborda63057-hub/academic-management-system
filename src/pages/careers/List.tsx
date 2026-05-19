@@ -3,10 +3,10 @@ import { Pencil, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import type { Career } from "../../models/Career";
-import type { FilterConfig } from "../../models/FilterConfig";
-import type { Action } from "../../models/Action";
-import type { Column } from "../../models/Column";
+import type { Career } from "../../models/uml/Career";
+import type { FilterConfig } from "../../models/interfaces/FilterConfig";
+import type { Action } from "../../models/interfaces/Action";
+import type { Column } from "../../models/interfaces/Column";
 
 import { careerService } from "../../services/careerService";
 
@@ -16,8 +16,8 @@ import GenericTable from "../../components/ui/GenericTable";
 
 // ─── Configuración declarativa de columnas (OCP: cerrado a cambios, abierto a extensión) ─
 const COLUMNS: Column<Career>[] = [
-    { key: "code",        label: "Código" },
-    { key: "name",        label: "Nombre" },
+    { key: "code", label: "Código" },
+    { key: "name", label: "Nombre" },
     { key: "description", label: "Descripción" },
     {
         key: "is_active",
@@ -71,8 +71,8 @@ const FILTERS: FilterConfig[] = [
 
 const CareerList: React.FC = () => {
     const navigate = useNavigate();
-    const [data,         setData]         = useState<Career[]>([]);
-    const [search,       setSearch]       = useState("");
+    const [data, setData] = useState<Career[]>([]);
+    const [search, setSearch] = useState("");
     const [filterValues, setFilterValues] = useState<Record<string, string>>({});
 
     // DIP: usamos el servicio; no sabemos nada de HTTP aquí
@@ -139,7 +139,7 @@ const CareerList: React.FC = () => {
     };
 
     const handleAction = (action: string, item: Career) => {
-        if (action === "edit")    navigate(`/careers/edit/${item.id}`);
+        if (action === "edit") navigate(`/careers/edit/${item.id}`);
         if (action === "archive") archiveCareer(item.id);
     };
 

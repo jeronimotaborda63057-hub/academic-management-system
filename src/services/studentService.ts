@@ -1,9 +1,9 @@
-import type { Student } from "../models/Student";
+import type { Student } from "../models/uml/Student";
 import { api } from "../interceptors/authInterceptor";
 import { BaseService } from "./baseService";
 
-export class StudentService extends BaseService<Student>{
-    constructor(){
+export class StudentService extends BaseService<Student> {
+    constructor() {
         super("academic/students");
     }
 

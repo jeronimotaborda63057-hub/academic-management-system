@@ -1,4 +1,4 @@
-import type { NavGroup } from "../../../models/nav/NavGroup";
+import type { NavGroup } from "../../../models/interfaces/NavGroup";
 
 // Iconos reutilizables
 const icons = {
@@ -60,7 +60,6 @@ export const teacherMenu: NavGroup[] = [
         items: [
             { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
             { label: "Criterios y Escalas", path: "/rubrics/scales", icon: icons.rubric },
-            { label: "Evaluaciones", path: "/rubrics/evaluations", icon: icons.rubric },
             { label: "Asociar rúbrica", path: "/rubrics/associate", icon: icons.rubric}
         ],
     }
