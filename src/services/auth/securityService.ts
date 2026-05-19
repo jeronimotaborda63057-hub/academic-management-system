@@ -1,6 +1,6 @@
 import { api } from "../../interceptors/authInterceptor";
-import type { AuthData } from "../../models/auth/authData";
-import type { LoginResponse } from "../../models/auth/loginResponse";
+import type { AuthData } from "../../models/Auth/authData";
+import type { LoginResponse } from "../../models/Auth/loginResponse";
 import type { User } from "../../models/uml/User";
 import { LocalStorageProvider } from "../../storage/LocalStorageProvider";
 import type { StorageProvider } from "../../storage/StorageProvider";
