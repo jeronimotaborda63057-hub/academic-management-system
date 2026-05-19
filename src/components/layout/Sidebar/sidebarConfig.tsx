@@ -70,7 +70,7 @@ export const studentMenu: NavGroup[] = [
     {
         title: "MI ESPACIO",
         items: [
-            { label: "Mis asignaturas", path: "/subjects/list", icon: icons.group },
+            { label: "Mis asignaturas", path: "/student/my-subjects", icon: icons.group },
             { label: "Mis evaluaciones", path: "/rubrics/consultations", icon: icons.evaluation },
             { label: "Mis notas", path: "/grades/details", icon: icons.grade },
         ],

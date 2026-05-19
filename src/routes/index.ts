@@ -13,6 +13,7 @@ const UsersCreate = lazy(() => import('../pages/users/Create'));
 const UsersEdit = lazy(() => import('../pages/users/Edit'));
 const AdminTeachersList = lazy(() => import('../pages/admin/TeachersList'));
 const AdminTeacherDetail = lazy(() => import('../pages/admin/TeacherDetail'));
+const AdminStudentDetail = lazy(() => import('../pages/admin/StudentDetail'));
 const AdminCareerEnrollment = lazy(() => import('../pages/students/Enrollment'));
 const StudentMySubjects = lazy(() => import('../pages/students/MySubjects'));
 const CareersList = lazy(() => import('../pages/careers/List'));
@@ -103,6 +104,12 @@ const coreRoutes: AppRoute[] = [
         path: '/admin/teachers/:id',
         title: 'Detalle docente',
         component: AdminTeacherDetail,
+        roles: ["ADMIN"]
+    },
+    {
+        path: '/admin/students/:id',
+        title: 'Detalle estudiante',
+        component: AdminStudentDetail,
         roles: ["ADMIN"]
     },
     {
