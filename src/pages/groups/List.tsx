@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 import PageHeader from "../../components/ui/PageHeader";
 import GenericTable from "../../components/ui/GenericTable";
-import type { Column } from "../../models/interfaces/Column";
-import type { Group } from "../../models/uml/Group";
+import type { Column } from "../../models/Column";
+import type { Group } from "../../models/Group";
 import { groupService } from "../../services/groupService";
 
 type GroupRow = Group;

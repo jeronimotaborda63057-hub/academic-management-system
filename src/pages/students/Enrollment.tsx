@@ -6,7 +6,7 @@ import { EnrollmentStepper } from "../../components/studentEnrollments/Enrollmen
 import { EnrollmentSummaryPanel } from "../../components/studentEnrollments/EnrollmentSummaryPanel";
 import {
     selectedStudentName,
-} from "../../hooks/enrollmentFormatters";
+} from "../../components/studentEnrollments/enrollmentFormatters";
 import { FeedbackToast } from "../../components/studentEnrollments/FeedbackToast";
 import { InfoBanner } from "../../components/studentEnrollments/InfoBanner";
 import { ResultModal } from "../../components/studentEnrollments/ResultModal";
@@ -14,13 +14,13 @@ import { StudentsSearchSection } from "../../components/studentEnrollments/Stude
 import type {
     ResultModalState,
     ToastState,
-} from "../../models/interfaces/States";
+} from "../../components/studentEnrollments/types";
 import { UpdateStatusModal } from "../../components/studentEnrollments/UpdateStatusModal";
 import PageHeader from "../../components/ui/PageHeader";
 import type {
     AcademicRegistrationStatus,
     Registration,
-} from "../../models/uml/Registration";
+} from "../../models/Registration";
 import {
     isValidAdmissionPeriod,
     type StudentEnrollmentErrors,

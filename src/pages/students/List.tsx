@@ -5,8 +5,8 @@ import GenericTable from "../../components/ui/GenericTable";
 
 import { studentService } from "../../services/studentService";
 
-import type { Student } from "../../models/uml/Student";
-import type { Column } from "../../models/interfaces/Column";
+import type { Student } from "../../models/Student";
+import type { Column } from "../../models/Column";
 
 // S: única responsabilidad — listar y gestionar acciones sobre estudiantes
 const List: React.FC = () => {
@@ -65,7 +65,7 @@ const List: React.FC = () => {
         },
     ];
 
-
+    
 
     return (
         <div>
@@ -81,7 +81,7 @@ const List: React.FC = () => {
                 onClear={() => setSearch("")}
                 filters={[]}
                 filterValues={{}}
-                onFilterChange={() => { }}
+                onFilterChange={() => {}}
             />
 
             <GenericTable

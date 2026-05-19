@@ -3,9 +3,9 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 import GroupForm, { type GroupFormValues } from "../../components/forms/GroupForm";
-import type { Semester } from "../../models/uml/Semester";
-import type { Subject } from "../../models/uml/Subject";
-import type { Teacher } from "../../models/uml/Teacher";
+import type { Semester } from "../../models/Semester";
+import type { Subject } from "../../models/Subject";
+import type { Teacher } from "../../models/Teacher";
 import { groupService } from "../../services/groupService";
 import { semesterService } from "../../services/semesterService";
 import { subjectService } from "../../services/subjectService";
