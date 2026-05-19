@@ -25,21 +25,21 @@ export const adminMenu: NavGroup[] = [
     {
         title: "ACADÉMICO",
         items: [
-            { label: "Carreras", path: "/careers/list", icon: icons.career },
-            { label: "Asignaturas", path: "/subjects/list", icon: icons.subject },
-            { label: "Plan de estudios", path: "/study-plans/list", icon: icons.plan },
-            { label: "Grupos", path: "/groups/list", icon: icons.group },
-            { label: "Semestres", path: "/semesters/list", icon: icons.semester },
-            { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
+            { label: "Carreras",        path: "/careers/list",      icon: icons.career   },
+            { label: "Asignaturas",     path: "/subjects/list",     icon: icons.subject  },
+            { label: "Plan de estudios",path: "/study-plans/list",  icon: icons.plan     },
+            { label: "Grupos",          path: "/groups/list",       icon: icons.group    },
+            { label: "Semestres",       path: "/semesters/list",    icon: icons.semester },
+            // ✅ Rúbricas eliminada — es responsabilidad exclusiva del TEACHER
         ],
     },
     {
         title: "GESTIÓN",
         items: [
-            { label: "Usuarios", path: "/users/list", icon: icons.users },
-            { label: "Docentes", path: "/admin/teachers", icon: icons.profile },
-            { label: "Estudiantes", path: "/students/list", icon: icons.users },
-            { label: "Matrículas", path: "/enrollments/list", icon: icons.enrollment },
+            { label: "Usuarios",    path: "/users/list",       icon: icons.users      },
+            { label: "Docentes",    path: "/admin/teachers",   icon: icons.profile    },
+            { label: "Estudiantes", path: "/students/list",    icon: icons.users      },
+            { label: "Matrículas",  path: "/enrollments/list", icon: icons.enrollment },
         ],
     },
 ];
@@ -49,20 +49,20 @@ export const teacherMenu: NavGroup[] = [
     {
         title: "MI CLASE",
         items: [
-            { label: "Grupos", path: "/teacher/my-groups", icon: icons.group },
-            { label: "Estudiantes", path: "/students/list", icon: icons.users },
-            { label: "Evaluaciones", path: "/evaluations", icon: icons.evaluation },
-            { label: "Notas finales", path: "/grades/list", icon: icons.report },
+            { label: "Grupos",       path: "/teacher/my-groups", icon: icons.group      },
+            { label: "Estudiantes",  path: "/students/list",     icon: icons.users      },
+            { label: "Evaluaciones", path: "/evaluations",       icon: icons.evaluation },
+            { label: "Notas finales",path: "/grades/list",       icon: icons.report     },
         ],
     },
     {
         title: "RÚBRICAS",
         items: [
-            { label: "Rúbricas", path: "/rubrics/list", icon: icons.rubric },
-            { label: "Criterios y Escalas", path: "/rubrics/scales", icon: icons.rubric },
-            { label: "Asociar rúbrica", path: "/rubrics/associate", icon: icons.rubric}
+            { label: "Rúbricas",          path: "/rubrics/list",      icon: icons.rubric },
+            { label: "Criterios y Escalas",path: "/rubrics/scales",   icon: icons.rubric },
+            { label: "Asociar rúbrica",   path: "/rubrics/associate", icon: icons.rubric },
         ],
-    }
+    },
 ];
 
 // ─── ESTUDIANTE ───────────────────────────────────────
@@ -70,9 +70,9 @@ export const studentMenu: NavGroup[] = [
     {
         title: "MI ESPACIO",
         items: [
-            { label: "Mis asignaturas", path: "/student/my-subjects", icon: icons.group },
-            { label: "Mis evaluaciones", path: "/rubrics/consultations", icon: icons.evaluation },
-            { label: "Mis notas", path: "/grades/details", icon: icons.grade },
+            { label: "Mis asignaturas",  path: "/student/my-subjects",    icon: icons.group      },
+            { label: "Mis evaluaciones", path: "/rubrics/consultations",   icon: icons.evaluation },
+            { label: "Mis notas",        path: "/grades/details",          icon: icons.grade      },
         ],
     },
 ];
