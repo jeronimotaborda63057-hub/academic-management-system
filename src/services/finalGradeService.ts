@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-import { api } from "../interceptors/authInterceptor";
-import type { FinalGradeConsolidated } from "../models/FinalGrade";
-=======
 // api viene del interceptor de autenticación (igual que en groupService, enrollmentService, etc.)
 import { api } from '../interceptors/authInterceptor';
 import type { FinalGradeConsolidated } from '../models/interfaces/FinalGrade';
->>>>>>> 39d3aa2d1861f54356a653ae1908106fb05c19fa
 
 export class FinalGradeService { //
     //Obtiene el consolidado de notas finales por grupo 

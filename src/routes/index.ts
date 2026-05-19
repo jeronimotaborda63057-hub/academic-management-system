@@ -47,7 +47,7 @@ const RubricsEdit = lazy(() => import('../pages/rubrics/Edit'));
 
 // ── CU-12: Registrar nota final ───────────────────────────────────────────────
 const RegisterFinalGradePage = lazy(() => import('../pages/grades/RegisterFinalGradePage'));
-const TeacherGroupsPage = lazy(() => import('../pages/groups/TeacherGroupsPage'));
+const TeacherGroupsPage = lazy(() => import('../pages/groups/TeachersGroupsPage'));
 const TeacherMyGroups = lazy(() => import('../pages/teachers/MyGroups'));
 const AssociateRubricPage = lazy(() => import('../pages/evaluations/AssociateRubricPage'));
 
