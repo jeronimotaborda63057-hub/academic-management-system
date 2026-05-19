@@ -1,193 +1,161 @@
-import React, { useEffect, useState, useCallback } from "react";
+/**
+ * pages/semesters/List.tsx — REFACTORIZADO
+ *
+ * Reutiliza: useEntityList, StatusBadge, useConfirmDialog.
+ */
+
+import React from "react";
 import { Pencil, CheckCircle, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
 
 import type { Semester } from "../../models/uml/Semester";
 import type { Column } from "../../models/interfaces/Column";
 import type { Action } from "../../models/interfaces/Action";
 
 import { semesterService } from "../../services/semesterService";
+import { useEntityList } from "../../hooks/useEntityList";
+import { useConfirmDialog } from "../../hooks/useConfirmDialog";
 
 import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
 import GenericTable from "../../components/ui/GenericTable";
+import { StatusBadge } from "../../components/ui/StatusBadge";
 
-// ── Helpers de formato ────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 const fmt = (dateStr: string) => {
-    const [year, month, day] = dateStr.split("-");
-    return new Intl.DateTimeFormat("es-CO", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    }).format(new Date(Number(year), Number(month) - 1, Number(day)));
+  const [year, month, day] = dateStr.split("-");
+  return new Intl.DateTimeFormat("es-CO", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(Number(year), Number(month) - 1, Number(day)));
 };
 
-// ── Columnas declarativas ─────────────────────────────────────────────────────
+// ── Columnas ──────────────────────────────────────────────────────────────────
 const COLUMNS: Column<Semester>[] = [
-    { key: "code", label: "Código" },
-    { key: "name", label: "Nombre" },
-    {
-        key: "start_date",
-        label: "Inicio",
-        render: (v) => <span>{fmt(String(v))}</span>,
-    },
-    {
-        key: "end_date",
-        label: "Fin",
-        render: (v) => <span>{fmt(String(v))}</span>,
-    },
-    {
-        key: "is_active",
-        label: "Estado",
-        render: (value) => (
-            <span className={`rounded-full px-3 py-1 text-xs font-medium ${value ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
-                }`}>
-                {value ? "Activo" : "Cerrado"}
-            </span>
-        ),
-    },
+  { key: "code", label: "Código" },
+  { key: "name", label: "Nombre" },
+  { key: "start_date", label: "Inicio", render: (v) => <span>{fmt(String(v))}</span> },
+  { key: "end_date",   label: "Fin",    render: (v) => <span>{fmt(String(v))}</span> },
+  {
+    key: "is_active",
+    label: "Estado",
+    render: (value) => (
+      <StatusBadge active={Boolean(value)} trueLabel="Activo" falseLabel="Cerrado" />
+    ),
+  },
 ];
 
-// ── Acciones ──────────────────────────────────────────────────────────────────
 const ACTIONS: Action[] = [
-    {
-        name: "edit",
-        label: "Editar semestre",
-        icon: <Pencil size={16} className="text-gray-700" />,
-        primary: true,
-    },
-    {
-        name: "activate",
-        label: "Activar semestre",
-        icon: <CheckCircle size={16} className="text-green-600" />,
-    },
-    {
-        name: "close",
-        label: "Cerrar semestre",
-        icon: <XCircle size={16} className="text-red-600" />,
-        variant: "danger",
-    },
+  { name: "edit",     label: "Editar semestre",  icon: <Pencil      size={16} />, primary: true },
+  { name: "activate", label: "Activar semestre",  icon: <CheckCircle size={16} className="text-green-600" /> },
+  { name: "close",    label: "Cerrar semestre",   icon: <XCircle     size={16} className="text-red-600"   />, variant: "danger" },
 ];
+
+// ── Filtro ────────────────────────────────────────────────────────────────────
+const filterSemester = (
+  s: Semester,
+  search: string,
+  filterValues: Record<string, string>
+) => {
+  const matchSearch =
+    !search ||
+    s.name?.toLowerCase().includes(search.toLowerCase()) ||
+    s.code?.toLowerCase().includes(search.toLowerCase());
+  const matchActive =
+    !filterValues.is_active || String(s.is_active) === filterValues.is_active;
+  return matchSearch && matchActive;
+};
 
 // ── Componente ────────────────────────────────────────────────────────────────
 const SemesterList: React.FC = () => {
-    const navigate = useNavigate();
-    const [data, setData] = useState<Semester[]>([]);
-    const [search, setSearch] = useState("");
-    const [filterValues, setFilterValues] = useState<Record<string, string>>({});
+  const navigate = useNavigate();
+  const { confirm, alert } = useConfirmDialog();
 
-    const fetchData = useCallback(async () => {
-        const semesters = await semesterService.getAll();
-        setData(semesters);
-    }, []);
-
-    useEffect(() => { fetchData(); }, [fetchData]);
-
-    // Filtrado local con búsqueda + filtro de estado
-    const tableData = data.filter((s) => {
-        const matchSearch =
-            !search ||
-            s.name.toLowerCase().includes(search.toLowerCase()) ||
-            s.code.toLowerCase().includes(search.toLowerCase());
-
-        const matchActive =
-            !filterValues.is_active ||
-            String(s.is_active) === filterValues.is_active;
-
-        return matchSearch && matchActive;
+  const { filteredData, filterValues, setSearch, handleFilterChange, handleClear, data, refresh } =
+    useEntityList<Semester>({
+      fetchFn: semesterService.getAll.bind(semesterService),
+      filterFn: filterSemester,
     });
 
-    // ── Activar semestre ──────────────────────────────────────────────────────
-    const activateSemester = async (id: string) => {
-        const result = await Swal.fire({
-            title: "¿Activar este semestre?",
-            text:  "El semestre activo actual será cerrado automáticamente.",
-            icon:  "question",
-            showCancelButton:  true,
-            confirmButtonText: "Activar",
-            cancelButtonText: "Cancelar",
-        });
-        if (!result.isConfirmed) return;
+  // Necesitamos actualizar localmente para reflejar el cambio al instante
+  // sin esperar un re-fetch completo.
+  const activateSemester = async (id: string) => {
+    const ok = await confirm({
+      title: "¿Activar este semestre?",
+      text: "El semestre activo actual será cerrado automáticamente.",
+      variant: "question",
+      confirmLabel: "Activar",
+    });
+    if (!ok) return;
 
-        const updated = await semesterService.setActive(id);
+    const updated = await semesterService.setActive(id);
+    if (updated) {
+      alert("Activado", "El semestre fue activado.", "success");
+      refresh();
+    } else {
+      alert("Error", "No se pudo activar el semestre.", "error");
+    }
+  };
 
-        if (updated) {
-            // Desactiva todos y marca solo el nuevo como activo
-            setData(prev => prev.map(s => ({ ...s, is_active: s.id === id })));
-            Swal.fire("Activado", "El semestre fue activado.", "success");
-        } else {
-            Swal.fire("Error", "No se pudo activar el semestre.", "error");
-        }
-    };
+  const closeSemester = async (id: string) => {
+    const ok = await confirm({
+      title: "¿Cerrar semestre?",
+      text: "No se podrán registrar más notas ni inscripciones en este semestre.",
+      variant: "danger",
+      confirmLabel: "Cerrar",
+    });
+    if (!ok) return;
 
-    // ── Cerrar semestre ───────────────────────────────────────────────────────
-    const closeSemester = async (id: string) => {
-        const result = await Swal.fire({
-            title: "¿Cerrar semestre?",
-            text:  "No se podrán registrar más notas ni inscripciones en este semestre.",
-            icon:  "warning",
-            showCancelButton:  true,
-            confirmButtonText: "Cerrar",
-            cancelButtonText: "Cancelar",
-            confirmButtonColor: "#d33",
-        });
-        if (!result.isConfirmed) return;
+    const updated = await semesterService.close(id);
+    if (updated) {
+      alert("Cerrado", "El semestre fue cerrado.", "success");
+      refresh();
+    } else {
+      alert("Error", "No se pudo cerrar el semestre.", "error");
+    }
+  };
 
-        const updated = await semesterService.close(id);
+  const handleAction = (action: string, item: Semester) => {
+    if (action === "edit")     navigate(`/semesters/edit/${item.id}`);
+    if (action === "activate") activateSemester(item.id);
+    if (action === "close")    closeSemester(item.id);
+  };
 
-        if (updated) {
-            setData(prev =>
-                prev.map(s => s.id === id ? { ...s, is_active: false } : s)
-            );
-            Swal.fire("Cerrado", "El semestre fue cerrado.", "success");
-        } else {
-            Swal.fire("Error", "No se pudo cerrar el semestre.", "error");
-        }
-    };
-
-    const handleAction = (action: string, item: Semester) => {
-        if (action === "edit") navigate(`/semesters/edit/${item.id}`);
-        if (action === "activate") activateSemester(item.id);
-        if (action === "close") closeSemester(item.id);
-    };
-
-    return (
-        <div>
-            <PageHeader
-                title="Semestres"
-                subtitle="Gestiona los periodos académicos del sistema."
-                breadcrumb={["Inicio", "Académico", "Semestres"]}
-            />
-
-            <TableToolbar
-                searchPlaceholder="Buscar por nombre o código..."
-                filters={[{
-                    key: "is_active",
-                    label: "Estado",
-                    options: [
-                        { label: "Activo", value: "true" },
-                        { label: "Cerrado", value: "false" },
-                    ],
-                }]}
-                filterValues={filterValues}
-                onSearchChange={setSearch}
-                onFilterChange={(k, v) => setFilterValues((p) => ({ ...p, [k]: v }))}
-                onClear={() => { setSearch(""); setFilterValues({}); }}
-                actionLabel="Nuevo semestre"
-                onAction={() => navigate("/semesters/create")}
-            />
-
-            <div className="mt-4">
-                <GenericTable
-                    data={tableData}
-                    columns={COLUMNS}
-                    actions={ACTIONS}
-                    onAction={handleAction}
-                />
-            </div>
-        </div>
-    );
+  return (
+    <div>
+      <PageHeader
+        title="Semestres"
+        subtitle="Gestiona los periodos académicos del sistema."
+        breadcrumb={["Inicio", "Académico", "Semestres"]}
+      />
+      <TableToolbar
+        searchPlaceholder="Buscar por nombre o código..."
+        filters={[{
+          key: "is_active",
+          label: "Estado",
+          options: [
+            { label: "Activo",   value: "true"  },
+            { label: "Cerrado",  value: "false" },
+          ],
+        }]}
+        filterValues={filterValues}
+        onSearchChange={setSearch}
+        onFilterChange={handleFilterChange}
+        onClear={handleClear}
+        actionLabel="Nuevo semestre"
+        onAction={() => navigate("/semesters/create")}
+      />
+      <div className="mt-4">
+        <GenericTable
+          data={filteredData}
+          columns={COLUMNS}
+          actions={ACTIONS}
+          onAction={handleAction}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default SemesterList;

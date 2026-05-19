@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
-import type { Registration } from "../models/uml/Registration";
-import type { Subject } from "../models/uml/Subject";
+import type { Enrollment } from "../models/uml/Enrollment";
 import type { RootState } from "../store/store";
-import { registrationService } from "../services/registrationService";
+import { enrollmentService } from "../services/enrollmentService";
 
 export interface StudentSubjectRow {
     id: string;
@@ -16,41 +15,56 @@ export interface StudentSubjectRow {
     status: string;
 }
 
-const belongsToStudent = (registration: Registration, studentId?: string): boolean => {
-    if (!studentId) return false;
-    return registration.student_id === studentId || registration.student?.id === studentId;
+// Enrollment.group puede venir enriquecido con subject y semester desde el backend
+type EnrichedGroup = {
+    id?: string;
+    name?: string;
+    group_code?: string;
+    subject?: { id?: string; code?: string; name?: string; credits?: number };
+    semester?: { name?: string };
 };
 
-const toSubjectRow = (registration: Registration): StudentSubjectRow | null => {
-    const subject: Subject | undefined = registration.group?.subject;
+const toSubjectRow = (enrollment: Enrollment): StudentSubjectRow | null => {
+    const group = enrollment.group as EnrichedGroup | undefined;
+    const subject = group?.subject;
     if (!subject?.id) return null;
 
     return {
-        id: `${registration.id ?? "registration"}-${subject.id}`,
-        code: subject.code,
-        credits: subject.credits,
-        groupName: registration.group?.name ?? registration.group?.group_code ?? "Sin grupo",
-        name: subject.name,
-        semesterName: registration.group?.semester?.name ?? "Sin semestre",
-        status: registration.academic_status ?? (registration.is_active ? "ACTIVE" : "INACTIVE"),
+        id: `${enrollment.id ?? "enrollment"}-${subject.id}`,
+        code: subject.code ?? "—",
+        credits: subject.credits ?? 0,
+        groupName: group?.name ?? group?.group_code ?? enrollment.group_id ?? "Sin grupo",
+        name: subject.name ?? "Sin nombre",
+        semesterName: group?.semester?.name ?? "Sin semestre",
+        status: enrollment.status ?? "ACTIVE",
     };
 };
 
 export const useStudentSubjects = () => {
+    // ID del perfil del estudiante autenticado
     const currentUser = useSelector((state: RootState) => state.user.user);
-    const currentStudentId = currentUser?.profile?.id ?? currentUser?.id;
+    const currentStudentId: string | undefined =
+        currentUser?.profile?.id ?? currentUser?.id;
 
-    const [registrations, setRegistrations] = useState<Registration[]>([]);
+    const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const loadSubjects = async () => {
+            if (!currentStudentId) {
+                setLoading(false);
+                return;
+            }
+
             try {
                 setLoading(true);
                 setError(null);
-                const data = await registrationService.getAll();
-                setRegistrations(data);
+                // Solo inscripciones del estudiante autenticado, no todo el sistema
+                const data = await enrollmentService.search({
+                    student_id: currentStudentId,
+                });
+                setEnrollments(data ?? []);
             } catch {
                 setError("No fue posible cargar tus asignaturas.");
             } finally {
@@ -59,18 +73,16 @@ export const useStudentSubjects = () => {
         };
 
         loadSubjects();
-    }, []);
+    }, [currentStudentId]);
 
     const subjects = useMemo(() => {
-        const rows = registrations
-            .filter((registration) => belongsToStudent(registration, currentStudentId))
+        const rows = enrollments
             .map(toSubjectRow)
             .filter((row): row is StudentSubjectRow => Boolean(row));
 
-        return Array.from(
-            new Map(rows.map((row) => [row.id, row])).values()
-        );
-    }, [currentStudentId, registrations]);
+        // Eliminar posibles duplicados
+        return Array.from(new Map(rows.map((row) => [row.id, row])).values());
+    }, [enrollments]);
 
     return {
         error,

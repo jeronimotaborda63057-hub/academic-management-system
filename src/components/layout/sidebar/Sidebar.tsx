@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
 import type { NavGroup } from "../../../models/interfaces/NavGroup";
-import { adminMenu, studentMenu, teacherMenu } from "./sidebarConfig";
+import { adminMenu, teacherMenu, studentMenu } from "./sidebarConfig";
 import SidebarNavGroup from "./SidebarNavGroup";
 import SidebarLogoutButton from "./SidebarLogoutButton";
 import Logo from "../../../assets/logo.png";
