@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { User } from "../models/User";
+import type { User } from "../models/uml/User";
 import { LocalStorageProvider } from "../storage/LocalStorageProvider";
 
 interface UserState {

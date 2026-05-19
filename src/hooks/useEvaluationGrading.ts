@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 
-import type { Criteria } from "../models/Criteria";
-import type { Enrollment } from "../models/Enrollment";
-import type { Evaluation } from "../models/Evaluation";
-import type { Grade } from "../models/Grade";
-import type { Rubric } from "../models/Rubric";
-import type { Scale } from "../models/Scale";
-import type { Student } from "../models/Student";
-import type { GradeDraft, GradingStudent } from "../models/GradingStudent";
+import type { Criteria } from "../models/uml/Criteria";
+import type { Enrollment } from "../models/uml/Enrollment";
+import type { Evaluation } from "../models/uml/Evaluation";
+import type { Grade } from "../models/uml/Grade";
+import type { Rubric } from "../models/uml/Rubric";
+import type { Scale } from "../models/uml/Scale";
+import type { Student } from "../models/uml/Student";
+import type { GradeDraft, GradingStudent } from "../models/interfaces/GradingStudent";
 import { criteriaService } from "../services/criteriaService";
 import { enrollmentService } from "../services/enrollmentService";
 import { evaluationService } from "../services/evaluationService";
@@ -34,6 +34,7 @@ const buildGradingStudents = (
 ): GradingStudent[] => {
     return enrollments.map((enrollment) => {
         const student = students.find((item) => item.id === enrollment.student_id);
+
         const grade = enrollment.student_id
             ? findGradeForStudent(grades, enrollment.student_id, enrollment.id)
             : undefined;
@@ -93,6 +94,8 @@ export const useEvaluationGrading = () => {
             ),
         [grades, selectedEnrollmentId, selectedStudent]
     );
+
+    const isLocked = existingGrade?.is_locked === true;
 
     const scalesByCriterion = useMemo(() => {
         return criteria.reduce<Record<string, Scale[]>>((acc, criterion) => {
@@ -174,6 +177,7 @@ export const useEvaluationGrading = () => {
         try {
             setLoading(true);
             setError(null);
+
             setCriteria([]);
             setScales([]);
             setStudents([]);
@@ -213,9 +217,11 @@ export const useEvaluationGrading = () => {
             ]);
 
             const rubric = rubricData.find((item: Rubric) => item.id === currentRubricId);
+
             const rubricScales = await scaleService.getByCriteria(
                 rubricCriteria.map((criterion) => criterion.id)
             );
+
             const gradingStudents = buildGradingStudents(
                 activeEnrollments,
                 studentData,
@@ -240,6 +246,7 @@ export const useEvaluationGrading = () => {
 
         existingGrade?.details?.forEach((detail) => {
             const scale = scales.find((item) => item.id === detail.scale_id);
+
             if (!scale?.criterion_id || !detail.scale_id) return;
 
             nextDraft[scale.criterion_id] = {
@@ -252,6 +259,8 @@ export const useEvaluationGrading = () => {
     };
 
     const handleScaleChange = (criterionId: string, scaleId: string) => {
+        if (isLocked) return;
+
         setDraft((prev) => ({
             ...prev,
             [criterionId]: {
@@ -262,6 +271,8 @@ export const useEvaluationGrading = () => {
     };
 
     const handleCommentChange = (criterionId: string, comment: string) => {
+        if (isLocked) return;
+
         setDraft((prev) => ({
             ...prev,
             [criterionId]: {
@@ -271,7 +282,7 @@ export const useEvaluationGrading = () => {
         }));
     };
 
-    const buildPayload = (status: "DRAFT" | "SUBMITTED"): SaveRubricGradePayload | null => {
+    const buildPayload = (status: "DRAFT" | "SENT"): SaveRubricGradePayload | null => {
         if (!rubricId || !selectedStudent) return null;
 
         return {
@@ -286,20 +297,36 @@ export const useEvaluationGrading = () => {
         };
     };
 
-    const saveGrade = async (status: "DRAFT" | "SUBMITTED") => {
+    const saveGrade = async (status: "DRAFT" | "SENT") => {
+        if (isLocked) {
+            throw new Error("La nota está bloqueada.");
+        }
+
         const payload = buildPayload(status);
+
         if (!payload) return null;
 
         setSaving(true);
 
         try {
-            const saved = existingGrade?.id
-                ? await gradeService.updateRubricGrade(existingGrade.id, payload)
-                : await gradeService.saveRubricGrade(payload);
+            let saved: Grade | null = null;
+
+            if (!existingGrade?.id) {
+                saved = await gradeService.saveRubricGrade(payload);
+            } else if (status === "DRAFT") {
+                saved = await gradeService.saveRubricGrade(payload);
+            } else {
+                saved = await gradeService.updateRubricGrade(existingGrade.id, {
+                    status: "SENT",
+                    observations: payload.observations,
+                    is_locked: true,
+                });
+            }
 
             if (!saved) throw new Error();
 
             const updatedGrades = await loadGrades(rubricId);
+
             const updatedStudents = students.map((student) => ({
                 ...student,
                 grade: findGradeForStudent(
@@ -311,6 +338,7 @@ export const useEvaluationGrading = () => {
 
             setGrades(updatedGrades);
             setStudents(updatedStudents);
+
             return saved;
         } finally {
             setSaving(false);
@@ -351,5 +379,6 @@ export const useEvaluationGrading = () => {
         students,
         updateComment: handleCommentChange,
         updateScale: handleScaleChange,
+        isLocked,
     };
 };

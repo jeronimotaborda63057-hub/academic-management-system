@@ -3,9 +3,9 @@ import { Eye } from "lucide-react";
 
 import GenericTable from "../ui/GenericTable";
 
-import type { Action } from "../../models/Action";
-import type { Column } from "../../models/Column";
-import type { Rubric } from "../../models/Rubric";
+import type { Action } from "../../models/interfaces/Action";
+import type { Column } from "../../models/interfaces/Column";
+import type { Rubric } from "../../models/uml/Rubric";
 
 interface Props {
   rubrics: Rubric[];

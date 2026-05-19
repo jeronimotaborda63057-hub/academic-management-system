@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
+import type { Semester } from "../../models/uml/Semester";
+import type { SemesterForm as SemesterFormValues } from "../../models/interfaces/SemesterForm";
 import { semesterService } from "../../services/semesterService";
 import { useSemesterForm } from "../../hooks/useSemesterForm";
+import { toDateInputValue } from "../../utils/dateUtils";
 
 import FormLayout from "../../components/ui/FormLayout";
-import FormField  from "../../components/ui/FormField";
+import FormField from "../../components/ui/FormField";
 
 // ─────────────────────────────────────────────────────────────
 //  Edit
@@ -21,12 +24,12 @@ import FormField  from "../../components/ui/FormField";
 
 const Edit = () => {
 
-    const { id }   = useParams<{ id: string }>();
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
-    const [semesters,    setSemesters]    = useState<any[]>([]);
-    const [initialData,  setInitialData]  = useState<any>(null);
-    const [loading,      setLoading]      = useState(true);
+    const [semesters, setSemesters] = useState<Semester[]>([]);
+    const [initialData, setInitialData] = useState<SemesterFormValues | undefined>(undefined);
+    const [loading, setLoading] = useState(true);
 
     // ── Carga inicial ──────────────────────────────────────
 
@@ -51,20 +54,20 @@ const Edit = () => {
                 setSemesters(all);
 
                 setInitialData({
-                    id:         current.id         ?? "",
-                    name:       current.name        ?? "",
-                    code:       current.code        ?? "",
-                    start_date: current.start_date  ?? "",
-                    end_date:   current.end_date    ?? "",
-                    is_active:  current.is_active   ?? false,
+                    id: current.id ?? "",
+                    name: current.name ?? "",
+                    code: current.code ?? "",
+                    start_date: toDateInputValue(current.start_date),
+                    end_date: toDateInputValue(current.end_date),
+                    is_active: current.is_active ?? false,
                 });
 
-            } catch (error: any) {
+            } catch {
 
                 await Swal.fire({
-                    icon:  "error",
+                    icon: "error",
                     title: "Error",
-                    text:  error?.response?.data?.message || "Error al cargar el semestre.",
+                    text: "Error al cargar el semestre.",
                 });
 
                 navigate("/semesters/list");
@@ -81,25 +84,25 @@ const Edit = () => {
 
     // ── Submit ─────────────────────────────────────────────
 
-    const handleSubmit = async (values: any) => {
+    const handleSubmit = async (values: SemesterFormValues) => {
         try {
 
             await semesterService.update(id!, values);
 
             await Swal.fire({
-                icon:  "success",
+                icon: "success",
                 title: "Semestre actualizado",
-                text:  "Se guardó correctamente.",
+                text: "Se guardó correctamente.",
             });
 
             navigate("/semesters/list");
 
-        } catch (error: any) {
+        } catch {
 
             Swal.fire({
-                icon:  "error",
+                icon: "error",
                 title: "Error",
-                text:  error?.response?.data?.message || "Error al actualizar el semestre.",
+                text: "Error al actualizar el semestre.",
             });
         }
     };
@@ -107,8 +110,8 @@ const Edit = () => {
     // enableReinitialize dentro del hook asegura que
     // Formik tome los valores cuando initialData llega async.
     const formik = useSemesterForm({
-        initialValues:     initialData,
-        onSubmit:          handleSubmit,
+        initialValues: initialData,
+        onSubmit: handleSubmit,
         existingSemesters: semesters,
     });
 

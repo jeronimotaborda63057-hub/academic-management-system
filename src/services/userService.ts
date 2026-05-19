@@ -1,6 +1,6 @@
 import { api } from "../interceptors/authInterceptor";
-import type { CreateUserPayload, User } from "../models/User";
-import type { UserFilters } from "../models/UserFilters";
+import type { CreateUserPayload, User } from "../models/uml/User";
+import type { UserFilters } from "../models/interfaces/UserFilters";
 import { BaseService } from "./baseService";
 
 export class UserService extends BaseService<User> {
@@ -10,7 +10,6 @@ export class UserService extends BaseService<User> {
 
     async createUser(payload: CreateUserPayload): Promise<User | null> {
         try {
-            console.log(api.defaults.baseURL);
             const response = await api.post<{ data: User }>(this.apiURL, payload);
             return response.data.data;
         } catch (error) {
@@ -39,6 +38,16 @@ export class UserService extends BaseService<User> {
             console.error("Error al buscar usuarios:", error);
             return [];
         }
+    }
+
+    async emailExists(email: string, excludeId?: string): Promise<boolean> {
+        const all = await this.getAll();
+        return all.some(u => u.email === email && u.id !== excludeId);
+    }
+
+    async codeExists(code: string, excludeId?: string): Promise<boolean> {
+        const all = await this.getAll();
+        return all.some(u => u.code === code && u.id !== excludeId);
     }
 }
 

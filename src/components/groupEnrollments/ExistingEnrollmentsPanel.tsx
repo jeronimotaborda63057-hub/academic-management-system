@@ -1,4 +1,4 @@
-import type { ExistingEnrollmentRow } from "./types";
+import type { ExistingEnrollmentRow } from "../../models/interfaces/ExistingEnrollmentRow";
 
 interface ExistingEnrollmentsPanelProps {
     enrollments: ExistingEnrollmentRow[];

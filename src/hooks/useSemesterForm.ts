@@ -1,11 +1,12 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import type{ SemesterForm as SemesterType} from "../models/SemesterForm";
+import type { SemesterForm as SemesterType } from "../models/interfaces/SemesterForm";
+import type { Semester } from "../models/uml/Semester";
 
 interface Props {
     initialValues?: SemesterType;
     onSubmit: (values: SemesterType) => Promise<void>;
-    existingSemesters: any[];
+    existingSemesters: Semester[];
 }
 
 export const useSemesterForm = ({

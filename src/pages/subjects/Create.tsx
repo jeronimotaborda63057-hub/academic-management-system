@@ -5,28 +5,36 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 import { subjectService } from "../../services/subjectService";
-import type { SubjectForm } from "../../models/Subject";
+import type { SubjectForm } from "../../models/uml/Subject";
 
 import FormLayout from "../../components/ui/FormLayout";
-import FormField  from "../../components/ui/FormField";
+import FormField from "../../components/ui/FormField";
 
 // ─────────────────────────────────────────────────────────────
 //  State shape
 // ─────────────────────────────────────────────────────────────
 
 interface SubjectCreateValues {
-    code:        string;
-    name:        string;
+    code: string;
+    name: string;
     description: string;
-    credits:     string;
+    credits: string;
 }
 
 const INITIAL: SubjectCreateValues = {
-    code:        "",
-    name:        "",
+    code: "",
+    name: "",
     description: "",
-    credits:     "1",
+    credits: "1",
 };
+
+function isDuplicateError(error: unknown): boolean {
+    if (!(error instanceof Error)) {
+        return false;
+    }
+
+    return error.message.includes("409");
+}
 
 // ─────────────────────────────────────────────────────────────
 //  Create
@@ -40,7 +48,7 @@ const Create: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const [values,    setValues]    = useState<SubjectCreateValues>(INITIAL);
+    const [values, setValues] = useState<SubjectCreateValues>(INITIAL);
     const [isLoading, setIsLoading] = useState(false);
 
     // ── Handlers ──────────────────────────────────────────
@@ -62,11 +70,11 @@ const Create: React.FC = () => {
         try {
 
             const payload: SubjectForm = {
-                code:        values.code,
-                name:        values.name,
+                code: values.code,
+                name: values.name,
                 description: values.description,
-                credits:     Number(values.credits),
-                is_active:   true,
+                credits: Number(values.credits),
+                is_active: true,
             };
 
             const result = await subjectService.create(payload);
@@ -74,21 +82,21 @@ const Create: React.FC = () => {
             if (!result) throw new Error();
 
             await Swal.fire({
-                icon:  "success",
+                icon: "success",
                 title: "Éxito",
-                text:  "Asignatura creada correctamente.",
+                text: "Asignatura creada correctamente.",
             });
 
             navigate("/subjects/list");
 
-        } catch (error: any) {
+        } catch (error: unknown) {
 
-            const isDuplicate = error.response?.status === 409;
+            const isDuplicate = isDuplicateError(error);
 
             Swal.fire({
-                icon:  "error",
+                icon: "error",
                 title: "Error",
-                text:  isDuplicate
+                text: isDuplicate
                     ? "Ya existe una asignatura con ese código."
                     : "Ocurrió un error al crear la asignatura.",
             });

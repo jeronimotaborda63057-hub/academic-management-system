@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import type { User } from "../models/User";
 import { userService } from "../services/userService";
 import type { RootState } from "../store/store";
 import { setUser } from "../store/userSlice";
+import type { User } from "../models/uml/User";
 
 const ROLE_CONFIG = {
     ADMIN: {
@@ -45,7 +45,7 @@ const getUserLabel = (user: User) => {
 export function UserSwitcher() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const currentUser = useSelector((state: RootState) => state.user.user);
+    const currentUser = useSelector<RootState, User | null>((state) => state.user.user);
     const [open, setOpen] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
@@ -90,12 +90,9 @@ export function UserSwitcher() {
                                 Cambiar usuario de prueba
                             </p>
                         </div>
-                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-500">
-                            Dev
-                        </span>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="max-h-[70vh] space-y-4 overflow-y-auto pr-1">
                         {loading && (
                             <div className="rounded-xl bg-gray-50 px-3 py-4 text-sm text-gray-500">
                                 Cargando usuarios...
@@ -118,6 +115,7 @@ export function UserSwitcher() {
                                     <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
                                         {config.title}
                                     </p>
+
                                     <div className="space-y-1">
                                         {users.map((user) => {
                                             const isActive = currentUser?.id === user.id;
@@ -127,21 +125,23 @@ export function UserSwitcher() {
                                                     key={user.id}
                                                     type="button"
                                                     onClick={() => handleSwitch(user)}
-                                                    className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition ${
-                                                        isActive
+                                                    className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition ${isActive
                                                             ? "border-primary bg-green-50"
                                                             : "border-transparent hover:border-gray-200 hover:bg-gray-50"
-                                                    }`}
+                                                        }`}
                                                 >
                                                     <span className={`h-2.5 w-2.5 rounded-full ${config.dot}`} />
+
                                                     <span className="min-w-0 flex-1">
                                                         <span className="block truncate text-sm font-semibold text-gray-900">
                                                             {getUserLabel(user)}
                                                         </span>
+
                                                         <span className="block truncate text-xs text-gray-500">
                                                             {user.email}
                                                         </span>
                                                     </span>
+
                                                     {isActive && (
                                                         <span className="text-xs font-medium text-primary">
                                                             Actual

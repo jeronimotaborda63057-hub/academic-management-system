@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import type { CareerForm } from "../../models/CareerForm";
-import { careerService }   from "../../services/careerService";
-import { useCareerForm }   from "../../hooks/useCareerForm";
+import type { CareerForm } from "../../models/interfaces/CareerForm";
+import { careerService } from "../../services/careerService";
+import { useCareerForm } from "../../hooks/useCareerForm";
 
 import FormLayout from "../../components/ui/FormLayout";
-import FormField  from "../../components/ui/FormField";
+import FormField from "../../components/ui/FormField";
 
 // ─────────────────────────────────────────────────────────────
 //  Edit
@@ -22,7 +22,7 @@ import FormField  from "../../components/ui/FormField";
 
 export default function EditCareer() {
 
-    const { id }   = useParams<{ id: string }>();
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
     const [initialValues, setInitialValues] =
@@ -36,10 +36,10 @@ export default function EditCareer() {
         careerService.getById(id).then((data) => {
             if (!data) return;
             setInitialValues({
-                code:        data.code,
-                name:        data.name,
+                code: data.code,
+                name: data.name,
                 description: data.description ?? "",
-                is_active:   data.is_active,
+                is_active: data.is_active,
             });
         });
     }, [id]);
@@ -52,9 +52,9 @@ export default function EditCareer() {
             await careerService.update(id!, data);
 
             await Swal.fire({
-                icon:  "success",
+                icon: "success",
                 title: "Carrera actualizada",
-                text:  "Se guardó correctamente.",
+                text: "Se guardó correctamente.",
             });
 
             navigate("/careers/list");
@@ -62,9 +62,9 @@ export default function EditCareer() {
         } catch {
 
             Swal.fire({
-                icon:  "error",
+                icon: "error",
                 title: "Error",
-                text:  "No se pudo actualizar la carrera.",
+                text: "No se pudo actualizar la carrera.",
             });
         }
     };

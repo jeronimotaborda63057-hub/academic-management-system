@@ -1,17 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 
-import type { Curriculum } from "../models/Curriculum";
-import type { Enrollment } from "../models/Enrollment";
-import type { Group } from "../models/Group";
-import type { Registration } from "../models/Registration";
-import type { Semester } from "../models/Semester";
-import type { Student } from "../models/Student";
-import type { Subject } from "../models/Subject";
+import type { Curriculum } from "../models/uml/Curriculum";
+import type { Enrollment } from "../models/uml/Enrollment";
+import type { Group } from "../models/uml/Group";
+import type { Registration } from "../models/uml/Registration";
+import type { Semester } from "../models/uml/Semester";
+import type { Student } from "../models/uml/Student";
+import type { Subject } from "../models/uml/Subject";
 import type {
     EnrollableGroupRow,
+} from "../models/interfaces/EnrollableGroupRow";
+import type {
     EnrollableStudent,
+} from "../models/interfaces/EnrollableStudent";
+import type {
     ExistingEnrollmentRow,
-} from "../components/groupEnrollments/types";
+} from "../models/interfaces/ExistingEnrollmentRow";
 import { curriculumService } from "../services/curriculumService";
 import { enrollmentService } from "../services/enrollmentService";
 import { groupService } from "../services/groupService";

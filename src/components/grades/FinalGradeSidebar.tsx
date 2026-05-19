@@ -1,5 +1,5 @@
-import type { Group } from "../../models/Group";
-import type { Semester } from "../../models/Semester";
+import type { Group } from "../../models/uml/Group";
+import type { Semester } from "../../models/uml/Semester";
 
 interface FinalGradeSidebarProps {
     activeSemester?: Semester;

@@ -1,6 +1,6 @@
 import GenericTable from "../ui/GenericTable";
-import type { Column } from "../../models/Column";
-import type { EnrollableGroupRow } from "./types";
+import type { Column } from "../../models/interfaces/Column";
+import type { EnrollableGroupRow } from "../../models/interfaces/EnrollableGroupRow";
 
 interface GroupEnrollmentTableProps {
     groups: EnrollableGroupRow[];
@@ -56,11 +56,10 @@ export const GroupEnrollmentTable = ({
             label: "Plan",
             render: (value: boolean) => (
                 <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${
-                        value
-                            ? "bg-green-100 text-green-700"
-                            : "bg-amber-100 text-amber-700"
-                    }`}
+                    className={`rounded-full px-3 py-1 text-xs font-medium ${value
+                        ? "bg-green-100 text-green-700"
+                        : "bg-amber-100 text-amber-700"
+                        }`}
                 >
                     {value ? "Pertenece" : "Fuera del plan"}
                 </span>

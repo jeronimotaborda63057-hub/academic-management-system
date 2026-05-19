@@ -11,9 +11,10 @@ import {
 
 import * as Yup from "yup";
 
-import type { Enrollment } from "../../models/Enrollment";
-import type { Student } from "../../models/Student";
-import type { Group } from "../../models/Group";
+import type { Enrollment } from "../../models/uml/Enrollment";
+import type { EnrollmentStatus } from "../../models/uml/Enrollment";
+import type { Student } from "../../models/uml/Student";
+import type { Group } from "../../models/uml/Group";
 
 import {
     enrollmentService,
@@ -40,6 +41,14 @@ const schema = Yup.object({
     status: Yup.string()
         .required(),
 });
+
+function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+        return error.message;
+    }
+
+    return "Ocurrió un error inesperado.";
+}
 
 function derivePeriodo(
     date?: string
@@ -126,7 +135,7 @@ const EnrollmentEditPage: React.FC = () => {
                 ),
 
             status:
-                enrollmentData?.status as any,
+                enrollmentData?.status ?? "ACTIVE",
         });
 
         setLoading(false);
@@ -163,12 +172,18 @@ const EnrollmentEditPage: React.FC = () => {
 
             setErrors({});
 
-        } catch (err: any) {
+        } catch (err: unknown) {
+            if (!(err instanceof Yup.ValidationError)) {
+                setApiError(getErrorMessage(err));
+                return;
+            }
 
             const nextErrors: Record<string, string> = {};
 
-            err.inner.forEach((e: any) => {
-                nextErrors[e.path] = e.message;
+            err.inner.forEach((e) => {
+                if (e.path) {
+                    nextErrors[e.path] = e.message;
+                }
             });
 
             setErrors(nextErrors);
@@ -184,17 +199,15 @@ const EnrollmentEditPage: React.FC = () => {
 
             await enrollmentService.update(id, {
                 group_id: form.group_id,
-                status: form.status,
-            } as any);
+                status: form.status as EnrollmentStatus,
+            });
 
             navigate("/enrollments/list");
 
-        } catch (err: any) {
+        } catch (err: unknown) {
 
             setApiError(
-                err?.response?.data?.message ??
-                err?.message ??
-                "Ocurrió un error inesperado."
+                getErrorMessage(err)
             );
 
         } finally {

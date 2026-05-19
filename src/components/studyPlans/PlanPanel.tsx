@@ -1,7 +1,7 @@
 import React from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { Trash2 } from "lucide-react";
-import type { Career } from "../../models/Career";
+import type { Career } from "../../models/uml/Career";
 
 export interface PlanPanelItem {
     planId: string;       // id del StudyPlan (para vincular/desvincular)

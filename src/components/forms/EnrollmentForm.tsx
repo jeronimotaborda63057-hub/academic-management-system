@@ -1,7 +1,7 @@
 import React from "react";
 
-import type { Student } from "../../models/Student";
-import type { Group } from "../../models/Group";
+import type { Student } from "../../models/uml/Student";
+import type { Group } from "../../models/uml/Group";
 
 export interface EnrollmentFormValues {
     student_id: string;
@@ -243,9 +243,8 @@ const inputCls = (hasError: boolean) =>
         bg-white dark:bg-boxdark
         text-gray-900 dark:text-white
 
-        ${
-            hasError
-                ? "border-red-400 focus:border-red-500"
-                : "border-gray-200 dark:border-strokedark focus:border-primary"
-        }
+        ${hasError
+        ? "border-red-400 focus:border-red-500"
+        : "border-gray-200 dark:border-strokedark focus:border-primary"
+    }
     `;

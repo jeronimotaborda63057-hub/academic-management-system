@@ -1,15 +1,16 @@
 // src/pages/semesters/Create.tsx
 
 import { useEffect, useState } from "react";
-import { useNavigate }         from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-import type { Semester }         from "../../models/Semester";
-import { semesterService }       from "../../services/semesterService";
-import { useSemesterForm }       from "../../hooks/useSemesterForm";
+import type { Semester } from "../../models/uml/Semester";
+import type { SemesterForm as SemesterFormValues } from "../../models/interfaces/SemesterForm";
+import { semesterService } from "../../services/semesterService";
+import { useSemesterForm } from "../../hooks/useSemesterForm";
 
 import FormLayout from "../../components/ui/FormLayout";
-import FormField  from "../../components/ui/FormField";
+import FormField from "../../components/ui/FormField";
 
 // ─────────────────────────────────────────────────────────────
 //  Create
@@ -34,31 +35,31 @@ const Create = () => {
 
     // ── Submit ─────────────────────────────────────────────
 
-    const handleSubmit = async (values: any) => {
+    const handleSubmit = async (values: SemesterFormValues) => {
         try {
 
             await semesterService.create(values);
 
             await Swal.fire({
-                icon:  "success",
+                icon: "success",
                 title: "Semestre creado",
-                text:  "Se guardó correctamente.",
+                text: "Se guardó correctamente.",
             });
 
             navigate("/semesters/list");
 
-        } catch (error: any) {
+        } catch {
 
             Swal.fire({
-                icon:  "error",
+                icon: "error",
                 title: "Error",
-                text:  error?.response?.data?.message || "Error al crear el semestre.",
+                text: "Error al crear el semestre.",
             });
         }
     };
 
     const formik = useSemesterForm({
-        onSubmit:          handleSubmit,
+        onSubmit: handleSubmit,
         existingSemesters: semesters,
     });
 

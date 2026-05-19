@@ -1,6 +1,8 @@
 import { api } from "../interceptors/authInterceptor";
-import type { Enrollment } from "../models/Enrollment";
+import type { Enrollment } from "../models/uml/Enrollment";
 import { BaseService } from "./baseService";
+
+type SearchFilters = Record<string, string | number | boolean | undefined>;
 
 export interface CreateGroupEnrollmentPayload {
     enrollment_date: string;
@@ -14,7 +16,7 @@ export class EnrollmentService extends BaseService<Enrollment> {
         super("academic/enrollments");
     }
 
-    async search(filters: Record<string, any>): Promise<Enrollment[]> {
+    async search(filters: SearchFilters): Promise<Enrollment[]> {
         try {
             const response = await api.get<{ data: Enrollment[] }>(
                 `${this.apiURL}/search`,
@@ -44,8 +46,8 @@ export class EnrollmentService extends BaseService<Enrollment> {
         );
         return response.data.data ?? null;
     }
-    
-    
+
+
 }
 
 export const enrollmentService = new EnrollmentService();

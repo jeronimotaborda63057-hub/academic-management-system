@@ -1,7 +1,7 @@
 import GenericTable from "../ui/GenericTable";
-import type { Column } from "../../models/Column";
-import type { StudentGradeSummaryRow } from "./types";
-import { formatGradeDate, formatGradeScore } from "./studentGradeDisplay";
+import type { Column } from "../../models/interfaces/Column";
+import type { StudentGradeSummaryRow } from "../../models/interfaces/StudenGradeSummaryRow";
+import { formatGradeDate, formatGradeScore } from "../../hooks/studentGradeDisplay";
 
 interface StudentGradesTableProps {
     grades: StudentGradeSummaryRow[];

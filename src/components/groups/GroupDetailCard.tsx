@@ -1,9 +1,9 @@
 // src/components/groups/GroupDetailCard.tsx
 
-import type { Group } from "../../models/Group";
-import type { Semester } from "../../models/Semester";
-import type { Teacher } from "../../models/Teacher";
-import type { Subject } from "../../models/Subject";
+import type { Group } from "../../models/uml/Group";
+import type { Semester } from "../../models/uml/Semester";
+import type { Teacher } from "../../models/uml/Teacher";
+import type { Subject } from "../../models/uml/Subject";
 
 import SummaryCard from "../ui/SummaryCard";
 

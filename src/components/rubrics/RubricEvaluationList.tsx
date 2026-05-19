@@ -1,7 +1,7 @@
 import { Eye } from "lucide-react";
 
-import type { Action } from "../../models/Action";
-import type { Column } from "../../models/Column";
+import type { Action } from "../../models/interfaces/Action";
+import type { Column } from "../../models/interfaces/Column";
 import GenericTable from "../ui/GenericTable";
 import type { RubricConsultationRecord } from "../../hooks/useRubricConsultation";
 
@@ -31,7 +31,7 @@ const columns: Column<RubricEvaluationRow>[] = [
         label: "Estado",
         render: (value) => (
             <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-                {value}
+                {String(value ?? "")}
             </span>
         ),
     },

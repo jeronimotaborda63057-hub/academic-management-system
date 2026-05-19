@@ -9,7 +9,7 @@ import type {
     CreateScaleDTO,
     Scale,
     UpdateScaleDTO,
-} from "../../models/Scale";
+} from "../../models/uml/Scale";
 
 interface ScaleLevelsTableContainerProps {
     criterionId: string;
@@ -17,22 +17,19 @@ interface ScaleLevelsTableContainerProps {
     scales: Scale[];
     loading: boolean;
     saving: boolean;
+    error: string | null;
     onCreate: (data: CreateScaleDTO) => Promise<Scale | null>;
     onUpdate: (id: string, data: UpdateScaleDTO) => Promise<Scale | null>;
     onDelete: (id: string) => Promise<void>;
 }
 
-/**
- * SRP → orquesta modal + DTO. No renderiza tabla ni filtra escalas.
- * OCP → cambiar lógica del modal no toca ScaleLevelsTable.
- * DIP → depende de abstracciones (hooks, callbacks), no de servicios.
- */
 export const ScaleLevelsTableContainer = ({
     criterionId,
     allScales,
     scales,
     loading,
     saving,
+    error,
     onCreate,
     onUpdate,
     onDelete,
@@ -49,17 +46,12 @@ export const ScaleLevelsTableContainer = ({
 
     // ── Handlers ───────────────────────────────────────────
 
-    /**
-     * SRP → construye el DTO a partir de la escala seleccionada.
-     * ScaleLevelsTable y CloneScaleModal no saben de DTOs.
-     */
     const handleConfirmClone = async (scale: Scale) => {
-
         const dto: CreateScaleDTO = {
             criterion_id: criterionId,
-            name: scale.name ?? "",  // ← fallback
-            description: scale.description ?? "",  // ← fallback
-            value: scale.value ?? 0,   // ← fallback
+            name: scale.name ?? "",
+            description: scale.description ?? "",
+            value: scale.value ?? 0,
         };
 
         await onCreate(dto);
@@ -83,6 +75,7 @@ export const ScaleLevelsTableContainer = ({
                 scales={scales}
                 loading={loading}
                 saving={saving}
+                error={error}
                 onCreate={handleCreate}
                 onUpdate={onUpdate}
                 onDelete={onDelete}

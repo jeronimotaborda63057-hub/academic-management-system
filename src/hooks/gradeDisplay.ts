@@ -1,4 +1,4 @@
-import type { FinalGradeRow } from "../models/FinalGradeRow";
+import type { FinalGradeRow } from "../models/interfaces/FinalGradeRow";
 
 export const getFinalGradeStudentName = (row?: FinalGradeRow) => {
     const fullName = [row?.student?.first_name, row?.student?.last_name]

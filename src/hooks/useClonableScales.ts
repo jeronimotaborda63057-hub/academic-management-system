@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import type { Scale } from "../models/Scale";
+import type { Scale } from "../models/uml/Scale";
 
 interface UseClonableScalesProps {
-    allScales:   Scale[];
+    allScales: Scale[];
     criterionId: string;
 }
 

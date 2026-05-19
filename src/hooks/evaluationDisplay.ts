@@ -1,5 +1,5 @@
-import type { Grade } from "../models/Grade";
-import type { GradingStudent } from "../models/GradingStudent";
+import type { Grade } from "../models/uml/Grade";
+import type { GradingStudent } from "../models/interfaces/GradingStudent";
 
 export const getStudentDisplayName = (studentItem?: GradingStudent) => {
     const student = studentItem?.student;

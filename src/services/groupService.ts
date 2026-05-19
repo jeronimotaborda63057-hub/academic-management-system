@@ -1,13 +1,15 @@
 import { api } from "../interceptors/authInterceptor";
-import type { Group } from "../models/Group";
+import type { Group } from "../models/uml/Group";
 import { BaseService } from "./baseService";
+
+type SearchFilters = Record<string, string | number | boolean | undefined>;
 
 export class GroupService extends BaseService<Group> {
     constructor() {
         super("academic/groups");
     }
 
-    async search(filters: Record<string, any>): Promise<Group[]> {
+    async search(filters: SearchFilters): Promise<Group[]> {
         try {
             const response = await api.get<{ data: Group[] }>(
                 `${this.apiURL}/search`,
@@ -23,6 +25,11 @@ export class GroupService extends BaseService<Group> {
     async getAllWithAuth(): Promise<Group[]> {
         const response = await api.get<{ data: Group[] }>(this.apiURL);
         return response.data.data ?? [];
+    }
+
+    async getByTeacher(teacherId: string): Promise<Group[]> {
+        const groups = await this.getAllWithAuth();
+        return groups.filter((group) => group.teacher_id === teacherId);
     }
 
     async assignTeacherToGroup(groupId: string, teacherId: string): Promise<any> {

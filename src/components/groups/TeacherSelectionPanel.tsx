@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import type { Teacher } from "../../models/Teacher";
+import type { Teacher } from "../../models/uml/Teacher";
 
 interface TeacherSelectionPanelProps {
   teachers: Teacher[];
@@ -20,11 +20,8 @@ const TeacherSelectionPanel = ({
   const [search, setSearch] = useState("");
 
   const filteredTeachers = useMemo(() => {
-    return teachers.filter((teacher: any) => {
-      const fullName = `
-        ${teacher.first_name || ""}
-        ${teacher.last_name || ""}
-      `.toLowerCase();
+    return teachers.filter((teacher) => {
+      const fullName = `${teacher.first_name || ""} ${teacher.last_name || ""}`.toLowerCase();
 
       const searchText = search.toLowerCase();
 
@@ -88,7 +85,7 @@ const TeacherSelectionPanel = ({
               </tr>
             )}
 
-            {filteredTeachers.map((teacher: any) => {
+            {filteredTeachers.map((teacher) => {
               const isSelected =
                 selectedTeacher?.id === teacher.id;
 

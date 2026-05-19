@@ -3,32 +3,27 @@ import { Plus, Trash2, Copy } from "lucide-react";
 import GenericTable from "../ui/GenericTable";
 import { useScaleLevelsColumns } from "../hooks/useScaleLevelsColumn";
 
-import type { Action } from "../../models/Action";
-import type {
-    CreateScaleDTO,
-    Scale,
-    UpdateScaleDTO,
-} from "../../models/Scale";
+import type { Action } from "../../models/interfaces/Action";
+import type { Scale } from "../../models/uml/Scale";
+import type { CreateScaleDTO } from "../../models/interfaces/scale/CreateScaleDTO";
+import type { UpdateScaleDTO } from "../../models/interfaces/scale/UpdateScaleDTO"
 
 interface ScaleLevelsTableProps {
-    scales:   Scale[];
+    scales: Scale[];
     loading?: boolean;
     saving?:  boolean;
+    error?:   string | null;
     onCreate: (data: CreateScaleDTO) => Promise<Scale | null>;
     onUpdate: (id: string, data: UpdateScaleDTO) => Promise<Scale | null>;
     onDelete: (id: string) => Promise<void>;
-    onClone:  () => void;    // ← nuevo: solo abre el modal
+    onClone:  () => void;
 }
 
-/**
- * SRP → renderiza tabla y emite eventos.
- * ISP → onClone no sabe qué pasa después de abrirse el modal.
- * OCP → extensible sin modificar lógica interna.
- */
 export const ScaleLevelsTable = ({
     scales,
     loading  = false,
     saving   = false,
+    error    = null,
     onCreate,
     onUpdate,
     onDelete,
@@ -42,17 +37,17 @@ export const ScaleLevelsTable = ({
 
     const actions: Action[] = [
         {
-            name:    "delete",
-            label:   "Eliminar",
+            name: "delete",
+            label: "Eliminar",
             primary: true,
             variant: "danger",
-            icon:    <Trash2 size={18} className="text-red-600" />,
+            icon: <Trash2 size={18} className="text-red-600" />,
         },
     ];
 
     const handleTableAction = async (action: string, scale: Scale) => {
-        if (!scale.id)           return;
-        if (action === "edit")   return;
+        if (!scale.id) return;
+        if (action === "edit") return;
         if (action === "delete") await onDelete(scale.id);
     };
 
@@ -73,7 +68,6 @@ export const ScaleLevelsTable = ({
 
                 <div className="flex items-center gap-2">
 
-                    {/* Reutilizar escala */}
                     <button
                         onClick={onClone}
                         disabled={saving}
@@ -92,13 +86,12 @@ export const ScaleLevelsTable = ({
                         Reutilizar escala
                     </button>
 
-                    {/* Agregar nivel */}
                     <button
                         onClick={() => onCreate({
                             criterion_id: scales[0]?.criterion_id ?? "",
-                            name:         "Nuevo nivel",
-                            description:  "",
-                            value:        0,
+                            name: "Nuevo nivel",
+                            description: "",
+                            value: 0,
                         })}
                         disabled={saving}
                         className="
@@ -118,6 +111,13 @@ export const ScaleLevelsTable = ({
                 </div>
 
             </div>
+
+            {/* ===== BANNER ERROR ===== */}
+            {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                    {error}
+                </div>
+            )}
 
             {/* ===== EMPTY ===== */}
             {!loading && scales.length === 0 && (

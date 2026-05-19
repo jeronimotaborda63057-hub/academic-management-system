@@ -1,7 +1,7 @@
 // src/components/scales/ScaleSummaryCard.tsx
 
 import type { Criteria } from "../../models/Criteria";
-import type { Scale } from "../../models/Scale";
+import type { Scale } from "../../models/uml/Scale";
 
 import SummaryCard from "../ui/SummaryCard";
 

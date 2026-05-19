@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 
 import { MoreVertical } from "lucide-react";
 
-import type { Action } from "../../models/Action";
-import type { Column } from "../../models/Column";
+import type { Action } from "../../models/interfaces/Action";
+import type { Column } from "../../models/interfaces/Column";
+import { useTablePagination } from "../../hooks/useTablePagination";
+import TablePaginationControls from "./TablePaginationControls";
 
 export type ActionVariant =
     | "default"
@@ -55,6 +57,21 @@ interface GenericTableProps<T> {
      * verse directamente.
      */
     hideMenuButton?: boolean;
+
+    enablePagination?: boolean;
+
+    initialItemsPerPage?: number;
+}
+
+function getColumnValue<T>(
+    row: T,
+    key: keyof T | string
+) {
+    if (typeof key !== "string") {
+        return row[key];
+    }
+
+    return (row as Record<string, unknown>)[key];
 }
 
 /**
@@ -86,8 +103,24 @@ function GenericTable<T>({
     selectedRowId,
     getRowId,
 
-    hideMenuButton = false
+    hideMenuButton = false,
+    enablePagination = true,
+    initialItemsPerPage = 10,
 }: GenericTableProps<T>) {
+    const {
+        currentPage,
+        itemsPerPage,
+        paginatedData,
+        totalItems,
+        totalPages,
+        changePage,
+        changeItemsPerPage,
+    } = useTablePagination({
+        data: data ?? [],
+        initialItemsPerPage,
+    });
+
+    const tableData = enablePagination ? paginatedData : data ?? [];
 
     /**
      * Menú abierto
@@ -173,171 +206,161 @@ function GenericTable<T>({
 
     return (
 
-        <div
-            className="
-                overflow-x-auto
-                overflow-y-visible
-                bg-white
-                rounded-xl
-                shadow
-            "
-        >
+        <div className="overflow-hidden rounded-xl bg-white shadow">
+            <div className="overflow-x-auto overflow-y-visible">
 
-            <table className="min-w-full text-sm">
+                <table className="min-w-full text-sm">
 
-                {/* ================= HEADER ================= */}
+                    {/* ================= HEADER ================= */}
 
-                <thead
-                    className="
+                    <thead
+                        className="
                         bg-gray-100
                         text-gray-600
                         uppercase
                         text-xs
                     "
-                >
+                    >
 
-                    <tr>
+                        <tr>
 
-                        {
-                            columns.map((col, index) => (
+                            {
+                                columns.map((col, index) => (
 
-                                <th
-                                    key={index}
-                                    className="
+                                    <th
+                                        key={index}
+                                        className="
                                         px-4 py-3
                                         text-left
                                     "
-                                >
-                                    {col.label}
-                                </th>
-                            ))
-                        }
+                                    >
+                                        {col.label}
+                                    </th>
+                                ))
+                            }
 
-                        {
-                            actions.length > 0 && (
+                            {
+                                actions.length > 0 && (
 
-                                <th
-                                    className="
+                                    <th
+                                        className="
                                         px-4 py-3
                                         text-left
                                     "
-                                >
-                                    Acciones
-                                </th>
-                            )
-                        }
+                                    >
+                                        Acciones
+                                    </th>
+                                )
+                            }
 
-                    </tr>
+                        </tr>
 
-                </thead>
+                    </thead>
 
-                {/* ================= BODY ================= */}
+                    {/* ================= BODY ================= */}
 
-                <tbody>
+                    <tbody>
 
-                    {
-                        (data ?? []).map((
-                            row,
-                            rowIndex
-                        ) => {
+                        {
+                            tableData.map((
+                                row,
+                                rowIndex
+                            ) => {
 
-                            /**
-                             * Acciones principales
-                             */
-                            const primaryActions =
-                                actions.filter(
-                                    (action) =>
-                                        action.primary
-                                );
+                                /**
+                                 * Acciones principales
+                                 */
+                                const primaryActions =
+                                    actions.filter(
+                                        (action) =>
+                                            action.primary
+                                    );
 
-                            /**
-                             * Acciones secundarias
-                             */
-                            const secondaryActions =
-                                actions.filter(
-                                    (action) =>
-                                        !action.primary
-                                );
+                                /**
+                                 * Acciones secundarias
+                                 */
+                                const secondaryActions =
+                                    actions.filter(
+                                        (action) =>
+                                            !action.primary
+                                    );
 
-                            const rowId = getRowId?.(row);
-                            const isSelected =
-                                Boolean(rowId && selectedRowId === rowId);
+                                const rowId = getRowId?.(row);
+                                const isSelected =
+                                    Boolean(rowId && selectedRowId === rowId);
 
-                            return (
+                                return (
 
-                                <tr
-                                    key={rowIndex}
-                                    onClick={() => onRowClick?.(row)}
-                                    className={`
+                                    <tr
+                                        key={rowIndex}
+                                        onClick={() => onRowClick?.(row)}
+                                        className={`
                                         border-t
                                         ${onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
                                         ${isSelected ? "bg-green-50" : ""}
                                     `}
-                                >
+                                    >
 
-                                    {/* Columnas */}
-                                    {
-                                        columns.map((
-                                            col,
-                                            colIndex
-                                        ) => {
+                                        {/* Columnas */}
+                                        {
+                                            columns.map((
+                                                col,
+                                                colIndex
+                                            ) => {
 
-                                            const value =
-                                                typeof col.key === "string"
-                                                    ? (row as any)[col.key]
-                                                    : row[col.key];
+                                                const value = getColumnValue(row, col.key);
 
-                                            return (
+                                                return (
 
-                                                <td
-                                                    key={colIndex}
-                                                    className="
+                                                    <td
+                                                        key={colIndex}
+                                                        className="
                                                         px-4 py-3
                                                     "
-                                                >
+                                                    >
 
-                                                    {
-                                                        col.render
-                                                            ? col.render(
-                                                                value,
-                                                                row
-                                                            )
-                                                            : value
-                                                    }
+                                                        {
+                                                            col.render
+                                                                ? col.render(
+                                                                    value,
+                                                                    row
+                                                                )
+                                                                : String(value ?? "")
+                                                        }
 
-                                                </td>
-                                            );
-                                        })
-                                    }
+                                                    </td>
+                                                );
+                                            })
+                                        }
 
-                                    {/* ================= ACTIONS ================= */}
+                                        {/* ================= ACTIONS ================= */}
 
-                                    {
-                                        actions.length > 0 && (
+                                        {
+                                            actions.length > 0 && (
 
-                                            <td
-                                                className="
+                                                <td
+                                                    className="
                                                     px-4 py-3
                                                 "
-                                            >
-
-                                                <div
-                                                    className="
-                                                        flex items-center gap-2
-                                                    "
                                                 >
 
-                                                    {/* PRIMARY ACTIONS */}
-                                                    {
-                                                        primaryActions.map(
-                                                            (
-                                                                action,
-                                                                index
-                                                            ) => (
+                                                    <div
+                                                        className="
+                                                        flex items-center gap-2
+                                                    "
+                                                    >
 
-                                                                <button
-                                                                    key={index}
-                                                                    className="
+                                                        {/* PRIMARY ACTIONS */}
+                                                        {
+                                                            primaryActions.map(
+                                                                (
+                                                                    action,
+                                                                    index
+                                                                ) => (
+
+                                                                    <button
+                                                                        key={index}
+                                                                        className="
                                                                         w-9 h-9
                                                                         rounded-lg
                                                                         border border-gray-200
@@ -346,31 +369,31 @@ function GenericTable<T>({
                                                                         flex items-center justify-center
                                                                         transition
                                                                     "
-                                                                    onClick={(event) => {
-                                                                        event.stopPropagation();
-                                                                        onAction?.(
-                                                                            action.name,
-                                                                            row
-                                                                        );
-                                                                    }}
-                                                                >
+                                                                        onClick={(event) => {
+                                                                            event.stopPropagation();
+                                                                            onAction?.(
+                                                                                action.name,
+                                                                                row
+                                                                            );
+                                                                        }}
+                                                                    >
 
-                                                                    {
-                                                                        action.icon
-                                                                    }
+                                                                        {
+                                                                            action.icon
+                                                                        }
 
-                                                                </button>
+                                                                    </button>
+                                                                )
                                                             )
-                                                        )
-                                                    }
+                                                        }
 
-                                                    {/* MENU BUTTON */}
-                                                    {
-                                                        secondaryActions.length > 0 &&
-                                                        !hideMenuButton && (
+                                                        {/* MENU BUTTON */}
+                                                        {
+                                                            secondaryActions.length > 0 &&
+                                                            !hideMenuButton && (
 
-                                                            <button
-                                                                className="
+                                                                <button
+                                                                    className="
                                                                     w-9 h-9
                                                                     rounded-lg
                                                                     border border-gray-200
@@ -379,30 +402,30 @@ function GenericTable<T>({
                                                                     flex items-center justify-center
                                                                     transition
                                                                 "
-                                                                onClick={(event) =>
-                                                                    toggleMenu(
-                                                                        rowIndex,
-                                                                        event
-                                                                    )
-                                                                }
-                                                            >
+                                                                    onClick={(event) =>
+                                                                        toggleMenu(
+                                                                            rowIndex,
+                                                                            event
+                                                                        )
+                                                                    }
+                                                                >
 
-                                                                <MoreVertical size={18} />
+                                                                    <MoreVertical size={18} />
 
-                                                            </button>
-                                                        )
-                                                    }
+                                                                </button>
+                                                            )
+                                                        }
 
-                                                </div>
+                                                    </div>
 
-                                                {/* ================= DROPDOWN ================= */}
+                                                    {/* ================= DROPDOWN ================= */}
 
-                                                {
-                                                    openMenu === rowIndex && (
+                                                    {
+                                                        openMenu === rowIndex && (
 
-                                                        <div
-                                                            ref={menuRef}
-                                                            className="
+                                                            <div
+                                                                ref={menuRef}
+                                                                className="
                                                                 fixed
                                                                 w-56
                                                                 bg-white
@@ -412,29 +435,29 @@ function GenericTable<T>({
                                                                 z-[9999]
                                                                 overflow-hidden
                                                             "
-                                                            style={{
-                                                                top: menuPosition.top,
-                                                                left: menuPosition.left
-                                                            }}
-                                                        >
+                                                                style={{
+                                                                    top: menuPosition.top,
+                                                                    left: menuPosition.left
+                                                                }}
+                                                            >
 
-                                                            {
-                                                                secondaryActions.map(
-                                                                    (
-                                                                        action,
-                                                                        index
-                                                                    ) => {
+                                                                {
+                                                                    secondaryActions.map(
+                                                                        (
+                                                                            action,
+                                                                            index
+                                                                        ) => {
 
-                                                                        const textStyle =
-                                                                            action.variant === "danger"
-                                                                                ? "text-red-600 hover:bg-red-50"
-                                                                                : "text-gray-700 hover:bg-gray-50";
+                                                                            const textStyle =
+                                                                                action.variant === "danger"
+                                                                                    ? "text-red-600 hover:bg-red-50"
+                                                                                    : "text-gray-700 hover:bg-gray-50";
 
-                                                                        return (
+                                                                            return (
 
-                                                                            <button
-                                                                                key={index}
-                                                                                className={`
+                                                                                <button
+                                                                                    key={index}
+                                                                                    className={`
                                                                                     w-full
                                                                                     flex items-center gap-3
                                                                                     px-4 py-3
@@ -442,50 +465,62 @@ function GenericTable<T>({
                                                                                     transition
                                                                                     ${textStyle}
                                                                                 `}
-                                                                                onClick={(event) => {
-                                                                                    event.stopPropagation();
+                                                                                    onClick={(event) => {
+                                                                                        event.stopPropagation();
 
-                                                                                    onAction?.(
-                                                                                        action.name,
-                                                                                        row
-                                                                                    );
+                                                                                        onAction?.(
+                                                                                            action.name,
+                                                                                            row
+                                                                                        );
 
-                                                                                    setOpenMenu(null);
-                                                                                }}
-                                                                            >
+                                                                                        setOpenMenu(null);
+                                                                                    }}
+                                                                                >
 
-                                                                                {
-                                                                                    action.icon
-                                                                                }
-
-                                                                                <span>
                                                                                     {
-                                                                                        action.label
+                                                                                        action.icon
                                                                                     }
-                                                                                </span>
 
-                                                                            </button>
-                                                                        );
-                                                                    }
-                                                                )
-                                                            }
+                                                                                    <span>
+                                                                                        {
+                                                                                            action.label
+                                                                                        }
+                                                                                    </span>
 
-                                                        </div>
-                                                    )
-                                                }
+                                                                                </button>
+                                                                            );
+                                                                        }
+                                                                    )
+                                                                }
 
-                                            </td>
-                                        )
-                                    }
+                                                            </div>
+                                                        )
+                                                    }
 
-                                </tr>
-                            );
-                        })
-                    }
+                                                </td>
+                                            )
+                                        }
 
-                </tbody>
+                                    </tr>
+                                );
+                            })
+                        }
 
-            </table>
+                    </tbody>
+
+                </table>
+            </div>
+
+            {enablePagination && (
+                <TablePaginationControls
+                    currentPage={currentPage}
+                    itemsPerPage={itemsPerPage}
+                    totalItems={totalItems}
+                    totalPages={totalPages}
+                    onItemsPerPageChange={changeItemsPerPage}
+                    onPageChange={changePage}
+                />
+            )}
 
         </div>
     );

@@ -1,6 +1,6 @@
 import { api } from "../interceptors/authInterceptor";
-import type { Curriculum } from "../models/Curriculum";
-import type { Subject } from "../models/Subject";
+import type { Curriculum } from "../models/uml/Curriculum";
+import type { Subject } from "../models/uml/Subject";
 import { BaseService } from "./baseService";
 
 export class CurriculumService extends BaseService<Curriculum> {
@@ -16,6 +16,19 @@ export class CurriculumService extends BaseService<Curriculum> {
             return response.data.data;
         } catch (error) {
             console.error("Error al obtener asignaturas del plan:", error);
+            return [];
+        }
+    }
+
+    async searchBySubject(subjectId: string): Promise<Curriculum[]> {
+        try {
+            const response = await api.get<{ data: Curriculum[] }>(
+                `${this.apiURL}/search`,
+                { params: { subject_id: subjectId } }
+            );
+            return response.data.data ?? [];
+        } catch (error) {
+            console.error("Error al buscar planes por asignatura:", error);
             return [];
         }
     }

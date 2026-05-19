@@ -6,11 +6,11 @@ import PageHeader from "../../components/ui/PageHeader";
 import TableToolbar from "../../components/TableToolBar";
 import GenericTable from "../../components/ui/GenericTable";
 
-import type { Enrollment } from "../../models/Enrollment";
-import type { Student } from "../../models/Student";
-import type { Group } from "../../models/Group";
-import type { Column } from "../../models/Column";
-import type { Action } from "../../models/Action";
+import type { Enrollment } from "../../models/uml/Enrollment";
+import type { Student } from "../../models/uml/Student";
+import type { Group } from "../../models/uml/Group";
+import type { Column } from "../../models/interfaces/Column";
+import type { Action } from "../../models/interfaces/Action";
 
 import { enrollmentService } from "../../services/enrollmentService";
 import { studentService } from "../../services/studentService";
@@ -60,12 +60,17 @@ function StatusBadge({ status }: { status?: string }) {
     );
 }
 
+type EnrichedEnrollment = Enrollment & {
+    group?: Group;
+    student?: Student;
+};
+
 // ─── Página ────────────────────────────────────────────────────────────────
 
 const MatriculasPage: React.FC = () => {
     const navigate = useNavigate();
 
-    const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+    const [enrollments, setEnrollments] = useState<EnrichedEnrollment[]>([]);
     const [groups, setGroups] = useState<Group[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -98,7 +103,7 @@ const MatriculasPage: React.FC = () => {
 
             // ── Enriquecer matrículas ──────────────────────────────
 
-            const enriched: Enrollment[] = enrollData.map((e) => ({
+            const enriched: EnrichedEnrollment[] = enrollData.map((e) => ({
                 ...e,
 
                 student:
@@ -129,7 +134,7 @@ const MatriculasPage: React.FC = () => {
 
     // ── Filtros ───────────────────────────────────────────────────────────
 
-    const filtered = enrollments.filter((e: any) => {
+    const filtered = enrollments.filter((e) => {
         const name = fullName(e.student).toLowerCase();
 
         const identification =
@@ -159,12 +164,12 @@ const MatriculasPage: React.FC = () => {
 
     // ── Columnas ──────────────────────────────────────────────────────────
 
-    const columns: Column<Enrollment>[] = [
+    const columns: Column<EnrichedEnrollment>[] = [
         {
             label: "Estudiante",
             key: "student_id",
 
-            render: (_: any, row: any) => (
+            render: (_value, row) => (
                 <div>
                     <p className="font-medium text-black dark:text-white text-sm">
                         {fullName(row.student)}
@@ -181,7 +186,7 @@ const MatriculasPage: React.FC = () => {
             label: "Grupo",
             key: "group_id",
 
-            render: (_: any, row: any) => (
+            render: (_value, row) => (
                 <div>
                     <p className="text-sm font-medium">
                         {row.group?.name ?? "—"}
@@ -255,15 +260,19 @@ const MatriculasPage: React.FC = () => {
 
     function handleAction(
         action: string,
-        item: Enrollment
+        item: EnrichedEnrollment
     ) {
         if (action === "edit") {
             navigate(`/enrollments/edit/${item.id}`);
         }
     }
 
-    function openCreate() {
+    function openAssignGroup() {
         navigate("/enrollments/create");
+    }
+
+    function openAssignCareer() {
+        navigate("/admin/enrollment")
     }
 
     function handleClearFilters() {
@@ -279,34 +288,53 @@ const MatriculasPage: React.FC = () => {
 
             <PageHeader
                 title="Matrículas"
-                subtitle={`${filtered.length} registro${
-                    filtered.length !== 1
-                        ? "s"
-                        : ""
-                }`}
+                subtitle={`${filtered.length} registro${filtered.length !== 1
+                    ? "s"
+                    : ""
+                    }`}
                 breadcrumb={[
                     "Académico",
                     "Matrículas",
                 ]}
-                action={
-                    <button
-                        onClick={openCreate}
-                        className="
-                            h-10 px-5 rounded-xl
-                            bg-green-600 text-white
-                            text-sm font-medium
-                            hover:bg-green-700
-                            transition
-                            flex items-center gap-2
-                        "
-                    >
-                        <span className="text-lg leading-none">
-                            +
-                        </span>
+                action={[
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={openAssignGroup}
+                            className="
+                h-10 px-5 rounded-xl
+                bg-green-600 text-white
+                text-sm font-medium
+                hover:bg-green-700
+                transition
+                flex items-center gap-2
+            "
+                        >
+                            <span className="text-lg leading-none">
+                                +
+                            </span>
 
-                        Matricular estudiante
-                    </button>
-                }
+                            Inscribir estudiante en grupo
+                        </button>
+
+                        <button
+                            onClick={openAssignCareer}
+                            className="
+                h-10 px-5 rounded-xl
+                bg-green-600 text-white
+                text-sm font-medium
+                hover:bg-green-700
+                transition
+                flex items-center gap-2
+            "
+                        >
+                            <span className="text-lg leading-none">
+                                +
+                            </span>
+
+                            Matricular estudiante en carrera
+                        </button>
+                    </div>
+                ]}
             />
 
             <TableToolbar
@@ -372,7 +400,7 @@ const MatriculasPage: React.FC = () => {
                     </p>
 
                     <button
-                        onClick={openCreate}
+                        onClick={openAssignGroup}
                         className="text-sm text-green-600 hover:underline"
                     >
                         Matricular un estudiante
@@ -382,7 +410,7 @@ const MatriculasPage: React.FC = () => {
 
             ) : (
 
-                <GenericTable<Enrollment>
+                <GenericTable<EnrichedEnrollment>
                     data={filtered}
                     columns={columns}
                     actions={actions}

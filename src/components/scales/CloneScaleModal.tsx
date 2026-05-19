@@ -1,12 +1,12 @@
 // src/components/scales/CloneScaleModal.tsx
 
-import type { Scale } from "../../models/Scale";
+import type { Scale } from "../../models/uml/Scale";
 
 interface CloneScaleModalProps {
-    scales:    Scale[];
-    open:      boolean;
+    scales: Scale[];
+    open: boolean;
     onConfirm: (scale: Scale) => void;
-    onCancel:  () => void;
+    onCancel: () => void;
 }
 
 /**

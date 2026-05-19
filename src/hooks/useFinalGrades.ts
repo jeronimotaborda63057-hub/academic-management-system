@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 
-import type { Evaluation } from "../models/Evaluation";
-import type { Grade } from "../models/Grade";
-import type { Group } from "../models/Group";
-import type { Registration } from "../models/Registration";
-import type { Semester } from "../models/Semester";
-import type { Student } from "../models/Student";
-import type { FinalGradeRow } from "../models/FinalGradeRow";
+import type { Evaluation } from "../models/uml/Evaluation";
+import type { Grade } from "../models/uml/Grade";
+import type { Group } from "../models/uml/Group";
+import type { Registration } from "../models/uml/Registration";
+import type { Semester } from "../models/uml/Semester";
+import type { Student } from "../models/uml/Student";
+import type { FinalGradeRow } from "../models/interfaces/FinalGradeRow";
 import { evaluationService } from "../services/evaluationService";
 import { gradeService } from "../services/gradeService";
 import { groupService } from "../services/groupService";
@@ -196,7 +196,7 @@ export const useFinalGrades = () => {
                         gradeService.finalizeGrade(grade.id!, {
                             is_locked: true,
                             observations,
-                            status: "SUBMITTED",
+                            status: "SENT",
                         })
                     );
             });

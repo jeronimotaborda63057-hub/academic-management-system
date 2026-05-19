@@ -1,6 +1,6 @@
-import type { Criteria } from "../../models/Criteria";
-import type { Scale } from "../../models/Scale";
-import type { GradeDraft, GradingStudent } from "../../models/GradingStudent";
+import type { Criteria } from "../../models/uml/Criteria";
+import type { Scale } from "../../models/uml/Scale";
+import type { GradeDraft, GradingStudent } from "../../models/interfaces/GradingStudent";
 import {
     getStudentDisplayName,
     getStudentIdentification,
@@ -16,10 +16,13 @@ interface RubricGradeTableProps {
     scalesByCriterion: Record<string, Scale[]>;
     selectedStudent?: GradingStudent;
     selectedEnrollmentId: string;
+
     onScaleChange: (criterionId: string, scaleId: string) => void;
     onCommentChange: (criterionId: string, comment: string) => void;
     onSaveDraft: () => void;
     onSubmitGrade: () => void;
+
+    isLocked: boolean;
 }
 
 export const RubricGradeTable = ({

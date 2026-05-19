@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import type { Student } from "../../models/Student";
-import type { Career } from "../../models/Career";
-import type { Enrollment } from "../../models/Enrollment";
+import type { Student } from "../../models/uml/Student";
+import type { Career } from "../../models/uml/Career";
+import type { Enrollment } from "../../models/uml/Enrollment";
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 
@@ -23,6 +23,14 @@ interface EnrollmentMatriculaModalProps {
     careers: Career[];
     /** Matrículas existentes para validar duplicados */
     existingEnrollments: Enrollment[];
+}
+
+function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+        return error.message;
+    }
+
+    return "Ocurrió un error inesperado.";
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -179,8 +187,8 @@ const EnrollmentMatriculaModal: React.FC<EnrollmentMatriculaModalProps> = ({
                 status,
             });
             onClose();
-        } catch (err: any) {
-            setApiError(err?.message ?? "Ocurrió un error inesperado.");
+        } catch (err: unknown) {
+            setApiError(getErrorMessage(err));
         } finally {
             setSubmitting(false);
         }

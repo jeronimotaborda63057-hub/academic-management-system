@@ -1,4 +1,4 @@
-import type { Grade } from "../../models/Grade";
+import type { Grade } from "../models/uml/Grade";
 
 export const formatGradeScore = (score: number) => score.toFixed(2);
 

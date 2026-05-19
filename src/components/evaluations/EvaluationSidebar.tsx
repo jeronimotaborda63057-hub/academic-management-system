@@ -1,6 +1,6 @@
-import type { Evaluation } from "../../models/Evaluation";
-import type { Grade } from "../../models/Grade";
-import type { GradingStudent } from "../../models/GradingStudent";
+import type { Evaluation } from "../../models/uml/Evaluation";
+import type { Grade } from "../../models/uml/Grade";
+import type { GradingStudent } from "../../models/interfaces/GradingStudent";
 import {
     getGradeScore,
     getStudentIdentification,

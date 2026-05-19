@@ -1,4 +1,4 @@
-import type { EnrollableStudent } from "./types";
+import type { EnrollableStudent } from "../models/interfaces/EnrollableStudent";
 
 export const getStudentName = (student?: EnrollableStudent) => {
     const fullName = [
