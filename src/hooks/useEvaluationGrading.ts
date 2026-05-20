@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import type { Criteria } from "../models/uml/Criteria";
 import type { Enrollment } from "../models/uml/Enrollment";
@@ -50,6 +51,11 @@ const buildGradingStudents = (
 };
 
 export const useEvaluationGrading = () => {
+    const location = useLocation();
+    const reviewState = location.state as {
+        evaluationId?: string;
+        studentId?: string;
+    } | null;
     const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
     const [activeEvaluation, setActiveEvaluation] = useState<Evaluation | null>(null);
     const [selectedEvaluationId, setSelectedEvaluationId] = useState("");
@@ -95,7 +101,8 @@ export const useEvaluationGrading = () => {
         [grades, selectedEnrollmentId, selectedStudent]
     );
 
-    const isLocked = existingGrade?.is_locked === true;
+    const isReviewingFromFinalGrades = Boolean(reviewState?.studentId);
+    const isLocked = existingGrade?.is_locked === true && !isReviewingFromFinalGrades;
 
     const scalesByCriterion = useMemo(() => {
         return criteria.reduce<Record<string, Scale[]>>((acc, criterion) => {
@@ -163,7 +170,16 @@ export const useEvaluationGrading = () => {
                 (evaluation) => evaluation.rubric_id || evaluation.rubric?.id
             );
 
-            setSelectedEvaluationId(firstGradableEvaluation?.id ?? evaluationsWithRubrics[0]?.id ?? "");
+            const requestedEvaluation = evaluationsWithRubrics.find(
+                (evaluation) => evaluation.id === reviewState?.evaluationId
+            );
+
+            setSelectedEvaluationId(
+                requestedEvaluation?.id ??
+                firstGradableEvaluation?.id ??
+                evaluationsWithRubrics[0]?.id ??
+                ""
+            );
         } catch {
             setError("No fue posible cargar las evaluaciones.");
         } finally {
@@ -233,7 +249,13 @@ export const useEvaluationGrading = () => {
             setScales(rubricScales);
             setStudents(gradingStudents);
             setGrades(rubricGrades);
-            setSelectedEnrollmentId(gradingStudents[0]?.enrollmentId ?? "");
+            const requestedStudent = gradingStudents.find(
+                (student) => student.studentId === reviewState?.studentId
+            );
+
+            setSelectedEnrollmentId(
+                requestedStudent?.enrollmentId ?? gradingStudents[0]?.enrollmentId ?? ""
+            );
         } catch {
             setError("No fue posible cargar la rubrica, criterios, escalas o estudiantes.");
         } finally {
