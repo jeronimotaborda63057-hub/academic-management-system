@@ -13,6 +13,12 @@ import { groupService } from "../services/groupService";
 import { registrationService } from "../services/registrationService";
 import { semesterService } from "../services/semesterService";
 import { studentService } from "../services/studentService";
+import { downloadPdfReport } from "../utils/pdfExporter";
+import {
+    formatScore,
+    getFinalGradeStudentIdentification,
+    getFinalGradeStudentName,
+} from "./gradeDisplay";
 
 const gradeBelongsToStudent = (grade: Grade, studentId: string) =>
     grade.student_id === studentId ||
@@ -31,6 +37,11 @@ const findStudentGradeForEvaluation = (
 
 const getGradeScore = (grade?: Grade) =>
     grade?.final_score ?? grade?.note_final ?? grade?.nota_final ?? 0;
+
+const isSubmittedGrade = (grade?: Grade) =>
+    grade?.status === "SUBMITTED" ||
+    grade?.status === "SENT" ||
+    grade?.is_submitted === true;
 
 const buildRows = (
     registrations: Registration[],
@@ -53,10 +64,10 @@ const buildRows = (
                     evaluation,
                     grade: findStudentGradeForEvaluation(grades, studentId, evaluation),
                 }))
-                .filter(({ grade }) => grade?.status === "SUBMITTED");
+                .filter(({ grade }) => isSubmittedGrade(grade));
             const incompleteEvaluations = evaluations.filter((evaluation) => {
                 const grade = findStudentGradeForEvaluation(grades, studentId, evaluation);
-                return grade?.status !== "SUBMITTED";
+                return !isSubmittedGrade(grade);
             });
             const finalScore = submittedGrades.reduce(
                 (total, { evaluation, grade }) =>
@@ -210,40 +221,58 @@ export const useFinalGrades = () => {
     };
 
     const downloadReport = () => {
-        const header = [
-            "student_id",
-            "identification",
-            "student_name",
-            "completed_evaluations",
-            "missing_evaluations",
-            "final_score",
-            "status",
-        ];
-        const body = rows.map((row) => {
-            const name = [row.student?.first_name, row.student?.last_name]
-                .filter(Boolean)
-                .join(" ");
+        const groupName = selectedGroup?.name ?? selectedGroup?.group_code ?? "Grupo sin nombre";
+        const semesterName = activeSemester?.name ?? activeSemester?.code ?? "Semestre no definido";
+        const generatedAt = new Intl.DateTimeFormat("es-CO", {
+            dateStyle: "medium",
+            timeStyle: "short",
+        }).format(new Date());
 
-            return [
-                row.studentId,
-                row.student?.identification ?? "",
-                name,
-                String(row.completedEvaluations),
-                String(row.incompleteEvaluations.length),
-                row.finalScore.toFixed(2),
-                row.isLocked ? "OFFICIAL" : row.isComplete ? "READY" : "PARTIAL",
-            ];
+        downloadPdfReport({
+            columns: [
+                {
+                    header: "Estudiante",
+                    getValue: getFinalGradeStudentName,
+                    width: 210,
+                },
+                {
+                    header: "Identificacion",
+                    getValue: getFinalGradeStudentIdentification,
+                    width: 112,
+                },
+                {
+                    header: "Evaluaciones",
+                    getValue: (row) =>
+                        `${row.completedEvaluations}/${groupEvaluations.length}`,
+                    width: 88,
+                },
+                {
+                    header: "Faltantes",
+                    getValue: (row) => String(row.incompleteEvaluations.length),
+                    width: 72,
+                },
+                {
+                    header: "Nota final",
+                    getValue: (row) => formatScore(row.finalScore),
+                    width: 86,
+                },
+                {
+                    header: "Estado",
+                    getValue: (row) =>
+                        row.isLocked ? "Oficial" : row.isComplete ? "Listo" : "Parcial",
+                    width: 100,
+                },
+            ],
+            fileName: `reporte-notas-finales-${groupName}`,
+            metadata: [
+                `Grupo: ${groupName}`,
+                `Semestre: ${semesterName}`,
+                `Estudiantes: ${summary.studentCount} | Listos: ${summary.completeCount} | Parciales: ${summary.incompleteCount} | Oficiales: ${summary.lockedCount}`,
+                `Generado: ${generatedAt}`,
+            ],
+            rows,
+            title: "Reporte de notas finales",
         });
-        const csv = [header, ...body]
-            .map((line) => line.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","))
-            .join("\n");
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "reporte-notas-finales.csv";
-        link.click();
-        URL.revokeObjectURL(url);
     };
 
     useEffect(() => {

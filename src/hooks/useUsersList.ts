@@ -223,8 +223,48 @@ export const useUsersList = () => {
         setFilterValues({});
     };
 
+    const deactivateUser = async (id: string): Promise<boolean> => {
+        const updated = await userService.deactivate(id);
+
+        if (!updated) return false;
+
+        setAllUsers((current) =>
+            current.map((user) =>
+                user.id === id
+                    ? {
+                        ...user,
+                        is_active: false,
+                    }
+                    : user
+            )
+        );
+
+        return true;
+    };
+
+    const activateUser = async (id: string): Promise<boolean> => {
+        const updated = await userService.activate(id);
+
+        if (!updated) return false;
+
+        setAllUsers((current) =>
+            current.map((user) =>
+                user.id === id
+                    ? {
+                        ...user,
+                        is_active: true,
+                    }
+                    : user
+            )
+        );
+
+        return true;
+    };
+
     return {
+        activateUser,
         careers,
+        deactivateUser,
         filterValues,
         handleFilterChange,
         handleClear,

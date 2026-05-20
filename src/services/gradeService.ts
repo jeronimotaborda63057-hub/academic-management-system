@@ -21,6 +21,8 @@ export interface FinalizeGradePayload {
     status?: "DRAFT" | "SENT";
 }
 
+export type UpdateRubricGradePayload = SaveRubricGradePayload | FinalizeGradePayload;
+
 const buildRubricGradeRequest = (
     payload: SaveRubricGradePayload
 ): SaveRubricGradePayload => ({
@@ -63,7 +65,7 @@ export class GradeService extends BaseService<Grade> {
 
     async updateRubricGrade(
         id: string,
-        payload: FinalizeGradePayload
+        payload: UpdateRubricGradePayload
     ): Promise<Grade | null> {
         const response = await api.put<{ data: Grade }>(
             `${this.apiURL}/${id}`,

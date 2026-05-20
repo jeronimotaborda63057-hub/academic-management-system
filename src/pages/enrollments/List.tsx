@@ -262,6 +262,10 @@ const MatriculasPage: React.FC = () => {
         action: string,
         item: EnrichedEnrollment
     ) {
+        if (action === "view" && item.student_id) {
+            navigate(`/students/${item.student_id}`);
+        }
+
         if (action === "edit") {
             navigate(`/enrollments/edit/${item.id}`);
         }

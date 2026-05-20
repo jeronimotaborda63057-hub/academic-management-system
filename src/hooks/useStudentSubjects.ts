@@ -2,8 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
 import type { Enrollment } from "../models/uml/Enrollment";
+import type { Group } from "../models/uml/Group";
 import type { RootState } from "../store/store";
 import { enrollmentService } from "../services/enrollmentService";
+import { groupService } from "../services/groupService";
+import { semesterService } from "../services/semesterService";
+import { studentService } from "../services/studentService";
+import { subjectService } from "../services/subjectService";
 
 export interface StudentSubjectRow {
     id: string;
@@ -23,6 +28,9 @@ type EnrichedGroup = {
     subject?: { id?: string; code?: string; name?: string; credits?: number };
     semester?: { name?: string };
 };
+
+const isActiveEnrollment = (enrollment: Enrollment) =>
+    enrollment.status === "ACTIVE" || (!enrollment.status && Boolean(enrollment.group_id));
 
 const toSubjectRow = (enrollment: Enrollment): StudentSubjectRow | null => {
     const group = enrollment.group as EnrichedGroup | undefined;
@@ -52,7 +60,7 @@ export const useStudentSubjects = () => {
 
     useEffect(() => {
         const loadSubjects = async () => {
-            if (!currentStudentId) {
+            if (!currentUser?.id && !currentStudentId) {
                 setLoading(false);
                 return;
             }
@@ -60,11 +68,43 @@ export const useStudentSubjects = () => {
             try {
                 setLoading(true);
                 setError(null);
-                // Solo inscripciones del estudiante autenticado, no todo el sistema
-                const data = await enrollmentService.search({
-                    student_id: currentStudentId,
-                });
-                setEnrollments(data ?? []);
+                const [studentProfiles, groups, subjects, semesters] = await Promise.all([
+                    studentService.getAllWithAuth(),
+                    groupService.getAllWithAuth(),
+                    subjectService.getAllWithAuth(),
+                    semesterService.getAllWithAuth(),
+                ]);
+                const profileId =
+                    currentStudentId ??
+                    studentProfiles.find((student) => student.user_id === currentUser?.id)?.id;
+
+                if (!profileId) {
+                    setEnrollments([]);
+                    return;
+                }
+
+                const data = await enrollmentService.search({ student_id: profileId });
+                const subjectById = new Map(subjects.map((subject) => [subject.id, subject]));
+                const semesterById = new Map(semesters.map((semester) => [semester.id, semester]));
+                const groupById = new Map(
+                    groups.map((group): [string | undefined, Group] => [
+                        group.id,
+                        {
+                            ...group,
+                            subject: group.subject ?? subjectById.get(group.subject_id ?? ""),
+                            semester: group.semester ?? semesterById.get(group.semester_id ?? ""),
+                        },
+                    ])
+                );
+
+                setEnrollments(
+                    (data ?? [])
+                        .filter(isActiveEnrollment)
+                        .map((enrollment) => ({
+                            ...enrollment,
+                            group: enrollment.group ?? groupById.get(enrollment.group_id ?? ""),
+                        }))
+                );
             } catch {
                 setError("No fue posible cargar tus asignaturas.");
             } finally {
@@ -73,7 +113,7 @@ export const useStudentSubjects = () => {
         };
 
         loadSubjects();
-    }, [currentStudentId]);
+    }, [currentStudentId, currentUser?.id]);
 
     const subjects = useMemo(() => {
         const rows = enrollments

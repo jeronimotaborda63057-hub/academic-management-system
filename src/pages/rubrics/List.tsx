@@ -49,7 +49,7 @@ const List: React.FC = () => {
   const navigate = useNavigate();
   const { confirm, alert } = useConfirmDialog();
 
-  const { filteredData, filterValues, setSearch, handleFilterChange, handleClear, refresh, data } =
+  const { filteredData, filterValues, setSearch, handleFilterChange, handleClear, refresh } =
     useEntityList<Rubric>({
       fetchFn: async () => {
         const [rubrics, allCriteria] = await Promise.all([

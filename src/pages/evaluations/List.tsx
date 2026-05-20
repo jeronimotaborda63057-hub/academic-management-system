@@ -13,7 +13,6 @@
  */
 
 import axios from "axios";
-import Swal from "sweetalert2";
 
 import { EvaluationSidebar } from "../../components/evaluations/EvaluationSidebar";
 import { RubricGradeTable } from "../../components/evaluations/RubricGradeTable";

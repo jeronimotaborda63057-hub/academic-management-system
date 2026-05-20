@@ -108,6 +108,7 @@ const coreRoutes: AppRoute[] = [
   { path: "/admin/teachers",     title: "Docentes",          component: AdminTeachersList,   roles: ["ADMIN"] },
   { path: "/admin/teachers/:id", title: "Detalle docente",   component: AdminTeacherDetail,  roles: ["ADMIN"] },
   { path: "/admin/students/:id", title: "Detalle estudiante",component: AdminStudentDetail,  roles: ["ADMIN"] },
+  { path: "/students/:id",       title: "Detalle estudiante",component: AdminStudentDetail,  roles: ["ADMIN", "TEACHER"] },
   { path: "/admin/enrollment",   title: "Matricular estudiante", component: AdminCareerEnrollment, roles: ["ADMIN"] },
 
   // ── Carreras (ADMIN) ──────────────────────────────────────────────────────
@@ -129,7 +130,7 @@ const coreRoutes: AppRoute[] = [
   { path: "/subjects/edit/:id",title: "Editar asignatura", component: SubjectsEdit,   roles: ["ADMIN"] },
 
   // ── Estudiantes (ADMIN) ───────────────────────────────────────────────────
-  { path: "/students/list", title: "Estudiantes", component: StudentsList, roles: ["ADMIN"] },
+  { path: "/students/list", title: "Estudiantes", component: StudentsList, roles: ["ADMIN", "TEACHER"] },
 
   // ── Matrículas / inscripciones (ADMIN) ────────────────────────────────────
   { path: "/enrollments/list",    title: "Matrículas",       component: EnrollmentList,   roles: ["ADMIN"] },

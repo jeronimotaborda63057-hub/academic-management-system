@@ -72,7 +72,7 @@ const SemesterList: React.FC = () => {
   const navigate = useNavigate();
   const { confirm, alert } = useConfirmDialog();
 
-  const { filteredData, filterValues, setSearch, handleFilterChange, handleClear, data, refresh } =
+  const { filteredData, filterValues, setSearch, handleFilterChange, handleClear, refresh } =
     useEntityList<Semester>({
       fetchFn: semesterService.getAll.bind(semesterService),
       filterFn: filterSemester,

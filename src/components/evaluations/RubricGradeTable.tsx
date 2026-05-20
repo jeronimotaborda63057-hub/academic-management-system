@@ -39,6 +39,7 @@ export const RubricGradeTable = ({
     onCommentChange,
     onSaveDraft,
     onSubmitGrade,
+    isLocked,
 }: RubricGradeTableProps) => (
     <section className="rounded-2xl border border-gray-200 bg-white">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 p-5">
@@ -104,6 +105,7 @@ export const RubricGradeTable = ({
                                             onChange={(event) =>
                                                 onScaleChange(criterion.id, event.target.value)
                                             }
+                                            disabled={isLocked || saving}
                                             className="h-10 min-w-[220px] rounded-lg border border-gray-200 px-3 outline-none focus:border-primary"
                                         >
                                             <option value="">Selecciona nivel</option>
@@ -123,6 +125,7 @@ export const RubricGradeTable = ({
                                             onChange={(event) =>
                                                 onCommentChange(criterion.id, event.target.value)
                                             }
+                                            disabled={isLocked || saving}
                                             rows={2}
                                             className="w-full min-w-[240px] rounded-lg border border-gray-200 px-3 py-2 outline-none focus:border-primary"
                                             placeholder="Comentario por criterio"
@@ -140,7 +143,7 @@ export const RubricGradeTable = ({
             <button
                 type="button"
                 onClick={onSaveDraft}
-                disabled={saving || !selectedEnrollmentId}
+                disabled={saving || !selectedEnrollmentId || isLocked}
                 className="h-10 rounded-xl border border-gray-200 px-5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-60"
             >
                 Guardar borrador
@@ -148,7 +151,7 @@ export const RubricGradeTable = ({
             <button
                 type="button"
                 onClick={onSubmitGrade}
-                disabled={saving || !selectedEnrollmentId}
+                disabled={saving || !selectedEnrollmentId || isLocked}
                 className="h-10 rounded-xl bg-primary px-5 text-sm font-medium text-white hover:bg-opacity-90 disabled:opacity-60"
             >
                 Enviar calificacion

@@ -12,3 +12,12 @@ export interface Scale {
     criteria?: Criteria;
     gradeDetails?: GradeDetail[];
 }
+
+export interface CreateScaleDTO {
+    criterion_id: string;
+    description?: string;
+    name: string;
+    value: number;
+}
+
+export type UpdateScaleDTO = Partial<CreateScaleDTO>;

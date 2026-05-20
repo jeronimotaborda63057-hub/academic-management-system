@@ -21,6 +21,8 @@ import { subjectService } from "../services/subjectService";
 import { teacherService } from "../services/teacherService";
 import type { RubricConsultationRecord } from "../models/interfaces/RubricConsultationRecord";
 
+export type { RubricConsultationRecord };
+
 const getProfileId = (profile?: { id?: string }) => profile?.id ?? "";
 
 const normalizeId = (value?: string | String) =>

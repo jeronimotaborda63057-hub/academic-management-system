@@ -311,17 +311,9 @@ export const useEvaluationGrading = () => {
         try {
             let saved: Grade | null = null;
 
-            if (!existingGrade?.id) {
-                saved = await gradeService.saveRubricGrade(payload);
-            } else if (status === "DRAFT") {
-                saved = await gradeService.saveRubricGrade(payload);
-            } else {
-                saved = await gradeService.updateRubricGrade(existingGrade.id, {
-                    status: "SENT",
-                    observations: payload.observations,
-                    is_locked: true,
-                });
-            }
+            saved = existingGrade?.id
+                ? await gradeService.updateRubricGrade(existingGrade.id, payload)
+                : await gradeService.saveRubricGrade(payload);
 
             if (!saved) throw new Error();
 

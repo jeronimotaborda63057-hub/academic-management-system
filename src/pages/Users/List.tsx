@@ -1,13 +1,13 @@
 import React from "react";
-import { Pencil, UserX } from "lucide-react";
+import { Pencil, UserCheck, UserX } from "lucide-react";
 import type { FilterConfig } from "../../models/interfaces/FilterConfig";
 import GenericTable from "../../components/ui/GenericTable";
 import type { Column } from "../../models/interfaces/Column";
 import type { Action } from "../../models/interfaces/Action";
 import TableToolbar from "../../components/TableToolBar";
 import PageHeader from "../../components/ui/PageHeader";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { useUsersList, type UserListRow } from "../../hooks/useUsersList";
 
 const List: React.FC = () => {
@@ -15,6 +15,8 @@ const List: React.FC = () => {
 
     const {
         careers,
+        activateUser,
+        deactivateUser,
         filterValues,
         handleClear,
         handleFilterChange,
@@ -82,7 +84,7 @@ const List: React.FC = () => {
                             : "bg-red-100 text-red-700"
                     }`}
                 >
-                    {value}
+                    {String(value)}
                 </span>
             ),
         },
@@ -96,13 +98,70 @@ const List: React.FC = () => {
             icon: <Pencil size={16} />,
             primary: true,
         },
-        {
-            name: "deactivate",
-            label: "Desactivar",
-            icon: <UserX size={16} />,
-            variant: "danger",
-        },
+        { name: "activate", label: "Reactivar", icon: <UserCheck size={16} /> },
+        { name: "deactivate", label: "Desactivar", icon: <UserX size={16} />, variant: "danger" },
     ];
+
+    const handleAction = async (action: string, item: UserListRow) => {
+        if (action === "edit") {
+            navigate(`/users/edit/${item.id}`);
+            return;
+        }
+
+        if (action === "activate") {
+            if (item.estado === "Activo") {
+                Swal.fire("Usuario activo", "Este usuario ya se encuentra activo.", "info");
+                return;
+            }
+
+            const result = await Swal.fire({
+                title: "Reactivar usuario",
+                text: `El usuario ${item.nombre} podra acceder nuevamente al sistema.`,
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Reactivar",
+                cancelButtonText: "Cancelar",
+            });
+
+            if (!result.isConfirmed) return;
+
+            const ok = await activateUser(item.id);
+
+            Swal.fire(
+                ok ? "Usuario reactivado" : "No se pudo reactivar",
+                ok ? "El estado del usuario fue actualizado." : "Intenta nuevamente.",
+                ok ? "success" : "error"
+            );
+            return;
+        }
+
+        if (action !== "deactivate") return;
+
+        if (item.estado === "Inactivo") {
+            Swal.fire("Usuario inactivo", "Este usuario ya se encuentra desactivado.", "info");
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: "Desactivar usuario",
+            text: `El usuario ${item.nombre} no podra acceder al sistema.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Desactivar",
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#dc2626",
+        });
+
+        if (!result.isConfirmed) return;
+
+        const ok = await deactivateUser(item.id);
+
+        Swal.fire(
+            ok ? "Usuario desactivado" : "No se pudo desactivar",
+            ok ? "El estado del usuario fue actualizado." : "Intenta nuevamente.",
+            ok ? "success" : "error"
+        );
+    };
 
     return (
         <div>
@@ -127,10 +186,7 @@ const List: React.FC = () => {
                 data={tableData}
                 columns={COLUMNS}
                 actions={ACTIONS}
-                onAction={(a, i) =>
-                    a === "edit" &&
-                    navigate(`/users/edit/${i.id}`)
-                }
+                onAction={handleAction}
             />
         </div>
     );
