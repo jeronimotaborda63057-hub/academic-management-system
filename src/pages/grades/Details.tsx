@@ -87,7 +87,14 @@ const StudentGradeDetailsPage = () => {
                                     <StudentGradeSidePanel
                                         context={selectedContext}
                                         onDownloadReport={downloadReport}
-                                        onViewRubric={() => navigate("/rubrics/scales")}
+                                        onViewRubric={() => {
+                                            const evalId = selectedContext.evaluation?.id;
+                                            if (evalId) {
+                                                navigate(`/rubrics/evaluations/${evalId}`);
+                                            } else {
+                                                navigate("/rubrics/consultations");
+                                            }
+                                        }}
                                     />
                                 </div>
                             </div>

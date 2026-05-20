@@ -18,13 +18,28 @@ export class UserService extends BaseService<User> {
         }
     }
 
-    async deactivate(id: string): Promise<User | null> {
+    async deactivate(id: string): Promise<boolean> {
         try {
-            const response = await api.patch<{ data: User }>(`${this.apiURL}/${id}/deactivate`);
-            return response.data.data;
+            await api.patch(`${this.apiURL}/${id}/deactivate`);
+            return true;
         } catch (error) {
             console.error("Error al desactivar usuario:", error);
-            return null;
+            return false;
+        }
+    }
+
+    async activate(id: string): Promise<boolean> {
+        try {
+            await api.patch(`${this.apiURL}/${id}/activate`);
+            return true;
+        } catch {
+            try {
+                await api.put(`${this.apiURL}/${id}`, { is_active: true });
+                return true;
+            } catch (error) {
+                console.error("Error al activar usuario:", error);
+                return false;
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-import type { Enrollment } from "./uml/Enrollment";
+import type { Enrollment } from "./Enrollment";
 import type { Evaluation } from "./Evaluation";
 import type { GradeDetail } from "./GradeDetail";
 import type { Registration } from "./Registration";

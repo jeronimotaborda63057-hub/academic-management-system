@@ -17,7 +17,7 @@ export const FinalGradeActions = ({
             onClick={onDownloadReport}
             className="h-10 rounded-xl border border-gray-200 px-5 text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
-            Descargar reporte
+            Descargar reporte PDF
         </button>
         <button
             type="button"

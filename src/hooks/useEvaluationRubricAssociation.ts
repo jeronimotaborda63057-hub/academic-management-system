@@ -15,6 +15,14 @@ export function useEvaluationRubricAssociation(
         useState<Rubric | null>(null);
 
     useEffect(() => {
+        setSelectedRubric(
+            evaluation?.rubric_id
+                ? rubrics.find((rubric) => rubric.id === evaluation.rubric_id) ?? null
+                : null
+        );
+    }, [evaluation?.rubric_id, rubrics]);
+
+    useEffect(() => {
         const load = async () => {
             setLoading(true);
 
@@ -33,7 +41,7 @@ export function useEvaluationRubricAssociation(
 
     const filteredRubrics = useMemo(() => {
         return rubrics.filter((rubric) => {
-            return rubric.title
+            return (rubric.title ?? "")
                 .toLowerCase()
                 .includes(search.toLowerCase());
         });

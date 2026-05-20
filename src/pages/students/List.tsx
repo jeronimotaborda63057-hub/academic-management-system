@@ -35,7 +35,7 @@ const List: React.FC = () => {
     const handleViewDetail = (student: Student) => {
         if (!student?.id) return;
 
-        navigate(`/admin/students/${student.id}`);
+        navigate(`/students/${student.id}`);
     };
 
     return (

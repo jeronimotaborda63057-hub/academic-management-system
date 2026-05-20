@@ -30,7 +30,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     onSubmit,
     onBeforeNext,
     isLoading = false,
-    isEditing = false,
 }) => {
     const [currentStep,  setCurrentStep]  = useState(1);
     const [fieldErrors,  setFieldErrors]  = useState<Record<string, string>>({});

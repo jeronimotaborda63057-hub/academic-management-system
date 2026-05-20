@@ -7,6 +7,7 @@ import { FinalGradeSummary } from "../../components/grades/FinalGradeSummary";
 import { FinalGradesTable } from "../../components/grades/FinalGradesTable";
 import PageHeader from "../../components/ui/PageHeader";
 import { useFinalGrades } from "../../hooks/useFinalGrades";
+import type { FinalGradeRow } from "../../models/interfaces/FinalGradeRow";
 
 const FinalGradesPage = () => {
     const navigate = useNavigate();
@@ -72,6 +73,17 @@ const FinalGradesPage = () => {
         }
     };
 
+    const handleReview = (row: FinalGradeRow) => {
+        const targetEvaluation = row.incompleteEvaluations[0];
+
+        navigate("/evaluations", {
+            state: {
+                evaluationId: targetEvaluation?.id,
+                studentId: row.studentId,
+            },
+        });
+    };
+
     return (
         <div className="space-y-6">
             <PageHeader
@@ -111,7 +123,7 @@ const FinalGradesPage = () => {
                     ) : (
                         <FinalGradesTable
                             rows={rows}
-                            onReview={() => navigate("/evaluations")}
+                            onReview={handleReview}
                         />
                     )}
 

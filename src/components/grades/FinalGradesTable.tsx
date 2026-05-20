@@ -7,7 +7,7 @@ import {
 
 interface FinalGradesTableProps {
     rows: FinalGradeRow[];
-    onReview: () => void;
+    onReview: (row: FinalGradeRow) => void;
 }
 
 export const FinalGradesTable = ({ rows, onReview }: FinalGradesTableProps) => (
@@ -76,7 +76,7 @@ export const FinalGradesTable = ({ rows, onReview }: FinalGradesTableProps) => (
                                     {!row.isComplete && (
                                         <button
                                             type="button"
-                                            onClick={onReview}
+                                            onClick={() => onReview(row)}
                                             className="text-xs font-medium text-primary hover:underline"
                                         >
                                             Corregir evaluaciones

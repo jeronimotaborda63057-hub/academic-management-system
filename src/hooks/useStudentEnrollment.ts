@@ -6,9 +6,11 @@ import type {
     Registration,
 } from "../models/uml/Registration";
 import type { StudentProfile } from "../models/interfaces/StudentProfile";
+import type { Student } from "../models/uml/Student";
 import type { User } from "../models/uml/User";
 import { careerService } from "../services/careerService";
 import { registrationService } from "../services/registrationService";
+import { studentService } from "../services/studentService";
 import { userService } from "../services/userService";
 
 export interface StudentEnrollmentErrors {
@@ -66,7 +68,12 @@ const DEFAULT_DRAFT: StudentEnrollmentDraft = {
     careerId: "",
 };
 
-const isStudent = (user: User): boolean => user.role === "STUDENT";
+const normalizeRole = (role: unknown): string => String(role ?? "").toUpperCase();
+
+const normalizeBool = (value: unknown): boolean =>
+    value === true || value === "true" || value === 1 || value === "1";
+
+const isStudent = (user: User): boolean => normalizeRole(user.role) === "STUDENT";
 
 const normalizeText = (value?: string): string =>
     (value ?? "")
@@ -121,6 +128,56 @@ export const getStudentDisplayName = (user: User): string => {
 export const getStudentProfileId = (user: User): string | undefined =>
     getStudentProfile(user)?.id;
 
+const toStudentProfile = (student?: Student | StudentProfile): StudentProfile | undefined => {
+    if (!student?.id) return undefined;
+
+    return {
+        id: student.id,
+        user_id: student.user_id ?? "",
+        first_name: student.first_name ?? "",
+        last_name: student.last_name ?? "",
+        identification: student.identification ?? "",
+    };
+};
+
+const buildStudentUsers = (users: User[], profiles: Student[]): User[] => {
+    const userStudents = users
+        .filter(isStudent)
+        .map((user) => {
+            const currentProfile = getStudentProfile(user);
+            const profile = toStudentProfile(
+                profiles.find((student) => student.id === currentProfile?.id) ??
+                profiles.find((student) => student.user_id === user.id) ??
+                currentProfile
+            );
+
+            return {
+                ...user,
+                is_active: normalizeBool(user.is_active),
+                profile,
+            } as User;
+        });
+
+    const knownProfileIds = new Set(
+        userStudents
+            .map((user) => getStudentProfile(user)?.id)
+            .filter((id): id is string => Boolean(id))
+    );
+
+    const profileOnlyStudents = profiles
+        .filter((profile) => profile.id && !knownProfileIds.has(profile.id))
+        .map((profile) => ({
+            id: profile.user_id ?? profile.id!,
+            email: "",
+            code: profile.identification ?? profile.id!,
+            role: "STUDENT" as const,
+            is_active: true,
+            profile: toStudentProfile(profile),
+        }));
+
+    return [...userStudents, ...profileOnlyStudents];
+};
+
 export const useStudentEnrollment = () => {
     const [students, setStudents] = useState<User[]>([]);
     const [careers, setCareers] = useState<Career[]>([]);
@@ -137,13 +194,14 @@ export const useStudentEnrollment = () => {
             setLoading(true);
             setError(null);
 
-            const [usersData, careersData, registrationData] = await Promise.all([
+            const [usersData, careersData, registrationData, studentProfiles] = await Promise.all([
                 userService.getAll(),
                 careerService.getAll(),
                 registrationService.getAll(),
+                studentService.getAllWithAuth(),
             ]);
 
-            setStudents(usersData.filter((user) => isStudent(user) && user.is_active));
+            setStudents(buildStudentUsers(usersData, studentProfiles));
             setCareers(careersData.filter((career) => career.is_active));
             setRegistrations(registrationData);
         } catch {
